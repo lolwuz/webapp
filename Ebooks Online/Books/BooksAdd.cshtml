@@ -1,8 +1,22 @@
-﻿@{
-    Page.Title = "Title goes here";
-    //Layout = "Your Layout Page goes here";
+﻿@using Microsoft.Web.Helpers;
+@{
+    var fileName = "";
+    if (IsPost) {
+        var fileSavePath = "";
+        var uploadedFile = Request.Files[0];
+        fileName = Path.GetFileName(uploadedFile.FileName);
+        fileSavePath = Server.MapPath("~/Books/Files/" +
+          fileName);
+        uploadedFile.SaveAs(fileSavePath);
+    }
+}   
+<h1>@Page.Title</h1>
+@FileUpload.GetHtml(
+        initialNumberOfFiles: 1,
+        allowMoreFilesToBeAdded: false,
+        includeFormTag: true,
+        uploadText: "Upload")
+@if (IsPost)
+{
+    <span>File uploaded!</span><br />
 }
-
-<div>
-    
-</div>
