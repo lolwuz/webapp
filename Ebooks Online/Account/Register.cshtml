@@ -40,7 +40,7 @@
         // }
 
         if (Validation.IsValid()) {
-            var db = Database.Open("EBooksOnline");
+            var db = Database.Open("StarterSite");
 
             var user = db.QuerySingle("SELECT Email FROM UserProfile WHERE LOWER(Email) = LOWER(@0)", email);
             if (user == null) {
