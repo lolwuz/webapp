@@ -8,12 +8,12 @@
     Layout = "~/_SiteLayout.cshtml";
     Page.Title = "Register";
 
-    // Initialize general page variables
+    var naam = "";
+    var achternaam = "";
     var email = "";
     var password = "";
     var confirmPassword = "";
 
-    // Setup validation
     Validation.RequireField("email", "You must specify an email address.");
     Validation.RequireField("password", "Password cannot be blank.");
     Validation.Add("confirmPassword",
@@ -23,8 +23,9 @@
             maxLength: Int32.MaxValue,
             minLength: 6,
             errorMessage: "Password must be at least 6 characters"));
+    Validation.RequireField("naam", "Je moet een naam invullen.");
+    Validation.RequireField("achternaam", "Je moet een achternaam invullen");
 
-    // If this is a POST request, validate and process data
     if (IsPost) {
         AntiForgery.Validate();
         email = Request.Form["email"];
@@ -36,19 +37,13 @@
         //     ModelState.AddError("recaptcha", "Captcha response was not correct");
         // }
 
-        // If all information is valid, create a new account
         if (Validation.IsValid()) {
-            // Insert a new user into the database
             var db = Database.Open("StarterSite");
 
-            // Check if user already exists
             var user = db.QuerySingle("SELECT Email FROM UserProfile WHERE LOWER(Email) = LOWER(@0)", email);
             if (user == null) {
-                // Insert email into the profile table
                 db.Execute("INSERT INTO UserProfile (Email) VALUES (@0)", email);
 
-                // Create and associate a new entry in the membership database.
-                // If successful, continue processing the request
                 try {
                     bool requireEmailConfirmation = !WebMail.SmtpServer.IsEmpty();
                     var token = WebSecurity.CreateAccount(email, password, requireEmailConfirmation);
@@ -58,16 +53,14 @@
 
                         WebMail.Send(
                             to: email,
-                            subject: "Please confirm your account",
-                            body: "Your confirmation code is: " + token + ". Visit <a href=\"" + confirmationUrl + "\">" + confirmationUrl + "</a> to activate your account."
+                            subject: "Bevestig uw aanmelding",
+                            body: "Uw bevestigingscode is: " + token + ". Bezoek <a href=\"" + confirmationUrl + "\">" + confirmationUrl + "</a> om uw account te activeren."
                         );
                     }
 
                     if (requireEmailConfirmation) {
-                        // Thank the user for registering and let them know an email is on its way
                         Response.Redirect("~/Account/Thanks");
                     } else {
-                        // Navigate back to the homepage and exit
                         WebSecurity.Login(email, password);
 
                         Response.Redirect("~/");
@@ -76,8 +69,7 @@
                     ModelState.AddFormError(e.Message);
                 }
             } else {
-                // User already exists
-                ModelState.AddFormError("Email address is already in use.");
+                ModelState.AddFormError("Dit e-mailadres wordt al gebruikt.");
             }
         }
     }
@@ -85,12 +77,11 @@
 
 <hgroup class="title">
     <h1>@Page.Title.</h1>
-    <h2>Create a new account.</h2>
+    <h2>Nieuw account aanmaken</h2>
 </hgroup>
 
 <form method="post">
     @AntiForgery.GetHtml()
-    @* If at least one validation error exists, notify the user *@
     @Html.ValidationSummary("Account creation was unsuccessful. Please correct the errors and try again.", excludeFieldErrors: true, htmlAttributes: null)
 
     <fieldset>
@@ -114,21 +105,15 @@
                 @* Write any password validation errors to the page *@
                 @Html.ValidationMessage("confirmPassword")
             </li>
-            <li class="recaptcha">
-                <div class="message-info">
-                    <p>
-                        To enable CAPTCHA verification, <a href="http://go.microsoft.com/fwlink/?LinkId=204140">install the 
-                        ASP.NET Web Helpers Library</a> and uncomment ReCaptcha.GetHtml and replace 'PUBLIC_KEY'
-                        with your public key. At the top of this page, uncomment ReCaptcha. Validate and
-                        replace 'PRIVATE_KEY' with your private key.
-                        Register for reCAPTCHA keys at <a href="http://recaptcha.net">reCAPTCHA.net</a>.
-                    </p>
-                </div>
-                @*
-                @ReCaptcha.GetHtml("PUBLIC_KEY", theme: "white")
-                @Html.ValidationMessage("recaptcha")
-                *@
+            <li class="text">
+                <label for="naam" @if (!ModelState.IsValidField("naam")) { <text> class="error-label" </text> }>Voornaam</label>
+                <input type="text" id="naam" name="naam" value="@naam" @Validation.For("email") />
+                @Html.ValidationMessage("naam")
             </li>
+            <li class="text">
+                <label for="achternaam" @if (!ModelState.IsValidField("achternaam")) { <text> class="error-label" </text> }>Achternaam</label>
+                <input type="text" id="achternaam" name="achternaam" value="@email" @Validation.For("achternaam") />
+                @Html.ValidationMessage("achternaam")
         </ol>
         <input type="submit" value="Register" />
     </fieldset>
