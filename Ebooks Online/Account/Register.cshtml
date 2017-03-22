@@ -9,7 +9,7 @@
     Page.Title = "Register";
 
     var name = "";
-    var lastname = "";
+    var lastName = "";
     var email = "";
     var password = "";
     var confirmPassword = "";
@@ -24,7 +24,7 @@
             minLength: 6,
             errorMessage: "Wachtwoord moet minimaal 6 karakters lang zijn."));
     Validation.RequireField("name", "Je moet een naam invullen.");
-    Validation.RequireField("lastname", "Je moet een achternaam invullen");
+    Validation.RequireField("lastName", "Je moet een achternaam invullen");
 
     if (IsPost) {
         AntiForgery.Validate();
@@ -32,7 +32,7 @@
         password = Request.Form["password"];
         confirmPassword = Request.Form["confirmPassword"];
         name = Request.Form["name"];
-        lastname = Request.Form["lastname"];
+        lastName = Request.Form["lastName"];
 
         // Validate the user's captcha answer
         // if (!ReCaptcha.Validate("PRIVATE_KEY")) {
@@ -40,11 +40,11 @@
         // }
 
         if (Validation.IsValid()) {
-            var db = Database.Open("StarterSite");
+            var db = Database.Open("EBooksOnline");
 
             var user = db.QuerySingle("SELECT Email FROM UserProfile WHERE LOWER(Email) = LOWER(@0)", email);
             if (user == null) {
-                db.Execute("INSERT INTO UserProfile (Email) VALUES (@0)", email);
+                db.Execute("INSERT INTO UserProfile (Email, name, lastName) VALUES (@0, @1, @2)", email, name, lastName);
 
                 try {
                     bool requireEmailConfirmation = !WebMail.SmtpServer.IsEmpty();
@@ -113,9 +113,9 @@
                 @Html.ValidationMessage("naam")
             </li>
             <li class="text">
-                <label for="lastname" @if (!ModelState.IsValidField("lastname")) { <text> class="error-label" </text> }>Achternaam</label>
-                <input type="text" id="lastname" name="lastname" value="@lastname" @Validation.For("lastname") />
-                @Html.ValidationMessage("lastname")
+                <label for="lastName" @if (!ModelState.IsValidField("lastName")) { <text> class="error-label" </text> }>Achternaam</label>
+                <input type="text" id="lastName" name="lastName" value="@lastName" @Validation.For("lastName") />
+                @Html.ValidationMessage("lastName")
         </ol>
         <input type="submit" value="Register" />
     </fieldset>
