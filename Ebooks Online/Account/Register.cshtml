@@ -8,29 +8,31 @@
     Layout = "~/_SiteLayout.cshtml";
     Page.Title = "Register";
 
-    var naam = "";
-    var achternaam = "";
+    var name = "";
+    var lastname = "";
     var email = "";
     var password = "";
     var confirmPassword = "";
 
-    Validation.RequireField("email", "You must specify an email address.");
-    Validation.RequireField("password", "Password cannot be blank.");
+    Validation.RequireField("email", "Je moet een geldig e-mailadres toevoegen.");
+    Validation.RequireField("password", "Je wachtwoord mag niet niks zijn.");
     Validation.Add("confirmPassword",
-        Validator.EqualsTo("password", "Password and confirmation password do not match."));
+        Validator.EqualsTo("password", "De wachtwoorden zijn niet gelijk aan elkaar."));
     Validation.Add("password",
         Validator.StringLength(
             maxLength: Int32.MaxValue,
             minLength: 6,
-            errorMessage: "Password must be at least 6 characters"));
-    Validation.RequireField("naam", "Je moet een naam invullen.");
-    Validation.RequireField("achternaam", "Je moet een achternaam invullen");
+            errorMessage: "Wachtwoord moet minimaal 6 karakters lang zijn."));
+    Validation.RequireField("name", "Je moet een naam invullen.");
+    Validation.RequireField("lastname", "Je moet een achternaam invullen");
 
     if (IsPost) {
         AntiForgery.Validate();
         email = Request.Form["email"];
         password = Request.Form["password"];
         confirmPassword = Request.Form["confirmPassword"];
+        name = Request.Form["name"];
+        lastname = Request.Form["lastname"];
 
         // Validate the user's captcha answer
         // if (!ReCaptcha.Validate("PRIVATE_KEY")) {
@@ -82,7 +84,7 @@
 
 <form method="post">
     @AntiForgery.GetHtml()
-    @Html.ValidationSummary("Account creation was unsuccessful. Please correct the errors and try again.", excludeFieldErrors: true, htmlAttributes: null)
+    @Html.ValidationSummary("Account aanmaken was onsuccesvol. Verbeter alstublieft de fouten.", excludeFieldErrors: true, htmlAttributes: null)
 
     <fieldset>
         <legend>Registration Form</legend>
@@ -106,14 +108,14 @@
                 @Html.ValidationMessage("confirmPassword")
             </li>
             <li class="text">
-                <label for="naam" @if (!ModelState.IsValidField("naam")) { <text> class="error-label" </text> }>Voornaam</label>
-                <input type="text" id="naam" name="naam" value="@naam" @Validation.For("email") />
+                <label for="name" @if (!ModelState.IsValidField("name")) { <text> class="error-label" </text> }>Voornaam</label>
+                <input type="text" id="name" name="name" value="@name" @Validation.For("name") />
                 @Html.ValidationMessage("naam")
             </li>
             <li class="text">
-                <label for="achternaam" @if (!ModelState.IsValidField("achternaam")) { <text> class="error-label" </text> }>Achternaam</label>
-                <input type="text" id="achternaam" name="achternaam" value="@email" @Validation.For("achternaam") />
-                @Html.ValidationMessage("achternaam")
+                <label for="lastname" @if (!ModelState.IsValidField("lastname")) { <text> class="error-label" </text> }>Achternaam</label>
+                <input type="text" id="lastname" name="lastname" value="@lastname" @Validation.For("lastname") />
+                @Html.ValidationMessage("lastname")
         </ol>
         <input type="submit" value="Register" />
     </fieldset>
