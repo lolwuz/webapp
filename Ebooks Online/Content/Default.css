@@ -1,6 +1,31 @@
 ﻿body {
     font-family:Verdana;
-    font-size: 16px;
-    color: yellow;
-    background-color: mediumpurple;
+    font-size: 12px;
+    color: black;
+    background-color: white;
+}
+
+.navbar-default {
+    background-color: #FF5722;
+}
+
+.navbar-default a {
+    color: white;
+    font-size: 12px;
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: white;
+}
+
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: white;
+}
+
+.navbar-default .navbar-toggle:active .icon-bar {
+    background-color: white;
+}
+
+.navbar-default .navbar-toggle:focus .icon-bar {
+    background-color: #00ccff;
 }
