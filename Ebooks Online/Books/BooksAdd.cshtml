@@ -1,5 +1,8 @@
 ﻿@using Microsoft.Web.Helpers;
 @{
+    Layout = "~/_BookListLayout.cshtml";
+    Page.Title = "Add Books";
+
     var fileName = "";
     if (IsPost) {
         var fileSavePath = "";
@@ -10,13 +13,16 @@
         uploadedFile.SaveAs(fileSavePath);
     }
 }   
-<h1>@Page.Title</h1>
-@FileUpload.GetHtml(
+
+<div>
+    <h1>@Page.Title</h1>
+    @FileUpload.GetHtml(
         initialNumberOfFiles: 1,
         allowMoreFilesToBeAdded: false,
         includeFormTag: true,
         uploadText: "Upload")
-@if (IsPost)
-{
-    <span>File uploaded!</span><br />
-}
+    @if (IsPost)
+    {
+        <span>File uploaded!</span><br/>
+    }
+</div>
