@@ -64,3 +64,9 @@ body {
     color: white;
     font-weight: 600;
 }
+
+.hallo{
+    font-size: 15em;
+    margin: auto;
+    width: 1000px;
+}
