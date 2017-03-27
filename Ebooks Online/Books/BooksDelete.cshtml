@@ -1,8 +1,57 @@
 ﻿@{
-    Page.Title = "Title goes here";
-    //Layout = "Your Layout Page goes here";
+        Page.Title = "Boek verwijderen";
+        Layout = "~/_SiteLayout.cshtml";
+
+        var bookname = "";
+        var id = "";
+
+        if (!IsPost && WebSecurity.IsAuthenticated)
+        {
+            if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0)
+            {
+                id = Request.QueryString["ID"];
+                var db = Database.Open("");
+                var command = "SELECT boeknaam FROM tabel WHERE ID = @0";
+                var row = db.QuerySingle(command, id);
+                if (row != null)
+                {
+                    bookname = row.bookname;
+                }
+                else
+                {
+                    Validation.AddFormError("Dit boek bestaat niet.");
+                }
+            }
+
+            else
+            {
+                Validation.AddFormError("Dit boek bestaat niet.");
+            }
+        }
+
+    if (IsPost && !Request["Delete"].IsEmpty() && WebSecurity.IsAuthenticated)
+    {
+        id = Request.Form["id"];
+
+        var db = Database.Open("");
+    var delete = "DELETE FROM tabel WHERE ID = @0";
+    db.Execute(delete, id);
+
+        Response.Redirect("~/Books/BooksView.cshtml");
+    }
 }
 
-<div>
-    
-</div>
+@Html.ValidationSummary()
+<h2>Verwijderen</h2>
+<p><a href="~/Books/BooksView.cshtml">Terug naar mijn boekenlijst</a></p>
+
+<form method="post">
+    <fieldset>
+        <p>
+            <span>Boeknaam:</span>
+            <span>@bookname</span>
+        </p>
+        <input type="hidden" name="id" value="@id" />
+        <p><input type="submit" name="Delete" value="Verwijder dit boek"/></p>
+    </fieldset>
+</form>
