@@ -33,11 +33,11 @@
                         <ul class="nav navbar-nav">
                             @if (WebSecurity.IsAuthenticated)
                             {
-                                <li><a href="#">Add Book</a></li>
-                                <li><a href="#">Edit Metadata</a></li>
-                                <li><a href="#">View</a></li>
+                                <li><a href="~/Books/BooksAdd.cshtml">Add Book</a></li>
+                                <li><a href="~/Books/BooksUpdate.cshtml">Edit Metadata</a></li>
+                                <li><a href="~/Books/BooksView.cshtml">View</a></li>
                                 <li><a href="#">Download</a></li>
-                                <li><a href="#">Remove Books</a></li>
+                                <li><a href="~/Books/BooksDelete.cshtml">Remove Books</a></li>
                                 <li><a href="#">Convert Books</a></li>
                                 <li>
                                     @{
@@ -55,8 +55,8 @@
                             }
                                         else
                                         {
-                                <li><a href="About">About</a></li>
-                                <li><a href="Contact">Contact</a></li>
+                                <li><a href="#">About</a></li>
+                                <li><a href="#">Contact</a></li>
                                 <li><a href="~/Account/Login">Login</a></li>
                                 <li><a href="~/Account/Register">Register</a></li>
                             }                                    
