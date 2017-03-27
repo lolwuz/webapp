@@ -27,7 +27,9 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <img src="~/img/Logo-White.png" alt="Logo-White" height="50" />
+                    <a href="~/List.cshtml">
+                        <img src="~/img/Logo-White.png" alt="Logo-White" height="50" />
+                    </a>
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
@@ -40,12 +42,23 @@
                         <li><a href="#">Convert Books</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        <li>
+                        <li class="dropdown">
                             @{
                                 Database db = Database.Open("StarterSite");
                                 var username = db.QueryValue("SELECT name FROM UserProfile WHERE userId = @0", WebSecurity.CurrentUserId);
                             }
-                            <a class="email" href="~/Account/Manage" title="Manage">@username</a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@username <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li>
+          
+                                    <a class="email" href="~/Account/Manage" title="Manage">@username</a>
+                                </li>
+                                <li><a href="#">Action</a></li>
+                                <li><a href="#">Another action</a></li>
+                                <li><a href="#">Something else here</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="#">Separated link</a></li>
+                            </ul>
                         </li>
                         <li>
                             <form id="logoutForm" class="forms" action="~/Account/Logout" method="post">
