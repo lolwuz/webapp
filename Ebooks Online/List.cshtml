@@ -1,6 +1,21 @@
 ﻿@{
     Page.Title = "Mijn Boeken";
     Layout = "~/_BookListLayout.cshtml";
+
+    var db = Database.Open("StarterSite");
+    var selectQueryString = "SELECT * FROM Books ORDER BY Titel";
+
+    var book = db.Query("SELECT * FROM Books WHERE Id = 1");
+    var idBoek = "1" ;
+    var titel = "Test";
+
+    if (!IsPost)
+    {
+        if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+        {
+                      
+        }
+    }
 }
 
 <div class="container-fluid">
@@ -19,58 +34,39 @@
             </ul>
         </div>
         <div class="col-sm-7 card">
-            <table class="table table-condensed">
-                <thead>
-                    <tr>
-                        <th>Titel</th>
-                        <th>Auteur</th>
-                        <th>Datum</th>
-                        <th>Grootte (mb)</th>
-                        <th>Beoordeling</th>
-                        <th>Tags</th>
-                        <th>Serie</th>
-                        <th>Uitgever</th>
-                        <th>Uitgave-datum</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>John</td>
-                        <td>Boekenhandel piet</td>
-                        <td>09-01-1998</td>
-                        <td>20mb</td>
-                        <td>8/7</td>
-                        <td>Pizza, Henk</td>
-                        <td>Jager</td>
-                        <td>Lone Wolf LTD</td>
-                        <td>02-03-1990</td>
-                    </tr>
-
-                    <tr>
-                        <td>John</td>
-                        <td>Boekenhandel piet</td>
-                        <td>09-01-1998</td>
-                        <td>20mb</td>
-                        <td>8/7</td>
-                        <td>Pizza, Henk</td>
-                        <td>Jager</td>
-                        <td>Lone Wolf LTD</td>
-                        <td>02-03-1990</td>
-                    </tr>
-
-                    <tr>
-                        <td>John</td>
-                        <td>Boekenhandel piet</td>
-                        <td>09-01-1998</td>
-                        <td>20mb</td>
-                        <td>8/7</td>
-                        <td>Pizza, Henk</td>
-                        <td>Jager</td>
-                        <td>Lone Wolf LTD</td>
-                        <td>02-03-1990</td>
-                    </tr>
-                </tbody>
-            </table>
+            <form method="post">       
+                <table class="table table-responsive">
+                    <thead>
+                        <tr>
+                            <th>Titel</th>
+                            <th>Auteur</th>
+                            <th>Datum</th>
+                            <th>Grootte (mb)</th>
+                            <th>Beoordeling</th>
+                            <th>Tags</th>
+                            <th>Serie</th>
+                            <th>Uitgever</th>
+                            <th>Uitgave-datum</th>
+                        </tr>
+                    </thead>  
+                    <tbody>
+                        @foreach (var row in db.Query(selectQueryString))
+                        {
+                            <tr>
+                                <td><a href="~/List.cshtml?id=@row.ID">@row.Titel</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">@row.Auteur</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">@row.UploadDatum</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">10mb</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">@row.Beoordeling</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">@row.Tags</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">@row.Serie</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">@row.Uitgever</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">@row.UitgaveDatum</a></td>
+                            </tr>
+                        }
+                    </tbody>          
+                </table>    
+            </form>  
         </div>
         <div class="col-sm-3">
             <label for="basic-url">Zoeken in je boekenlijst</label>
@@ -86,7 +82,7 @@
                 <div class="panel-body">
                     <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center"/>
                     <h4>Auteur:</h4>
-                    <p>Piet Henk</p>
+                    <p>@titel</p>
                     <h4>Format</h4>
                     <p>PDF</p>
                     <h4>Beschrijving</h4>
