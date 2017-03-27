@@ -34,3 +34,12 @@
     margin-top: 10px;
     color: blue;
 }
+#logoutForm a{
+    margin: 15px; 
+    display: block; 
+    text-decoration: none;
+    color: white;
+}
+#logoutForm a:hover {
+    color: black;
+}
