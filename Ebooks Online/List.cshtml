@@ -1,81 +1,97 @@
 ﻿@{
-    Page.Title = "Title goes here";
+    Page.Title = "Mijn Boeken";
     Layout = "~/_BookListLayout.cshtml";
 }
 
 <div class="container-fluid">
     <div class="row">
-        <div class="row">
-            <div class="col-md-1">
-                <div class="btn-group-vertical" role="group" aria-label="...">
-                    <button type="button" class="btn btn-default">Auteur</button>
-                    <button type="button" class="btn btn-default">Talen</button>
-                    <button type="button" class="btn btn-default">Serie</button>
-                    <button type="button" class="btn btn-default">Formats</button>
-                    <button type="button" class="btn btn-default">Uitgever</button>
-                    <button type="button" class="btn btn-default">Beoordeling</button>
-                    <button type="button" class="btn btn-default">Nieuws</button>
-                    <button type="button" class="btn btn-default">Tags</button>
-                    <button type="button" class="btn btn-default">Aangevers</button>
+        <div class="col-sm-2">
+            <ul class="list-group">
+                <li class="list-group-item">Auteur <span class="badge">12</span></li>
+                <li class="list-group-item">Talen <span class="badge">5</span></li>
+                <li class="list-group-item">Serie <span class="badge">3</span></li>
+                <li class="list-group-item">Formats <span class="badge">3</span></li>
+                <li class="list-group-item">Uitgever <span class="badge">3</span></li>
+                <li class="list-group-item">Beoordeling <span class="badge">3</span></li>
+                <li class="list-group-item">Nieuws <span class="badge">3</span></li>
+                <li class="list-group-item">Tags <span class="badge">3</span></li>
+                <li class="list-group-item">Identifiers <span class="badge">3</span></li>
+            </ul>
+        </div>
+        <div class="col-sm-7 card">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Titel</th>
+                        <th>Auteur</th>
+                        <th>Datum</th>
+                        <th>Grootte (mb)</th>
+                        <th>Beoordeling</th>
+                        <th>Tags</th>
+                        <th>Serie</th>
+                        <th>Uitgever</th>
+                        <th>Uitgave-datum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John</td>
+                        <td>Boekenhandel piet</td>
+                        <td>09-01-1998</td>
+                        <td>20mb</td>
+                        <td>8/7</td>
+                        <td>Pizza, Henk</td>
+                        <td>Jager</td>
+                        <td>Lone Wolf LTD</td>
+                        <td>02-03-1990</td>
+                    </tr>
+
+                    <tr>
+                        <td>John</td>
+                        <td>Boekenhandel piet</td>
+                        <td>09-01-1998</td>
+                        <td>20mb</td>
+                        <td>8/7</td>
+                        <td>Pizza, Henk</td>
+                        <td>Jager</td>
+                        <td>Lone Wolf LTD</td>
+                        <td>02-03-1990</td>
+                    </tr>
+
+                    <tr>
+                        <td>John</td>
+                        <td>Boekenhandel piet</td>
+                        <td>09-01-1998</td>
+                        <td>20mb</td>
+                        <td>8/7</td>
+                        <td>Pizza, Henk</td>
+                        <td>Jager</td>
+                        <td>Lone Wolf LTD</td>
+                        <td>02-03-1990</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-3">
+            <label for="basic-url">Zoeken in je boekenlijst</label>
+            <div class="input-group">
+                <span class="input-group-addon" id="basic-addon3">Zoek</span>
+                <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3">
+            </div>
+            <hr />
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Boek Titel</h3>
                 </div>
-            </div>
-            <div class="col-md-8 card">
-                <table class="table table-condensed">
-                    <thead>
-                        <tr>
-                            <th>Titel</th>
-                            <th>Auteur</th>
-                            <th>Datum</th>
-                            <th>Grootte (mb)</th>
-                            <th>Beoordeling</th>
-                            <th>Tags</th>
-                            <th>Serie</th>
-                            <th>Uitgever</th>
-                            <th>Uitgave-datum</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>John</td>
-                            <td>Boekenhandel piet</td>
-                            <td>09-01-1998</td>
-                            <td>20mb</td>
-                            <td>8/7</td>
-                            <td>Pizza, Henk</td>
-                            <td>Jager</td>
-                            <td>Lone Wolf LTD</td>
-                            <td>02-03-1990</td>
-                        </tr>
-                   
-                        <tr>
-                            <td>John</td>
-                            <td>Boekenhandel piet</td>
-                            <td>09-01-1998</td>
-                            <td>20mb</td>
-                            <td>8/7</td>
-                            <td>Pizza, Henk</td>
-                            <td>Jager</td>
-                            <td>Lone Wolf LTD</td>
-                            <td>02-03-1990</td>
-                        </tr>
-                    
-                        <tr>       
-                            <td>John</td>
-                            <td>Boekenhandel piet</td>
-                            <td>09-01-1998</td>
-                            <td>20mb</td>
-                            <td>8/7</td>
-                            <td>Pizza, Henk</td>
-                            <td>Jager</td>
-                            <td>Lone Wolf LTD</td>
-                            <td>02-03-1990</td>                      
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-md-3 card">
-                <h1>John</h1>
-             
+                <div class="panel-body">
+                    <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center"/>
+                    <h4>Auteur:</h4>
+                    <p>Piet Henk</p>
+                    <h4>Format</h4>
+                    <p>PDF</p>
+                    <h4>Beschrijving</h4>
+                    <p>"But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. "</p>
+                </div>
             </div>
         </div>
     </div>
