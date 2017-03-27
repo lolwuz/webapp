@@ -30,59 +30,18 @@
                         <a class="navbar-brand" href="#">E-BOOKS ONLINE</a>
                     </div>
                     <div id="navbar" class="navbar-collapse collapse">
-                        <ul class="nav navbar-nav">
-                            @if (WebSecurity.IsAuthenticated)
-                            {
-                                <li><a href="#">Add Book</a></li>
-                                <li><a href="#">Edit Metadata</a></li>
-                                <li><a href="#">View</a></li>
-                                <li><a href="#">Download</a></li>
-                                <li><a href="#">Remove Books</a></li>
-                                <li><a href="#">Convert Books</a></li>
-                                <li>
-                                    @{
-                                        Database db = Database.Open("StarterSite");
-                                        var username = db.QueryValue("SELECT name FROM UserProfile WHERE userId = @0", WebSecurity.CurrentUserId);
-                                    }
-                                    <a class="email" href="~/Account/Manage" title="Manage">@username</a>
-                                </li>
-                                <li>
-                                    <form id="logoutForm" action="~/Account/Logout" method="post">
-                                        @AntiForgery.GetHtml()
-                                        <a href="javascript:document.getElementById('logoutForm').submit()">Log out</a>
-                                    </form>
-                                </li>
-                            }
-                                        else
-                                        {
-                                <li><a href="About">About</a></li>
-                                <li><a href="Contact">Contact</a></li>
-                                <li><a href="~/Account/Login">Login</a></li>
-                                <li><a href="~/Account/Register">Register</a></li>
-                            }                                    
+                        <ul class="nav navbar-nav">                      
+                            <li><a href="About">About</a></li>
+                            <li><a href="Contact">Contact</a></li>
+                                                                       
                         </ul>
-                        <ul class="nav navbar-nav navbar-right">                          
-                            @if (WebSecurity.IsAuthenticated)
-                            {
-                                
-                            }
-                            else
-                            {
-                               
-                            }                                                               
+                        <ul class="nav navbar-nav navbar-right">                                                                               
+                            <li><a href="~/Account/Login">Login</a></li>
+                            <li><a href="~/Account/Register">Register</a></li>                                                                 
                         </ul>
                     </div><!--/.nav-collapse -->
                 </div><!--/.container-fluid -->
             </nav>
-                     
-            <nav>
-                <ul id="menu">
-                    <li><a href="~/">Home</a></li>
-                    <li><a href="~/About">About</a></li>
-                    <li><a href="~/Contact">Contact</a></li>
-                </ul>
-            </nav>
-               
         </header>
         <div id="body">
             @RenderSection("featured", required: false)

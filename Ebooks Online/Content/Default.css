@@ -29,3 +29,8 @@
 .navbar-default .navbar-toggle:focus .icon-bar {
     background-color: #00ccff;
 }
+
+.forms a {
+    margin-top: 10px;
+    color: blue;
+}
