@@ -16,7 +16,7 @@
     var returnUrl = Request.QueryString["ReturnUrl"];
     if (returnUrl.IsEmpty()) {
         // Some external login providers always require a return URL value
-        returnUrl = Href("~/BookList.cshtml");
+        returnUrl = Href("~/List.cshtml");
     }
 
     // Setup validation
