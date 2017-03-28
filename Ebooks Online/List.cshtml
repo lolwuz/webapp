@@ -34,8 +34,16 @@
                 case 6:
                     selectQueryString = "SELECT * FROM Books ORDER BY Beoordeling";
                     break;
-              
+
             }
+        }
+        if (!Request.QueryString["st"].IsEmpty() && Request.QueryString["st"].AsInt() >= 0)
+        {
+            var clickedStar = Request.QueryString["st"].AsInt() + 1;
+            var bookId = Request.QueryString["id"].AsInt();
+
+            var statement = "UPDATE Books SET Beoordeling = @0 WHERE Id = @1";
+            db.Execute(statement, clickedStar, bookId);
         }
     }
 }
@@ -47,22 +55,14 @@
                 @{
 
                     string[] columnNames = new string[] { "Titel", "Auteur", "Uitgever", "UitgaveDatum", "Taal", "UploadDatum", "Serie", "Beoordeling" };
-                    for(int i = 0; i < columnNames.Length; i++)
+                    for (int i = 0; i < columnNames.Length; i++)
                     {
                         var statement = "SELECT COUNT(" + @columnNames[i] + ") FROM Books";
-                      
+
                         var count = db.QueryValue(statement);
 
                         <li class="list-group-item"><a href="~/List.cshtml?sr=@i">@columnNames[i]</a> <span class="badge">@count</span></li>
                     }
-
-                    @*<li class="list-group-item"><a href="~/List.cshtml?sr=2">Talen </a> <span class="badge">5</span></li>
-                    <li class="list-group-item"><a href="~/List.cshtml?sr=3">Serie </a> <span class="badge">3</span></li>
-                    <li class="list-group-item"><a href="~/List.cshtml?sr=4">Formats </a> <span class="badge">3</span></li>
-                    <li class="list-group-item"><a href="~/List.cshtml?sr=5">Uitgever </a> <span class="badge">3</span></li>
-                    <li class="list-group-item"><a href="~/List.cshtml?sr=6">Beoordeling </a> <span class="badge">3</span></li>
-                    <li class="list-group-item"><a href="~/List.cshtml?sr=7">Tags </a> <span class="badge">3</span></li>
-                    <li class="list-group-item"><a href="~/List.cshtml?sr=8">Identifiers </a> <span class="badge">3</span></li>*@
                 }
             </ul>
         </div>
@@ -81,7 +81,7 @@
                             <th>Uitgever</th>
                             <th>Uitgave-datum</th>
                         </tr>
-                    </thead>  
+                    </thead>
                     <tbody>
                         @foreach (var row in db.Query(selectQueryString))
                         {
@@ -90,22 +90,30 @@
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.Auteur</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">10mb</a></td>
-                                <td><a href="~/List.cshtml?id=@row.ID">@{for (int i = 0; i < row.Beoordeling; i++)
-                                    {<img src='~/Books/Coverart/star.png' width="12" alt='*' />;
+                                <td>
+                                    @{
+                                        for (int i = 0; i < 5; i++)
+                                        {
+                                            if (i < row.Beoordeling)
+                                            {
+                                                <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                            }
+                                            else
+                                            {
+                                                <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                            }
+                                        }
                                     }
-                                    for (int i = 0; i < (5 - row.Beoordeling); i++)
-                                    {<img src='~/Books/Coverart/starempty.png' width="12" alt='' />;
-                                    }}</a>
                                 </td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.Tags</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.Serie</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.Uitgever</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
-                            </tr>                  
-                            }
-                    </tbody>          
-                </table>    
-            </form>  
+                            </tr>
+                                        }
+                    </tbody>
+                </table>
+            </form>
         </div>
         <div class="col-sm-3">
             <label for="basic-url">Zoeken in je boekenlijst</label>
@@ -115,18 +123,18 @@
             </div>
             <hr />
             @if (!IsPost)
-    {
-        if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
-        {
-            var boekId = Request.QueryString["id"];
-            var statement = "SELECT * FROM Books WHERE Id = @0";
-            var bookInfo = db.QuerySingle(statement, boekId);
+            {
+                if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                {
+                    var boekId = Request.QueryString["id"];
+                    var statement = "SELECT * FROM Books WHERE Id = @0";
+                    var bookInfo = db.QuerySingle(statement, boekId);
 
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h3 class="panel-title">@bookInfo.Titel</h3>
                         </div>
-                        <div class="panel-body">                                   
+                        <div class="panel-body">
                             <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
                             <h5>Auteur:</h5>
                             <p>@bookInfo.Titel</p>
