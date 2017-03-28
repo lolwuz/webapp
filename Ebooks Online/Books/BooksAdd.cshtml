@@ -1,28 +1,50 @@
 ﻿@using Microsoft.Web.Helpers;
+@using iTextSharp;
+@using iTextSharp.text;
+@using iTextSharp.text.pdf;
 @{
-    Layout = "~/_BookListLayout.cshtml";
-    Page.Title = "Add Books";
-
+    Layout = "~/_SiteLayout.cshtml";
     var fileName = "";
-    if (IsPost) {
-        var fileSavePath = "";
+    var metadata = "";
+    var fileSavePath = "";
+    if (IsPost)
+    {
         var uploadedFile = Request.Files[0];
-        fileName = Path.GetFileName(uploadedFile.FileName);
-        fileSavePath = Server.MapPath("~/Books/Files/" +
-          fileName);
-        uploadedFile.SaveAs(fileSavePath);
-    }
-}   
+        Random rnd = new Random();
 
-<div>
-    <h1>@Page.Title</h1>
-    @FileUpload.GetHtml(
+        fileName = Path.GetFileName(uploadedFile.FileName);
+        fileSavePath = Server.MapPath("~/Books/Files/temp/" + rnd.Next(1, 9999) +
+           fileName);
+        uploadedFile.SaveAs(fileSavePath);
+        PdfReader file = new PdfReader(fileSavePath);
+        metadata = file.Info["Author"];
+    }
+
+}
+<script>
+    $(document).ready(function () {
+        $("input[name=files]").on("change", function () {
+            $("input[name=files]").parent().parent().parent().submit();
+        });
+        if ($("input[name=filename]").length > 0) {
+            $("input[name=files]").attr("value",$("input[name=filename]").val());
+        }
+
+    });
+</script>
+<h1>Boek toevoegen.</h1>
+<b>Bestand : @fileName</b>
+@if (IsPost)
+{
+    <input type="hidden" name="file" value="@fileSavePath" />
+}
+@FileUpload.GetHtml(
+        name: "files",
         initialNumberOfFiles: 1,
         allowMoreFilesToBeAdded: false,
         includeFormTag: true,
         uploadText: "Upload")
-    @if (IsPost)
-    {
-        <span>File uploaded!</span><br/>
-    }
-</div>
+@if (IsPost)
+{
+    @metadata
+}
