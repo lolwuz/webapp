@@ -50,131 +50,138 @@
     }
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-2">
-            <ul class="list-group">
-                @{
+@if (WebSecurity.IsAuthenticated)
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2">
+                <ul class="list-group">
+                    @{
 
-                    string[] columnNames = new string[] { "Titel", "Auteur", "Uitgever", "UitgaveDatum", "Taal", "UploadDatum", "Serie", "Beoordeling" };
-                    var amountStatement = "SELECT COUNT(Gebruiker) FROM Books WHERE Gebruiker = " + userId;
-                    var amount = db.QueryValue(amountStatement);
+                        string[] columnNames = new string[] { "Titel", "Auteur", "Uitgever", "UitgaveDatum", "Taal", "UploadDatum", "Serie", "Beoordeling" };
+                        var amountStatement = "SELECT COUNT(Gebruiker) FROM Books WHERE Gebruiker = " + userId;
+                        var amount = db.QueryValue(amountStatement);
 
-                    for (int i = 0; i < columnNames.Length; i++)
-                    {
-                        string currCol = columnNames[i];
-                        var countStatement = "SELECT COUNT(" + currCol + ") FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + currCol;
-
-                        var count = amount - db.QueryValue(countStatement) + 1;
-
-                        <li class="list-group-item"><a href="~/List.cshtml?sr=@i">@columnNames[i]</a> <span class="badge">@count</span></li>
-                    }
-                }
-            </ul>
-        </div>
-        <div class="col-sm-7 card">
-            <form method="post">
-                <table class="table table-responsive">
-                    <thead>
-                        <tr>
-                            <th>Titel</th>
-                            <th>Auteur</th>
-                            <th>Datum</th>
-                            <th>Grootte (mb)</th>
-                            <th>Beoordeling</th>
-                            <th>Tags</th>
-                            <th>Serie</th>
-                            <th>Uitgever</th>
-                            <th>Uitgave-datum</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var row in db.Query(selectQueryString))
+                        for (int i = 0; i < columnNames.Length; i++)
                         {
-                            <tr>
-                                <td><a href="~/List.cshtml?id=@row.ID">@row.Titel</a></td>
-                                <td><a href="~/List.cshtml?id=@row.ID">@row.Auteur</a></td>
-                                <td><a href="~/List.cshtml?id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                <td><a href="~/List.cshtml?id=@row.ID">10mb</a></td>
-                                <td>
-                                    @{
-                                        for (int i = 0; i < 5; i++)
-                                        {
-                                            if (i < row.Beoordeling)
-                                            {
-                                                <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
-                                            }
-                                            else
-                                            {
-                                                <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
-                                            }
-                                        }
-                                    }
-                                </td>
-                                <td><a href="~/List.cshtml?id=@row.ID">@row.Tags</a></td>
-                                <td><a href="~/List.cshtml?id=@row.ID">@row.Serie</a></td>
-                                <td><a href="~/List.cshtml?id=@row.ID">@row.Uitgever</a></td>
-                                <td><a href="~/List.cshtml?id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
-                            </tr>
-                                        }
-                    </tbody>
-                </table>
-            </form>
-        </div>
-        <div class="col-sm-3">
-            <label for="basic-url">Zoeken in je boekenlijst</label>
-            <div class="input-group">
-                <span class="input-group-addon" id="basic-addon3">Zoek</span>
-                <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3">
+                            string currCol = columnNames[i];
+                            var countStatement = "SELECT COUNT(" + currCol + ") FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + currCol;
+
+                            var count = amount - db.QueryValue(countStatement) + 1;
+
+                            <li class="list-group-item"><a href="~/List.cshtml?sr=@i">@columnNames[i]</a> <span class="badge">@count</span></li>
+                        }
+                    }
+                </ul>
             </div>
-            <hr />
-            @if (!IsPost)
-            {
-                if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+            <div class="col-sm-7 card">
+                <form method="post">
+                    <table class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <th>Titel</th>
+                                <th>Auteur</th>
+                                <th>Datum</th>
+                                <th>Grootte (mb)</th>
+                                <th>Beoordeling</th>
+                                <th>Tags</th>
+                                <th>Serie</th>
+                                <th>Uitgever</th>
+                                <th>Uitgave-datum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in db.Query(selectQueryString))
+                            {
+                                <tr>
+                                    <td><a href="~/List.cshtml?id=@row.ID">@row.Titel</a></td>
+                                    <td><a href="~/List.cshtml?id=@row.ID">@row.Auteur</a></td>
+                                    <td><a href="~/List.cshtml?id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
+                                    <td><a href="~/List.cshtml?id=@row.ID">10mb</a></td>
+                                    <td>
+                                        @{
+                                            for (int i = 0; i < 5; i++)
+                                            {
+                                                if (i < row.Beoordeling)
+                                                {
+                                                    <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                }
+                                            }
+                                        }
+                                    </td>
+                                    <td><a href="~/List.cshtml?id=@row.ID">@row.Tags</a></td>
+                                    <td><a href="~/List.cshtml?id=@row.ID">@row.Serie</a></td>
+                                    <td><a href="~/List.cshtml?id=@row.ID">@row.Uitgever</a></td>
+                                    <td><a href="~/List.cshtml?id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
+                                </tr>
+                                            }
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="col-sm-3">
+                <label for="basic-url">Zoeken in je boekenlijst</label>
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon3">Zoek</span>
+                    <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3">
+                </div>
+                <hr />
+                @if (!IsPost)
                 {
-                    var boekId = Request.QueryString["id"];
-                    var statement = "SELECT * FROM Books WHERE Id = @0";
-                    var bookInfo = db.QuerySingle(statement, boekId);
+                    if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                    {
+                        var boekId = Request.QueryString["id"];
+                        var statement = "SELECT * FROM Books WHERE Id = @0";
+                        var bookInfo = db.QuerySingle(statement, boekId);
 
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">@bookInfo.Titel</h3>
-                        </div>
-                        <div class="panel-body">
-                            <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
-                            <h5>Auteur:</h5>
-                            <p>@bookInfo.Titel</p>
-                            <h5>Taal</h5>
-                            <p>@bookInfo.Taal</p>
-                            <h5>Beschrijving</h5>
-                            <p>@bookInfo.Beschrijving</p>
-                            <!-- Trigger the modal with a button -->
-                            <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">@bookInfo.Titel</h3>
+                            </div>
+                            <div class="panel-body">
+                                <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                                <h5>Auteur:</h5>
+                                <p>@bookInfo.Titel</p>
+                                <h5>Taal</h5>
+                                <p>@bookInfo.Taal</p>
+                                <h5>Beschrijving</h5>
+                                <p>@bookInfo.Beschrijving</p>
+                                <!-- Trigger the modal with a button -->
+                                <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
 
-                            <!-- Modal -->
-                            <div id="myModal" class="modal fade" role="dialog">
-                                <div class="modal-dialog">
+                                <!-- Modal -->
+                                <div id="myModal" class="modal fade" role="dialog">
+                                    <div class="modal-dialog">
 
-                                    <!-- Modal content-->
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                            <h4 class="modal-title">Modal Header</h4>
+                                        <!-- Modal content-->
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                <h4 class="modal-title">Modal Header</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Some text in the modal.</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            </div>
                                         </div>
-                                        <div class="modal-body">
-                                            <p>Some text in the modal.</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        </div>
+
                                     </div>
-
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 }
-            }
+            </div>
         </div>
     </div>
-</div>
+}
+else
+{
+    <p>You have to log in first</p>
+}
