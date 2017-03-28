@@ -70,3 +70,8 @@ body {
     margin: auto;
     width: 1000px;
 }
+
+.pdfViewer {
+    height: 100%;
+    width: 100%;
+}

@@ -1,8 +1,12 @@
 ﻿@{
     Page.Title = "View Books";
     Layout = "~/_BookListLayout.cshtml";
+
+    var currentPdf = "MyPdfFile.pdf";
 }
 
-<div>
-    
+<div class="pdfViewer">
+    <object data="~/Books/Files/@currentPdf" type='application/pdf' class="pdfViewer">
+        <embed src="~/Books/Files/@currentPdf" type='application/pdf' class="pdfViewer"></embed>
+    </object>
 </div>
