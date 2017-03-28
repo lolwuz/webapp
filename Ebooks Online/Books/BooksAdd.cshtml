@@ -5,19 +5,27 @@
 @{
     Layout = "~/_BookListLayout.cshtml";
     var fileName = "";
-    var metadata = "";
-    var fileSavePath = "";
+    var uitgever = "-";
+    var uitgavedtm = "-";
+    var taal = "-";
+    var beschrijving = "-";
+    var boekserie = "-";
+    Dictionary<String, String> metadata = new Dictionary<String, String>();
     if (IsPost)
     {
         var uploadedFile = Request.Files[0];
         Random rnd = new Random();
-
+        var grootte = (uploadedFile.ContentLength / 1024)/1024;
+        var type = uploadedFile.ContentType.Split('/')[1];
         fileName = Path.GetFileName(uploadedFile.FileName);
-        fileSavePath = Server.MapPath("~/Books/Files/temp/" + rnd.Next(1, 9999) +
+        var fileSavePath = Server.MapPath("~/Books/Files/temp/" + rnd.Next(1, 9999) +
            fileName);
         uploadedFile.SaveAs(fileSavePath);
         PdfReader file = new PdfReader(fileSavePath);
-        metadata = file.Info["Author"];
+        metadata["Title"] = (file.Info.ContainsKey("Title")) ? file.Info["Title"] : "-";
+        metadata["Subject"] = (file.Info.ContainsKey("Subject")) ? file.Info["Subject"] : "-";
+        metadata["Author"] = (file.Info.ContainsKey("Author")) ? file.Info["Author"]: "-";
+        metadata["Keywords"] = (file.Info.ContainsKey("Keywords")) ? file.Info["Keywords"] : "-";
     }
 
 }
@@ -26,18 +34,11 @@
         $("input[name=files]").on("change", function () {
             $("input[name=files]").parent().parent().parent().submit();
         });
-        if ($("input[name=filename]").length > 0) {
-            $("input[name=files]").attr("value",$("input[name=filename]").val());
-        }
-
+        $(".file-upload-buttons").hide();
     });
 </script>
 <h1>Boek toevoegen.</h1>
-<b>Bestand : @fileName</b>
-@if (IsPost)
-{
-    <input type="hidden" name="file" value="@fileSavePath" />
-}
+<b>Bestand : </b><i>@fileName</i>
 @FileUpload.GetHtml(
         name: "files",
         initialNumberOfFiles: 1,
@@ -46,5 +47,21 @@
         uploadText: "Upload")
 @if (IsPost)
 {
-    @metadata
+    <button id="upload">Upload</button>
+    <form>
+        <table>
+            <tr><th>Titel&nbsp;&nbsp;</th><th>Onderwerp&nbsp;&nbsp;</th><th>Auteur&nbsp;&nbsp;</th><th>Uitgever&nbsp;&nbsp;</th><th>Uitgavedatum&nbsp;&nbsp;</th><th>Taal&nbsp;&nbsp;</th><th>Beschrijving&nbsp;&nbsp;</th><th>Boekserie&nbsp;&nbsp;</th><th>Tags</th></tr>
+            <tr>
+                <td><input type="text" name="titel" value="@metadata["Title"]" /></td>
+                <td><input type="text" name="onderwerp" value="@metadata["Subject"]" /></td>
+                <td><input type="text" name="auteur" value="@metadata["Author"]" /></td>
+                <td><input type="text" name="uitgever" value=@uitgever /></td>
+                <td><input type="text" name="uitgavedtm" value=@uitgavedtm /></td>
+                <td><input type="text" name="taal" value=@taal /></td>
+                <td><input type="text" name="beschrijving" value=@beschrijving /></td>
+                <td><input type="text" name="boekserie" value=@boekserie /></td>
+                <td><input type="text" name="tags" value="@metadata["Keywords"]" /></td>
+            </tr>
+        </table>
+    </form>
 }

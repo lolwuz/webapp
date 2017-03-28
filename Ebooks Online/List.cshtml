@@ -2,6 +2,8 @@
     Page.Title = "Mijn Boeken";
     Layout = "~/_BookListLayout.cshtml";
 
+    var userId = WebSecurity.CurrentUserId;
+
     var db = Database.Open("StarterSite");
     var selectQueryString = "SELECT * FROM Books ORDER BY Titel";
 
@@ -55,11 +57,15 @@
                 @{
 
                     string[] columnNames = new string[] { "Titel", "Auteur", "Uitgever", "UitgaveDatum", "Taal", "UploadDatum", "Serie", "Beoordeling" };
+                    var amountStatement = "SELECT COUNT(Gebruiker) FROM Books WHERE Gebruiker = " + userId;
+                    var amount = db.QueryValue(amountStatement);
+
                     for (int i = 0; i < columnNames.Length; i++)
                     {
-                        var statement = "SELECT COUNT(" + @columnNames[i] + ") FROM Books";
+                        string currCol = columnNames[i];
+                        var countStatement = "SELECT COUNT(" + currCol + ") FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + currCol;
 
-                        var count = db.QueryValue(statement);
+                        var count = amount - db.QueryValue(countStatement) + 1;
 
                         <li class="list-group-item"><a href="~/List.cshtml?sr=@i">@columnNames[i]</a> <span class="badge">@count</span></li>
                     }
