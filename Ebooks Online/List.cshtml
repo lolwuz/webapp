@@ -5,15 +5,40 @@
     var db = Database.Open("StarterSite");
     var selectQueryString = "SELECT * FROM Books ORDER BY Titel";
 
-    var book = db.Query("SELECT * FROM Books WHERE Id = 1");
-    var idBoek = "1" ;
-    var titel = "Test";
-
     if (!IsPost)
     {
-        if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+        if (!Request.QueryString["sr"].IsEmpty() && Request.QueryString["sr"].AsInt() > 0)
         {
-                      
+            var sortBy = Request.QueryString["sr"];
+
+            switch (sortBy.AsInt())
+            {
+                case 1:
+                    selectQueryString = "SELECT * FROM Books ORDER BY Titel";
+                    break;
+                case 2:
+                    selectQueryString = "SELECT * FROM Books ORDER BY Taal";
+                    break;
+                case 3:
+                    selectQueryString = "SELECT * FROM Books ORDER BY Serie";
+                    break;
+                case 4:
+                    selectQueryString = "SELECT * FROM Books ORDER BY Auteur";
+                    break;
+                case 5:
+                    selectQueryString = "SELECT * FROM Books ORDER BY Uitgever";
+                    break;
+                case 6:
+                    selectQueryString = "SELECT * FROM Books ORDER BY Beoordeling";
+                    break;
+                case 7:
+                    selectQueryString = "SELECT * FROM Books ORDER BY Tags";
+                    break;
+                case 8:
+                    selectQueryString = "SELECT * FROM Books ORDER BY Auteur";
+                    break;
+
+            }    
         }
     }
 }
@@ -22,19 +47,18 @@
     <div class="row">
         <div class="col-sm-2">
             <ul class="list-group">
-                <li class="list-group-item">Auteur <span class="badge">12</span></li>
-                <li class="list-group-item">Talen <span class="badge">5</span></li>
-                <li class="list-group-item">Serie <span class="badge">3</span></li>
-                <li class="list-group-item">Formats <span class="badge">3</span></li>
-                <li class="list-group-item">Uitgever <span class="badge">3</span></li>
-                <li class="list-group-item">Beoordeling <span class="badge">3</span></li>
-                <li class="list-group-item">Nieuws <span class="badge">3</span></li>
-                <li class="list-group-item">Tags <span class="badge">3</span></li>
-                <li class="list-group-item">Identifiers <span class="badge">3</span></li>
+                <li class="list-group-item"><a href="~/List.cshtml?sr=1">Auteur</a> <span class="badge">12</span></li>
+                <li class="list-group-item"><a href="~/List.cshtml?sr=2">Talen </a> <span class="badge">5</span></li>
+                <li class="list-group-item"><a href="~/List.cshtml?sr=3">Serie </a> <span class="badge">3</span></li>
+                <li class="list-group-item"><a href="~/List.cshtml?sr=4">Formats </a> <span class="badge">3</span></li>
+                <li class="list-group-item"><a href="~/List.cshtml?sr=5">Uitgever </a> <span class="badge">3</span></li>
+                <li class="list-group-item"><a href="~/List.cshtml?sr=6">Beoordeling </a> <span class="badge">3</span></li>
+                <li class="list-group-item"><a href="~/List.cshtml?sr=7">Tags </a> <span class="badge">3</span></li>
+                <li class="list-group-item"><a href="~/List.cshtml?sr=8">Identifiers </a> <span class="badge">3</span></li>
             </ul>
         </div>
         <div class="col-sm-7 card">
-            <form method="post">       
+            <form method="post">
                 <table class="table table-responsive">
                     <thead>
                         <tr>
@@ -55,13 +79,19 @@
                             <tr>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.Titel</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.Auteur</a></td>
-                                <td><a href="~/List.cshtml?id=@row.ID">@row.UploadDatum</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">10mb</a></td>
-                                <td><a href="~/List.cshtml?id=@row.ID">@row.Beoordeling</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">@{for (int i = 0; i < row.Beoordeling; i++)
+                                    {<img src='~/Books/Coverart/star.jpg' alt='*' />;
+                                    }
+                                    for (int i = 0; i < (5 - row.Beoordeling); i++)
+                                    {<img src='~/Books/Coverart/starempty.png' alt='' />;
+                                    }}</a>
+                                </td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.Tags</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.Serie</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.Uitgever</a></td>
-                                <td><a href="~/List.cshtml?id=@row.ID">@row.UitgaveDatum</a></td>
+                                <td><a href="~/List.cshtml?id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
                             </tr>
                         }
                     </tbody>          
@@ -75,20 +105,30 @@
                 <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3">
             </div>
             <hr />
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Boek Titel</h3>
-                </div>
-                <div class="panel-body">
-                    <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center"/>
-                    <h4>Auteur:</h4>
-                    <p>@titel</p>
-                    <h4>Format</h4>
-                    <p>PDF</p>
-                    <h4>Beschrijving</h4>
-                    <p>"But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. "</p>
-                </div>
-            </div>
+            @if (!IsPost)
+    {
+        if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+        {
+            var boekId = Request.QueryString["id"];
+            var statement = "SELECT * FROM Books WHERE Id = @0";
+            var bookInfo = db.QuerySingle(statement, boekId);
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">@bookInfo.Titel</h3>
+                        </div>
+                        <div class="panel-body">                                   
+                            <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                            <h5>Auteur:</h5>
+                            <p>@bookInfo.Titel</p>
+                            <h5>Taal</h5>
+                            <p>@bookInfo.Taal</p>
+                            <h5>Beschrijving</h5>
+                            <p>@bookInfo.Beschrijving</p>
+                        </div>
+                    </div>
+                }
+            }
         </div>
     </div>
 </div>
