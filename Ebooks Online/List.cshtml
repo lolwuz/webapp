@@ -9,7 +9,7 @@
 
     if (!IsPost)
     {
-        if (!Request.QueryString["sr"].IsEmpty() && Request.QueryString["sr"].AsInt() > 0)
+        if (!Request.QueryString["sr"].IsEmpty() && Request.QueryString["sr"].AsInt() >= 0)
         {
             var sortBy = Request.QueryString["sr"];
 
@@ -31,9 +31,12 @@
                     selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY UploadDatum";
                     break;
                 case 5:
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Serie";
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY UploadDatum";
                     break;
                 case 6:
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Serie";
+                    break;
+                case 7:
                     selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Beoordeling";
                     break;
 
@@ -57,7 +60,6 @@
             <div class="col-sm-2">
                 <ul class="list-group">
                     @{
-
                         string[] columnNames = new string[] { "Titel", "Auteur", "Uitgever", "UitgaveDatum", "Taal", "UploadDatum", "Serie", "Beoordeling" };
                         var amountStatement = "SELECT COUNT(Gebruiker) FROM Books WHERE Gebruiker = " + userId;
                         var amount = db.QueryValue(amountStatement);
@@ -93,32 +95,78 @@
                         <tbody>
                             @foreach (var row in db.Query(selectQueryString))
                             {
-                                <tr>
-                                    <td><a href="~/List.cshtml?id=@row.ID">@row.Titel</a></td>
-                                    <td><a href="~/List.cshtml?id=@row.ID">@row.Auteur</a></td>
-                                    <td><a href="~/List.cshtml?id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                    <td><a href="~/List.cshtml?id=@row.ID">10mb</a></td>
-                                    <td>
-                                        @{
-                                            for (int i = 0; i < 5; i++)
-                                            {
-                                                if (i < row.Beoordeling)
+                                bool selected = false;
+                                if (!IsPost)
+                                {
+                                    if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                                    {
+                                        var bookId = Request.QueryString["id"];
+
+                                        if (row.ID == bookId.AsInt())
+                                        {
+                                            selected = true;
+                                        }
+                                    }
+                                }
+
+                                if (selected)
+                                {
+                                    <tr style="background-color: aqua;">
+                                        <td><a href="~/List.cshtml?id=@row.ID">@row.Titel</a></td>
+                                        <td><a href="~/List.cshtml?id=@row.ID">@row.Auteur</a></td>
+                                        <td><a href="~/List.cshtml?id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
+                                        <td><a href="~/List.cshtml?id=@row.ID">10mb</a></td>
+                                        <td>
+                                            @{
+                                                for (int i = 0; i < 5; i++)
                                                 {
-                                                    <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                    if (i < row.Beoordeling)
+                                                    {
+                                                        <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                    }
+                                                }
+                                            }
+                                        </td>
+                                        <td><a href="~/List.cshtml?id=@row.ID">@row.Tags</a></td>
+                                        <td><a href="~/List.cshtml?id=@row.ID">@row.Serie</a></td>
+                                        <td><a href="~/List.cshtml?id=@row.ID">@row.Uitgever</a></td>
+                                        <td><a href="~/List.cshtml?id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
+                                    </tr>
+
                                                 }
                                                 else
                                                 {
-                                                    <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
-                                                }
-                                            }
-                                        }
-                                    </td>
-                                    <td><a href="~/List.cshtml?id=@row.ID">@row.Tags</a></td>
-                                    <td><a href="~/List.cshtml?id=@row.ID">@row.Serie</a></td>
-                                    <td><a href="~/List.cshtml?id=@row.ID">@row.Uitgever</a></td>
-                                    <td><a href="~/List.cshtml?id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
-                                </tr>
-                                            }
+                                                    <tr>
+                                                        <td><a href="~/List.cshtml?id=@row.ID">@row.Titel</a></td>
+                                                        <td><a href="~/List.cshtml?id=@row.ID">@row.Auteur</a></td>
+                                                        <td><a href="~/List.cshtml?id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
+                                                        <td><a href="~/List.cshtml?id=@row.ID">10mb</a></td>
+                                                        <td>
+                                                            @{
+                                                                for (int i = 0; i < 5; i++)
+                                                                {
+                                                                    if (i < row.Beoordeling)
+                                                                    {
+                                                                        <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <a href="~/List.cshtml?id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                                    }
+                                                                }
+                                                            }
+                                                        </td>
+                                                        <td><a href="~/List.cshtml?id=@row.ID">@row.Tags</a></td>
+                                                        <td><a href="~/List.cshtml?id=@row.ID">@row.Serie</a></td>
+                                                        <td><a href="~/List.cshtml?id=@row.ID">@row.Uitgever</a></td>
+                                                        <td><a href="~/List.cshtml?id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
+                                                    </tr>
+                                                                    }
+                                                                }
                         </tbody>
                     </table>
                 </form>
@@ -180,8 +228,8 @@
             </div>
         </div>
     </div>
-                                            }
-                                            else
-                                            {
-                                                Response.Redirect("~/Default");
-                                            }
+                                                }
+                                                else
+                                                {
+                                                    Response.Redirect("~/Default");
+                                                }
