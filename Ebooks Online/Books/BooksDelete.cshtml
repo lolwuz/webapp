@@ -1,49 +1,44 @@
 ﻿@{
-<<<<<<< HEAD
-        Page.Title = "Boek verwijderen";
-        Layout = "~/_SiteLayout.cshtml";
+    Page.Title = "Boek verwijderen";
+    Layout = "~/_BookListLayout.cshtml";
 
-        var bookname = "";
-        var id = "";
+    var bookname = "";
+    var id = "";
 
-        if (!IsPost && WebSecurity.IsAuthenticated)
+    if (!IsPost && WebSecurity.IsAuthenticated)
+    {
+        if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0)
         {
-            if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0)
+            id = Request.QueryString["ID"];
+            var db = Database.Open("");
+            var command = "SELECT boeknaam FROM tabel WHERE ID = @0";
+            var row = db.QuerySingle(command, id);
+            if (row != null)
             {
-                id = Request.QueryString["ID"];
-                var db = Database.Open("");
-                var command = "SELECT boeknaam FROM tabel WHERE ID = @0";
-                var row = db.QuerySingle(command, id);
-                if (row != null)
-                {
-                    bookname = row.bookname;
-                }
-                else
-                {
-                    Validation.AddFormError("Dit boek bestaat niet.");
-                }
+                bookname = row.bookname;
             }
-
             else
             {
                 Validation.AddFormError("Dit boek bestaat niet.");
             }
         }
 
+        else
+        {
+            Validation.AddFormError("Dit boek bestaat niet.");
+        }
+    }
+
     if (IsPost && !Request["Delete"].IsEmpty() && WebSecurity.IsAuthenticated)
     {
         id = Request.Form["id"];
 
         var db = Database.Open("");
-    var delete = "DELETE FROM tabel WHERE ID = @0";
-    db.Execute(delete, id);
+        var delete = "DELETE FROM tabel WHERE ID = @0";
+        db.Execute(delete, id);
 
         Response.Redirect("~/Books/BooksView.cshtml");
     }
-=======
-    Page.Title = "Delete Books";
-    Layout = "~/_BookListLayout.cshtml";
->>>>>>> origin/master
 }
 
 @Html.ValidationSummary()
