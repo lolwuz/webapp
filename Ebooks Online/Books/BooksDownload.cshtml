@@ -1,0 +1,14 @@
+﻿@{
+    Page.Title = "Boek downloaden";
+    Layout = "~/BookListLayout.cshtml";
+    var filename = "Harry.pdf";
+    string filepath = Server.MapPath("~/Books/Files/" + filename);
+    Response.Clear();
+
+    Response.AppendHeader("content-disposition", "attachment; filename=" + filename);
+    Response.ContentType = "application/pdf";
+    Response.WriteFile(filepath);
+    Response.Flush();
+    Response.End();
+    Response.Redirect("~/BooksView.cshtml");
+}
