@@ -13,32 +13,29 @@
 
             switch (sortBy.AsInt())
             {
-                case 1:
+                case 0:
                     selectQueryString = "SELECT * FROM Books ORDER BY Titel";
                     break;
-                case 2:
-                    selectQueryString = "SELECT * FROM Books ORDER BY Taal";
-                    break;
-                case 3:
-                    selectQueryString = "SELECT * FROM Books ORDER BY Serie";
-                    break;
-                case 4:
+                case 1:
                     selectQueryString = "SELECT * FROM Books ORDER BY Auteur";
                     break;
+                case 2:
+                    selectQueryString = "SELECT * FROM Books ORDER BY UitgaveDatum";
+                    break;
+                case 3:
+                    selectQueryString = "SELECT * FROM Books ORDER BY Taal";
+                    break;
+                case 4:
+                    selectQueryString = "SELECT * FROM Books ORDER BY UploadDatum";
+                    break;
                 case 5:
-                    selectQueryString = "SELECT * FROM Books ORDER BY Uitgever";
+                    selectQueryString = "SELECT * FROM Books ORDER BY Serie";
                     break;
                 case 6:
                     selectQueryString = "SELECT * FROM Books ORDER BY Beoordeling";
                     break;
-                case 7:
-                    selectQueryString = "SELECT * FROM Books ORDER BY Tags";
-                    break;
-                case 8:
-                    selectQueryString = "SELECT * FROM Books ORDER BY Auteur";
-                    break;
-
-            }    
+              
+            }
         }
     }
 }
@@ -47,14 +44,26 @@
     <div class="row">
         <div class="col-sm-2">
             <ul class="list-group">
-                <li class="list-group-item"><a href="~/List.cshtml?sr=1">Auteur</a> <span class="badge">12</span></li>
-                <li class="list-group-item"><a href="~/List.cshtml?sr=2">Talen </a> <span class="badge">5</span></li>
-                <li class="list-group-item"><a href="~/List.cshtml?sr=3">Serie </a> <span class="badge">3</span></li>
-                <li class="list-group-item"><a href="~/List.cshtml?sr=4">Formats </a> <span class="badge">3</span></li>
-                <li class="list-group-item"><a href="~/List.cshtml?sr=5">Uitgever </a> <span class="badge">3</span></li>
-                <li class="list-group-item"><a href="~/List.cshtml?sr=6">Beoordeling </a> <span class="badge">3</span></li>
-                <li class="list-group-item"><a href="~/List.cshtml?sr=7">Tags </a> <span class="badge">3</span></li>
-                <li class="list-group-item"><a href="~/List.cshtml?sr=8">Identifiers </a> <span class="badge">3</span></li>
+                @{
+
+                    string[] columnNames = new string[] { "Titel", "Auteur", "Uitgever", "UitgaveDatum", "Taal", "UploadDatum", "Serie", "Beoordeling" };
+                    for(int i = 0; i < columnNames.Length; i++)
+                    {
+                        var statement = "SELECT COUNT(" + @columnNames[i] + ") FROM Books";
+                      
+                        var count = db.QueryValue(statement);
+
+                        <li class="list-group-item"><a href="~/List.cshtml?sr=@i">@columnNames[i]</a> <span class="badge">@count</span></li>
+                    }
+
+                    @*<li class="list-group-item"><a href="~/List.cshtml?sr=2">Talen </a> <span class="badge">5</span></li>
+                    <li class="list-group-item"><a href="~/List.cshtml?sr=3">Serie </a> <span class="badge">3</span></li>
+                    <li class="list-group-item"><a href="~/List.cshtml?sr=4">Formats </a> <span class="badge">3</span></li>
+                    <li class="list-group-item"><a href="~/List.cshtml?sr=5">Uitgever </a> <span class="badge">3</span></li>
+                    <li class="list-group-item"><a href="~/List.cshtml?sr=6">Beoordeling </a> <span class="badge">3</span></li>
+                    <li class="list-group-item"><a href="~/List.cshtml?sr=7">Tags </a> <span class="badge">3</span></li>
+                    <li class="list-group-item"><a href="~/List.cshtml?sr=8">Identifiers </a> <span class="badge">3</span></li>*@
+                }
             </ul>
         </div>
         <div class="col-sm-7 card">
@@ -82,10 +91,10 @@
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">10mb</a></td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@{for (int i = 0; i < row.Beoordeling; i++)
-                                    {<img src='~/Books/Coverart/star.jpg' alt='*' />;
+                                    {<img src='~/Books/Coverart/star.png' width="12" alt='*' />;
                                     }
                                     for (int i = 0; i < (5 - row.Beoordeling); i++)
-                                    {<img src='~/Books/Coverart/starempty.png' alt='' />;
+                                    {<img src='~/Books/Coverart/starempty.png' width="12" alt='' />;
                                     }}</a>
                                 </td>
                                 <td><a href="~/List.cshtml?id=@row.ID">@row.Tags</a></td>
@@ -125,6 +134,29 @@
                             <p>@bookInfo.Taal</p>
                             <h5>Beschrijving</h5>
                             <p>@bookInfo.Beschrijving</p>
+                            <!-- Trigger the modal with a button -->
+                            <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+
+                            <!-- Modal -->
+                            <div id="myModal" class="modal fade" role="dialog">
+                                <div class="modal-dialog">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <h4 class="modal-title">Modal Header</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Some text in the modal.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
                         </div>
                     </div>
                 }
