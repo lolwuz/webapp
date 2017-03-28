@@ -1,4 +1,4 @@
-﻿@* Remove this section if you are using bundling *@
+﻿ @* Remove this section if you are using bundling *@
 @section Scripts {
     <script src="~/Scripts/jquery.validate.min.js"></script>
     <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
@@ -16,7 +16,7 @@
     var returnUrl = Request.QueryString["ReturnUrl"];
     if (returnUrl.IsEmpty()) {
         // Some external login providers always require a return URL value
-        returnUrl = Href("~/");
+        returnUrl = Href("~/List.cshtml");
     }
 
     // Setup validation
