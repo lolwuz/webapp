@@ -5,7 +5,7 @@
     var userId = WebSecurity.CurrentUserId;
 
     var db = Database.Open("StarterSite");
-    var selectQueryString = "SELECT * FROM Books ORDER BY Titel";
+    var selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Titel";
 
     if (!IsPost)
     {
@@ -16,25 +16,25 @@
             switch (sortBy.AsInt())
             {
                 case 0:
-                    selectQueryString = "SELECT * FROM Books ORDER BY Titel";
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Titel";
                     break;
                 case 1:
-                    selectQueryString = "SELECT * FROM Books ORDER BY Auteur";
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Auteur";
                     break;
                 case 2:
-                    selectQueryString = "SELECT * FROM Books ORDER BY UitgaveDatum";
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY UitgaveDatum";
                     break;
                 case 3:
-                    selectQueryString = "SELECT * FROM Books ORDER BY Taal";
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Taal";
                     break;
                 case 4:
-                    selectQueryString = "SELECT * FROM Books ORDER BY UploadDatum";
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY UploadDatum";
                     break;
                 case 5:
-                    selectQueryString = "SELECT * FROM Books ORDER BY Serie";
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Serie";
                     break;
                 case 6:
-                    selectQueryString = "SELECT * FROM Books ORDER BY Beoordeling";
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Beoordeling";
                     break;
 
             }
@@ -180,8 +180,8 @@
             </div>
         </div>
     </div>
-}
-else
-{
-    <p>You have to log in first</p>
-}
+                                            }
+                                            else
+                                            {
+                                                Response.Redirect("~/Default");
+                                            }
