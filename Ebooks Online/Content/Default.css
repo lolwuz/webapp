@@ -49,20 +49,14 @@ body {
 }
 
 .card {
-  background: white;
+  background: #fff;
   border-radius: 2px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  overflow-x: hidden;
+  overflow-x: scroll;
   overflow-y: hidden;
-}
+  min-height: 100vh;
+  margin: 0px 0px 0px 0px;
 
-.highlight {
-    background-color: #FF5252;
-    color: white;
-}
-
-.highlight td a {
-    color: white;
 }
 
 .panel-default>.panel-heading {
@@ -72,6 +66,14 @@ body {
 .panel-title {
     color: white;
     font-weight: 600;
+}
+
+.selectedTable {
+    background-color: #2196F3;
+}
+
+.selectedTable td a {
+    color: white;
 }
 
 .hallo{
