@@ -235,13 +235,26 @@
             </h6>
             @if (!IsPost)
             {
+                // Create a list from selected books.
                 for (int i = 0; i < selectListId.Count; i++)
                 {
+                    // If ListId = 0: There is no selected book.
                     if (selectListId[i] != 0)
                     {
-
-                        if (!(selectListId.IndexOf(0) > 1))
+                        // Count the amount off !selected books. 
+                        int countEmpty = 0;
+                        foreach (int ii in selectListId)
                         {
+                            if (ii == 0)
+                            {
+                                countEmpty++;
+                            }
+                        }
+
+                        // If there is only 1 books selected. Show big "preview"
+                        if (countEmpty  > selectListId.Count-2)
+                        {
+                            // Select book Info
                             var statement = "SELECT * FROM Books WHERE Id = @0";
                             var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
@@ -264,6 +277,7 @@
                         }
                         else
                         {
+                            // Select book Info
                             var statement = "SELECT * FROM Books WHERE Id = @0";
                             var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
@@ -276,8 +290,7 @@
                                     <h5>Taal: @bookInfo.Taal</h5>
                                 </div>
                             </div>
-                        }
-                       
+                        }                      
                     }
                 }
             }
