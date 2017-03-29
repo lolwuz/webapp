@@ -9,6 +9,7 @@
 
     if (WebSecurity.IsAuthenticated)
     {
+        //id = Convert.ToString(Session["selectListId"]);
         id = Request.QueryString["Id"];
         var command = "SELECT Books.Path, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
         var row = db.QuerySingle(command, id, gebruiker);
@@ -44,10 +45,6 @@
 
         Response.WriteFile(filepath);
         Response.Flush();
-        //Response.End();
-
-        Validation.AddFormError("Gedownload!");
-        Response.Redirect("~/List.cshtml");
     }
 }
 

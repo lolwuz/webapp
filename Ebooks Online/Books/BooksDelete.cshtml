@@ -11,6 +11,7 @@
     {
         if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0)
         {
+            //id = Convert.ToString(Session["selectListId"]);
             id = Request.QueryString["Id"];
             var command = "SELECT Books.Titel, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
             var row = db.QuerySingle(command, id, gebruiker);
@@ -30,7 +31,7 @@
         Response.Redirect("~/Default.cshtml");
     }
 
-    if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0 && IsPost && WebSecurity.IsAuthenticated)
+    if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0 && IsPost && WebSecurity.IsAuthenticated)
     {
         id = Request.Form["Id"];
         var delete = "DELETE FROM Books WHERE Id = @0";
