@@ -226,12 +226,13 @@
             </form>
         </div>
         <div class="col-sm-3">
-            <label for="basic-url">Zoeken in je boekenlijst</label>
-            <div class="input-group">
-                <span class="input-group-addon" id="basic-addon3">Zoek</span>
-                <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3">
-            </div>
-            <hr />
+            <h4>Geselecteerd boeken</h4>
+            <h6>
+                Acties:
+                <a class="btn btn-default" href="~/Books/BooksDownload.cshtml">Download</a>
+                <a class="btn btn-default" href="~/Books/BooksEmail.cshtml">E-mail</a>
+                <a class="btn btn-danger" href="~/Books/BooksDelete.cshtml">Verwijderen</a>
+            </h6>
             @if (!IsPost)
             {
                 for (int i = 0; i < selectListId.Count; i++)
@@ -268,8 +269,7 @@
 
                             <div class="panel panel-default">
                                 <div class="panel-heading">
-                                    <h3 class="panel-title">@bookInfo.Titel - <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>
-                                    
+                                    <h3 class="panel-title">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>                               
                                 </div>
                                 <div class="panel-body">                                 
                                     <h5>Auteur: @bookInfo.Auteur</h5>                
@@ -277,7 +277,7 @@
                                 </div>
                             </div>
                         }
-
+                       
                     }
                 }
             }
