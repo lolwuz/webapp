@@ -234,29 +234,50 @@
             <hr />
             @if (!IsPost)
             {
-                foreach (var id in selectListId)
+                for (int i = 0; i < selectListId.Count; i++)
                 {
-                    if (id != 0)
+                    if (selectListId[i] != 0)
                     {
-                        var statement = "SELECT * FROM Books WHERE Id = @0";
-                        var bookInfo = db.QuerySingle(statement, id);
 
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h3 class="panel-title">@bookInfo.Titel</h3>
-                                <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a>
-                            </div>
-                            <div class="panel-body">
-                                <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
-                                <h5>Auteur:</h5>
-                                <p>@bookInfo.Titel</p>
-                                <h5>Taal</h5>
-                                <p>@bookInfo.Taal</p>
-                                <h5>Beschrijving</h5>
-                                <p>@bookInfo.Beschrijving</p>
+                        if (!(selectListId.IndexOf(0) > 1))
+                        {
+                            var statement = "SELECT * FROM Books WHERE Id = @0";
+                            var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">@bookInfo.Titel</h3>
+                                    <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a>
+                                </div>
+                                <div class="panel-body">
+                                    <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                                    <h5>Auteur:</h5>
+                                    <p>@bookInfo.Titel</p>
+                                    <h5>Taal</h5>
+                                    <p>@bookInfo.Taal</p>
+                                    <h5>Beschrijving</h5>
+                                    <p>@bookInfo.Beschrijving</p>
+
+                                </div>
                             </div>
-                        </div>
+                        }
+                        else
+                        {
+                            var statement = "SELECT * FROM Books WHERE Id = @0";
+                            var bookInfo = db.QuerySingle(statement, selectListId[i]);
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">@bookInfo.Titel - <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>
+                                    
+                                </div>
+                                <div class="panel-body">                                 
+                                    <h5>Auteur: @bookInfo.Auteur</h5>                
+                                    <h5>Taal: @bookInfo.Taal</h5>
+                                </div>
+                            </div>
+                        }
+
                     }
                 }
             }
