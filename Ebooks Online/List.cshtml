@@ -1,17 +1,22 @@
 ﻿@{
+
+    // Titel en layout
     Page.Title = "Mijn Boeken";
     Layout = "~/_BookListLayout.cshtml";
 
+    // Inlog controle, niet ingelogd?: terug naar Default.cshtml
     if (!WebSecurity.IsAuthenticated)
     {
         Response.Redirect("~/Default.cshtml");
     }
 
+    // Open database
     var userId = WebSecurity.CurrentUserId;
 
     var db = Database.Open("StarterSite");
     var selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Titel";
 
+    // Boekenlijst sortatie.
     var sortBy = "0";
 
     if (!IsPost)
@@ -49,6 +54,8 @@
 
             }
         }
+
+        // Geef sterren aanboek.
         if (!Request.QueryString["st"].IsEmpty() && Request.QueryString["st"].AsInt() >= 0)
         {
             var clickedStar = Request.QueryString["st"].AsInt() + 1;
@@ -58,6 +65,25 @@
             db.Execute(statement, clickedStar, bookId);
         }
     }
+
+    // List met geselecteerd uit lijst
+
+
+    List<bool> selectList = new List<bool>();
+    List<int> selectListId = new List<int>();
+
+    foreach (var row in db.Query(selectQueryString))
+    {
+        selectList.Add(false);
+        selectListId.Add(0);
+    }
+
+    if (Session["selectList"] == null)
+    {
+        Session["selectList"] = selectList;
+        Session["selectListId"] = selectListId;
+    }
+
 }
 
 <div class="container-fluid">
@@ -98,80 +124,100 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var row in db.Query(selectQueryString))
-                        {
-                            bool selected = false;
-                            if (!IsPost)
+                        @{
+                            int ii = 0;
+
+                            selectList = (List<bool>)Session["selectList"];
+                            selectListId = (List<int>)Session["selectListId"];
+
+                            foreach (var row in db.Query(selectQueryString))
                             {
-                                if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                                if (!IsPost)
                                 {
-                                    var bookId = Request.QueryString["id"];
 
-                                    if (row.ID == bookId.AsInt())
+                                    if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
                                     {
-                                        selected = true;
-                                    }
-                                }
-                            }
+                                        var bookId = Request.QueryString["id"];
 
-                            if (selected)
-                            {
-                                <tr class="selectedTable">
-                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">10mb</a></td>
-                                    <td>
-                                        @{
-                                            for (int i = 0; i < 5; i++)
+                                        if (row.ID == bookId.AsInt())
+                                        {
+                                            if (!selectList[ii])
                                             {
-                                                if (i < row.Beoordeling)
-                                                {
-                                                    <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
-                                                }
-                                                else
-                                                {
-                                                    <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
-                                                }
-                                            }
-                                        }
-                                    </td>
-                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
-                                </tr>
-
+                                                selectList[ii] = true;
+                                                selectListId[ii] = bookId.AsInt();
                                             }
                                             else
                                             {
-                                                <tr>
-                                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">10mb</a></td>
-                                                    <td>
-                                                        @{
-                                                            for (int i = 0; i < 5; i++)
-                                                            {
-                                                                if (i < row.Beoordeling)
+                                                selectList[ii] = false;
+                                                selectListId[ii] = 0;
+                                            }
+                                        }
+
+                                    }
+                                }
+
+                                if (selectList[ii])
+                                {
+                                    ii++;
+                                    <tr class="selectedTable">
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">10mb</a></td>
+                                        <td>
+                                            @{
+                                                for (int i = 0; i < 5; i++)
+                                                {
+                                                    if (i < row.Beoordeling)
+                                                    {
+                                                        <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                    }
+                                                }
+                                            }
+                                        </td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
+                                    </tr>
+
+                                                }
+                                                else
+                                                {
+                                                    ii++;
+                                                    <tr>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">10mb</a></td>
+                                                        <td>
+                                                            @{
+                                                                for (int i = 0; i < 5; i++)
                                                                 {
-                                                                    <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                                    if (i < row.Beoordeling)
+                                                                    {
+                                                                        <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                                    }
                                                                 }
                                                             }
-                                                        }
-                                                    </td>
-                                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                                    <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
-                                                </tr>
+                                                        </td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
+                                                    </tr>
+                                                                    }
                                                                 }
-                                                            }
+                                                                
+                        }
                     </tbody>
                 </table>
             </form>
@@ -185,49 +231,29 @@
             <hr />
             @if (!IsPost)
             {
-                if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                foreach (var id in selectListId)
                 {
-                    var boekId = Request.QueryString["id"];
-                    var statement = "SELECT * FROM Books WHERE Id = @0";
-                    var bookInfo = db.QuerySingle(statement, boekId);
+                    if (id != 0)
+                    {
+                        var statement = "SELECT * FROM Books WHERE Id = @0";
+                        var bookInfo = db.QuerySingle(statement, id);
 
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">@bookInfo.Titel</h3>
-                        </div>
-                        <div class="panel-body">
-                            <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
-                            <h5>Auteur:</h5>
-                            <p>@bookInfo.Titel</p>
-                            <h5>Taal</h5>
-                            <p>@bookInfo.Taal</p>
-                            <h5>Beschrijving</h5>
-                            <p>@bookInfo.Beschrijving</p>
-                            <!-- Trigger the modal with a button -->
-                            <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">@bookInfo.Titel</h3>
+                            </div>
+                            <div class="panel-body">
+                                <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                                <h5>Auteur:</h5>
+                                <p>@bookInfo.Titel</p>
+                                <h5>Taal</h5>
+                                <p>@bookInfo.Taal</p>
+                                <h5>Beschrijving</h5>
+                                <p>@bookInfo.Beschrijving</p>
 
-                            <!-- Modal -->
-                            <div id="myModal" class="modal fade" role="dialog">
-                                <div class="modal-dialog">
-
-                                    <!-- Modal content-->
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                            <h4 class="modal-title">Modal Header</h4>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>Some text in the modal.</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-
-                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 }
             }
         </div>
