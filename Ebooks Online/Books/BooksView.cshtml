@@ -2,11 +2,28 @@
     Page.Title = "View Books";
     Layout = "~/_BookListLayout.cshtml";
 
-    var currentPdf = "MyPdfFile.pdf";
+    if (WebSecurity.IsAuthenticated)
+    {
+        var db = Database.Open("StarterSite");
+        string currentId = Request.QueryString["id"];
+        var validationCheck = db.QueryValue("SELECT Id FROM Books WHERE Gebruiker = @0 AND Id = @1", WebSecurity.CurrentUserId, currentId);
+
+        if (validationCheck != null)
+        {
+            string path = db.QueryValue("SELECT Path FROM Books WHERE Id = @0", currentId);
+            string fileName = path.Substring(path.Length - 14);
+
+            <div class="pdfViewer">
+                <object data="~/Books/Files/@fileName" type='application/pdf' class="pdfViewer">
+                    <embed src="~/Books/Files/@fileName" type='application/pdf' class="pdfViewer"></embed>
+                </object>
+            </div>
+
+        }
+        else
+        {
+            <h2 style="color: red">Het boek dat u probeert te selecteren bestaat niet, of is niet in uw bezit.</h2>
+        }
+    }
 }
 
-<div class="pdfViewer">
-    <object data="~/Books/Files/@currentPdf" type='application/pdf' class="pdfViewer">
-        <embed src="~/Books/Files/@currentPdf" type='application/pdf' class="pdfViewer"></embed>
-    </object>
-</div>

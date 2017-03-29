@@ -36,8 +36,26 @@
 
                         <li><a href="~/Books/BooksAdd.cshtml">Add Book</a></li>
                         <li><a href="~/Books/BooksUpdate.cshtml">Edit Metadata</a></li>
-                        <li><a href="~/Books/BooksView.cshtml">View</a></li>
-                        <li><a href="#">Download</a></li>
+                        @if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                        {
+                            var bookId = Request.QueryString["id"];
+                            <li><a href="~/Books/BooksView.cshtml?id=@bookId">View Selected Book</a></li>
+
+                        }
+                        else
+                        {
+                            <li><a href="~/List.cshtml">View Selected Book</a></li>
+                        }
+                        @if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                        {
+                            var bookId = Request.QueryString["id"];
+                            <li><a href="~/Books/BooksDownload.cshtml?id=@bookId">Download</a></li>
+
+                        }
+                        else
+                        {
+                            <li><a href="~/List.cshtml">Download</a></li>
+                        }
                         <li><a href="~/Books/BooksDelete.cshtml">Remove Books</a></li>
                         <li><a href="#">Convert Books</a></li>
                     </ul>
