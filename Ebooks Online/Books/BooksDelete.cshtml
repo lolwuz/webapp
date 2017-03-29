@@ -2,7 +2,7 @@
     Page.Title = "Boek verwijderen";
     Layout = "~/_BookListLayout.cshtml";
 
-    var bookname = "";
+    var titel = "";
     var id = "";
 
     if (!IsPost && WebSecurity.IsAuthenticated)
@@ -10,12 +10,12 @@
         if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0)
         {
             id = Request.QueryString["ID"];
-            var db = Database.Open("");
-            var command = "SELECT boeknaam FROM tabel WHERE ID = @0";
+            var db = Database.Open("StarterSite");
+            var command = "SELECT Titel FROM Books WHERE Id = @0";
             var row = db.QuerySingle(command, id);
             if (row != null)
             {
-                bookname = row.bookname;
+                titel = row.Titel;
             }
             else
             {
@@ -34,7 +34,7 @@
         id = Request.Form["id"];
 
         var db = Database.Open("");
-        var delete = "DELETE FROM tabel WHERE ID = @0";
+        var delete = "DELETE FROM Books WHERE Id = @0";
         db.Execute(delete, id);
 
         Response.Redirect("~/Books/BooksView.cshtml");
@@ -48,8 +48,8 @@
 <form method="post">
     <fieldset>
         <p>
-            <span>Boeknaam:</span>
-            <span>@bookname</span>
+            <span>Titel van het boek:</span>
+            <span>@titel</span>
         </p>
         <input type="hidden" name="id" value="@id" />
         <p><input type="submit" name="Delete" value="Verwijder dit boek"/></p>

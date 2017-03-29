@@ -1,14 +1,49 @@
 ﻿@{
     Page.Title = "Boek downloaden";
     Layout = "~/BookListLayout.cshtml";
-    var filename = "Harry.pdf";
-    string filepath = Server.MapPath("~/Books/Files/" + filename);
+    string path = "";
+    var id = "";
+
+    id = Request.QueryString["ID"];
+    var db = Database.Open("StarterSite");
+    var command = "SELECT Path FROM Books WHERE Id = @0";
+    var row = db.QuerySingle(command, id);
+    if (row != null)
+    {
+        path = row.Path;
+    }
+    else
+    {
+        Validation.AddFormError("Er gaat iets fout.");
+    }
+
+    string filename = path.Substring(path.Length - 14);
+    string filepath = Server.MapPath(path);
     Response.Clear();
 
     Response.AppendHeader("content-disposition", "attachment; filename=" + filename);
-    Response.ContentType = "application/pdf";
+
+    if (filename.EndsWith("pdf"))
+    {
+        Response.ContentType = "application/pdf";
+
+    }
+    else if (filename.EndsWith("epub"))
+    {
+        Response.ContentType = "application/epub";
+    }
+
+    else if (filename.EndsWith("mobi"))
+    {
+        Response.ContentType = "application/mobi";
+    }
+
     Response.WriteFile(filepath);
     Response.Flush();
-    Response.End();
+    //Response.End();
+
+    Validation.AddFormError("Gedownload!");
     Response.Redirect("~/BooksView.cshtml");
 }
+
+<input type="hidden" name="id" value="@id" />
