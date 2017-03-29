@@ -56,7 +56,15 @@
                         {
                             <li><a href="~/List.cshtml">Download</a></li>
                         }
-                        <li><a href="~/Books/BooksDelete.cshtml">Remove Books</a></li>
+                        @if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                        {
+                            var bookId = Request.QueryString["id"];
+                            <li><a href="~/Books/BooksDelete.cshtml?id=@bookId">Remove Book(s)</a></li>
+                        }
+                        else
+                        {
+                            <li><a href="~/List.cshtml">Remove book(s)</a></li>
+                        }
                         <li><a href="#">Convert Books</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
