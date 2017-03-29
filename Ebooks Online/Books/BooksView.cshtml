@@ -2,28 +2,30 @@
     Page.Title = "View Books";
     Layout = "~/_BookListLayout.cshtml";
 
-    if (WebSecurity.IsAuthenticated)
+    if (!WebSecurity.IsAuthenticated)
     {
-        var db = Database.Open("StarterSite");
-        string currentId = Request.QueryString["id"];
-        var validationCheck = db.QueryValue("SELECT Id FROM Books WHERE Gebruiker = @0 AND Id = @1", WebSecurity.CurrentUserId, currentId);
+        Response.Redirect("~/Default.cshtml");
+    }
 
-        if (validationCheck != null)
-        {
-            string path = db.QueryValue("SELECT Path FROM Books WHERE Id = @0", currentId);
-            string fileName = path.Substring(path.Length - 14);
+    var db = Database.Open("StarterSite");
+    string currentId = Request.QueryString["id"];
+    var validationCheck = db.QueryValue("SELECT Id FROM Books WHERE Gebruiker = @0 AND Id = @1", WebSecurity.CurrentUserId, currentId);
 
-            <div class="pdfViewer">
-                <object data="~/Books/Files/@fileName" type='application/pdf' class="pdfViewer">
-                    <embed src="~/Books/Files/@fileName" type='application/pdf' class="pdfViewer"></embed>
-                </object>
-            </div>
+    if (validationCheck != null)
+    {
+        string path = db.QueryValue("SELECT Path FROM Books WHERE Id = @0", currentId);
+        string fileName = path.Substring(14);
 
-        }
-        else
-        {
-            <h2 style="color: red">Het boek dat u probeert te selecteren bestaat niet, of is niet in uw bezit.</h2>
-        }
+        <div class="pdfViewer">
+            <object data="~/Books/Files/@fileName" type='application/pdf' class="pdfViewer">
+                <embed src="~/Books/Files/@fileName" type='application/pdf' class="pdfViewer"></embed>
+            </object>
+        </div>
+
+    }
+    else
+    {
+        <h2 style="color: red">Het boek dat u probeert te selecteren bestaat niet, of is niet in uw bezit.</h2>
     }
 }
 
