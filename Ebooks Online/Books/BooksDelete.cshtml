@@ -4,40 +4,36 @@
 
     var titel = "";
     var id = "";
+    var db = Database.Open("StarterSite");
+    var gebruiker = WebSecurity.CurrentUserName;
 
-    if (!IsPost && WebSecurity.IsAuthenticated)
+    if (WebSecurity.IsAuthenticated)
     {
-        if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0)
+        id = Request.QueryString["Id"];
+        var command = "SELECT Books.Titel, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
+        var row = db.QuerySingle(command, id, gebruiker);
+        if (row != null)
         {
-            id = Request.QueryString["ID"];
-            var db = Database.Open("StarterSite");
-            var command = "SELECT Titel FROM Books WHERE Id = @0";
-            var row = db.QuerySingle(command, id);
-            if (row != null)
-            {
-                titel = row.Titel;
-            }
-            else
-            {
-                Validation.AddFormError("Dit boek bestaat niet.");
-            }
+            titel = row.Titel;
         }
-
         else
         {
             Validation.AddFormError("Dit boek bestaat niet.");
         }
     }
+    else
+    {
+        Validation.AddFormError("Je hebt hier geen rechten voor.");
+        Response.Redirect("~/Default.cshtml");
+    }
 
-    if (IsPost && !Request["Delete"].IsEmpty() && WebSecurity.IsAuthenticated)
+    if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0 && IsPost && WebSecurity.IsAuthenticated)
     {
         id = Request.Form["id"];
 
-        var db = Database.Open("");
         var delete = "DELETE FROM Books WHERE Id = @0";
         db.Execute(delete, id);
-
-        Response.Redirect("~/Books/BooksView.cshtml");
+        Response.Redirect("~/List.cshtml");
     }
 }
 

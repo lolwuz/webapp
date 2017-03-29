@@ -1,49 +1,58 @@
 ﻿@{
-    Page.Title = "Boek downloaden";
-    Layout = "~/BookListLayout.cshtml";
-    string path = "";
     var id = "";
-
-    id = Request.QueryString["ID"];
     var db = Database.Open("StarterSite");
-    var command = "SELECT Path FROM Books WHERE Id = @0";
-    var row = db.QuerySingle(command, id);
-    if (row != null)
+    var gebruiker = WebSecurity.CurrentUserName;
+
+    
+
+    if (WebSecurity.IsAuthenticated)
     {
-        path = row.Path;
+
+        Page.Title = "Boek downloaden";
+        Layout = "~/BookListLayout.cshtml";
+        string path = "";
+
+        id = Request.QueryString["Id"];
+        var command = "SELECT Books.Path, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
+        var row = db.QuerySingle(command, id, gebruiker);
+        if (row != null)
+        {
+            path = row.Path;
+        }
+        else
+        {
+            Validation.AddFormError("Er gaat iets fout.");
+        }
+
+        string filename = path.Substring(14);
+        string filepath = Server.MapPath(path);
+        Response.Clear();
+
+        Response.AppendHeader("content-disposition", "attachment; filename=" + filename);
+
+        if (filename.EndsWith("pdf"))
+        {
+            Response.ContentType = "application/pdf";
+
+        }
+        else if (filename.EndsWith("epub"))
+        {
+            Response.ContentType = "application/epub";
+        }
+
+        else if (filename.EndsWith("mobi"))
+        {
+            Response.ContentType = "application/mobi";
+        }
+
+        Response.WriteFile(filepath);
+        Response.Flush();
     }
     else
     {
-        Validation.AddFormError("Er gaat iets fout.");
+        Validation.AddFormError("Je hebt hier geen rechten voor.");
+        Response.Redirect("~/Default.cshtml");
     }
-
-    string filename = path.Substring(path.Length - 14);
-    string filepath = Server.MapPath(path);
-    Response.Clear();
-
-    Response.AppendHeader("content-disposition", "attachment; filename=" + filename);
-
-    if (filename.EndsWith("pdf"))
-    {
-        Response.ContentType = "application/pdf";
-
-    }
-    else if (filename.EndsWith("epub"))
-    {
-        Response.ContentType = "application/epub";
-    }
-
-    else if (filename.EndsWith("mobi"))
-    {
-        Response.ContentType = "application/mobi";
-    }
-
-    Response.WriteFile(filepath);
-    Response.Flush();
-    //Response.End();
-
-    Validation.AddFormError("Gedownload!");
-    Response.Redirect("~/BooksView.cshtml");
 }
 
 <input type="hidden" name="id" value="@id" />
