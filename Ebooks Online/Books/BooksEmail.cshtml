@@ -8,6 +8,8 @@
     Layout = "~/_SiteLayout.cshtml";
     Page.Title = "Ebooks mailen";
 
+    <h1>@Page.Title.</h1>
+
     bool passwordSent = false;
     var email = Request.Form["email"] ?? Request.QueryString["email"];
 
@@ -16,7 +18,7 @@
 
     List<int> selectedId = Session["selectListId"] as List<int>;
 
-    if(selectedId == null)
+    if (selectedId == null)
     {
         <h1>U heeft geen boeken geselecteerd. U kunt op de hoofdpagina boeken selecteren.</h1>
     }
@@ -26,10 +28,21 @@
 
         var db = Database.Open("StarterSite");
 
-        for (int i = 0; i < 1 ; i++)
+        <h3>De volgende boeken zijn geselecteerd</h3>
+
+        for (int i = 0; i < selectedId.Count; i++)
+        {
+            string Boek = db.QueryValue("SELECT Titel FROM Books Where Id = " + selectedId[i]);
+            <p>@Boek</p>
+        }
+
+        for (int i = 0; i < selectedId.Count; i++)
         {
             string AttachedFile = db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i]);
-            attachfile.Add(AttachedFile);
+            if (!(AttachedFile == null))
+            {
+                attachfile.Add(AttachedFile);
+            }
         }
 
         if (IsPost)
@@ -50,11 +63,9 @@
             }
         }
     }
-}
+    }
 
-<hgroup class="title">
-    <h1>@Page.Title.</h1>
-</hgroup>
+
 
 @if (!WebMail.SmtpServer.IsEmpty()) {
     if (passwordSent) {
