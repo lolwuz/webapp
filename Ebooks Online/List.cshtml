@@ -125,8 +125,6 @@
                     </thead>
                     <tbody>
                         @{
-                            int ii = 0;
-
                             selectList = (List<bool>)Session["selectList"];
                             selectListId = (List<int>)Session["selectListId"];
 
@@ -141,24 +139,29 @@
 
                                         if (row.ID == bookId.AsInt())
                                         {
-                                            if (!selectList[ii])
+
+                                            int index = selectListId.IndexOf(row.ID);
+                                            if (index == -1)
                                             {
-                                                selectList[ii] = true;
-                                                selectListId[ii] = bookId.AsInt();
+                                                int emptyIndex = selectListId.IndexOf(0);
+                                                selectList[emptyIndex] = true;
+                                                selectListId[emptyIndex] = bookId.AsInt();
                                             }
                                             else
                                             {
-                                                selectList[ii] = false;
-                                                selectListId[ii] = 0;
+                               
+                                                selectList[index] = false;
+                                                selectListId[index] = 0;
+                                                
                                             }
                                         }
 
                                     }
                                 }
 
-                                if (selectList[ii])
+
+                                if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
                                 {
-                                    ii++;
                                     <tr class="selectedTable">
                                         <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
                                         <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
@@ -188,7 +191,7 @@
                                                 }
                                                 else
                                                 {
-                                                    ii++;
+                                              
                                                     <tr>
                                                         <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
                                                         <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
