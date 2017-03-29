@@ -16,99 +16,82 @@
     <meta name="viewport" content="width=device-width" />
 </head>
 <body>
-    <header>
-        <!-- Static navbar -->
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a href="~/List.cshtml">
-                        <img src="~/img/Logo-White.png" alt="Logo-White" height="50" />
-                    </a>
-                </div>
-                <div id="navbar" class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
+    <div class="wrapper">
+        <header>
+            <!-- Static navbar -->
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a href="~/List.cshtml">
+                            <img src="~/img/Logo-White.png" alt="Logo-White" height="50" />
+                        </a>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
 
-                        <li><a href="~/Books/BooksAdd.cshtml">Add Book</a></li>
-                        <li><a href="~/Books/BooksUpdate.cshtml">Edit Metadata</a></li>
-                        @if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
-                        {
-                            var bookId = Request.QueryString["id"];
-                            <li><a href="~/Books/BooksView.cshtml?id=@bookId">View Selected Book</a></li>
-
-                        }
-                        else
-                        {
-                            <li><a href="~/List.cshtml">View Selected Book</a></li>
-                        }
-                        @if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
-                        {
-                            var bookId = Request.QueryString["id"];
-                            <li><a href="~/Books/BooksDownload.cshtml?id=@bookId">Download</a></li>
-
-                        }
-                        else
-                        {
-                            <li><a href="~/List.cshtml">Download</a></li>
-                        }
-                        @if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
-                        {
-                            var bookId = Request.QueryString["id"];
-                            <li><a href="~/Books/BooksDelete.cshtml?id=@bookId">Remove Book(s)</a></li>
-                        }
-                        else
-                        {
-                            <li><a href="~/List.cshtml">Remove book(s)</a></li>
-                        }
-                        <li><a href="#">Convert Books</a></li>
-                    </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown">
-                            @{
-                                Database db = Database.Open("StarterSite");
-                                var username = db.QueryValue("SELECT name FROM UserProfile WHERE userId = @0", WebSecurity.CurrentUserId);
+                            <li><a href="~/Books/BooksAdd.cshtml">Add Book</a></li>
+                            <li><a href="~/Books/BooksUpdate.cshtml">Edit Metadata</a></li>
+                            @if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                            {
+                                var bookId = Request.QueryString["id"];
+                                <li><a href="~/Books/BooksDelete.cshtml?id=@bookId">Remove Book(s)</a></li>
                             }
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@username <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a class="email" href="~/Account/Manage" title="Manage">@username</a>
-                                </li>
-                                <li><a href="#">Action</a></li>
-                                <li><a href="#">Another action</a></li>
-                                <li><a href="#">Something else here</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="#">Separated link</a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <form id="logoutForm" class="forms" action="~/Account/Logout" method="post">
-                                @AntiForgery.GetHtml()
-                                <a href="javascript:document.getElementById('logoutForm').submit()">Log out</a>
-                            </form>
-                        </li>
-                    </ul>
-                </div><!--/.nav-collapse -->
-            </div><!--/.container-fluid -->
-        </nav>
-    </header>
-    <div id="body">
-        @RenderSection("featured", required: false)
-        <section class="content-wrapper main-content clear-fix">
-            @RenderBody()
-        </section>
+                            else
+                            {
+                                <li><a href="~/List.cshtml">Remove book(s)</a></li>
+                            }
+                            <li><a href="#">Convert Books</a></li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                @{
+                                    Database db = Database.Open("StarterSite");
+                                    var username = db.QueryValue("SELECT name FROM UserProfile WHERE userId = @0", WebSecurity.CurrentUserId);
+                                }
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@username <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="email" href="~/Account/Manage" title="Manage">@username</a>
+                                    </li>
+                                    <li><a href="#">Action</a></li>
+                                    <li><a href="#">Another action</a></li>
+                                    <li><a href="#">Something else here</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="#">Separated link</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <form id="logoutForm" class="forms" action="~/Account/Logout" method="post">
+                                    @AntiForgery.GetHtml()
+                                    <a href="javascript:document.getElementById('logoutForm').submit()">Log out</a>
+                                </form>
+                            </li>
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div><!--/.container-fluid -->
+            </nav>
+        </header>
+        <div id="body">
+            @RenderSection("featured", required: false)
+            <section class="content-wrapper main-content clear-fix">
+                @RenderBody()
+            </section>
+        </div>
+        <div class="push"></div>
     </div>
-    <footer>
+    <div class="footer">
         <div class="content-wrapper">
             <div class="float-left">
                 <p>&copy; @DateTime.Now.Year - UltraDreamTeam Inc. All Rights Reserved.</p>
             </div>
         </div>
-    </footer>
+    </div>
     @RenderSection("Scripts", required: false)
 </body>
 </html>
