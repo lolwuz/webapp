@@ -55,7 +55,7 @@
             int currentuser = WebSecurity.CurrentUserId;
             var dirindex = "*" + data_filename;
             string[] dirs = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirindex);
-
+            data_filename = data_filename.Split(new[] { "."+data_type }, StringSplitOptions.None)[0];
             var db = Database.Open("StarterSite");
             var LastBookID = db.Query("INSERT INTO Books (Gebruiker,Titel,Auteur,Uitgever,UitgaveDatum,Taal,UploadDatum,Path,Beschrijving,Tags,Serie,Beoordeling,Grootte,OriginalFormat)" +
         "VALUES(@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13)",
@@ -65,7 +65,7 @@
             long lastId = (long)db.GetLastInsertId();
             db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", lastId+data_filename, lastId);
 
-            File.Copy(dirs[0], Server.MapPath("~/Books/Files/" + lastId + data_filename));
+            File.Copy(dirs[0], Server.MapPath("~/Books/Files/" + lastId + data_filename+"."+data_type));
             Console.WriteLine(" ");
             //Array.ForEach(Directory.GetFiles(Server.MapPath("~/Books/Files/temp/")), File.Delete);
             //var final_Path = Server.MapPath("~/Books/Files/"+ data_filename);
