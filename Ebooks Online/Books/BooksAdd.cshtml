@@ -1,4 +1,6 @@
 ﻿@using Microsoft.Web.Helpers;
+@using System.Globalization;
+@using System.Text.RegularExpressions;
 @using iTextSharp;
 @using iTextSharp.text;
 @using iTextSharp.text.pdf;
@@ -6,26 +8,70 @@
     Layout = "~/_BookListLayout.cshtml";
     var fileName = "";
     var uitgever = "-";
-    var uitgavedtm = "-";
+    var uitgavedtm = "00/00/00 00:00:00";
     var taal = "-";
     var beschrijving = "-";
     var boekserie = "-";
+    var type = "";
+    var grootte = 0;
+    HttpPostedFileBase uploadedFile = null;
     Dictionary<String, String> metadata = new Dictionary<String, String>();
+
     if (IsPost)
     {
-        var uploadedFile = Request.Files[0];
-        Random rnd = new Random();
-        var grootte = (uploadedFile.ContentLength / 1024)/1024;
-        var type = uploadedFile.ContentType.Split('/')[1];
-        fileName = Path.GetFileName(uploadedFile.FileName);
-        var fileSavePath = Server.MapPath("~/Books/Files/temp/" + rnd.Next(1, 9999) +
-           fileName);
-        uploadedFile.SaveAs(fileSavePath);
-        PdfReader file = new PdfReader(fileSavePath);
-        metadata["Title"] = (file.Info.ContainsKey("Title")) ? file.Info["Title"] : "-";
-        metadata["Subject"] = (file.Info.ContainsKey("Subject")) ? file.Info["Subject"] : "-";
-        metadata["Author"] = (file.Info.ContainsKey("Author")) ? file.Info["Author"]: "-";
-        metadata["Keywords"] = (file.Info.ContainsKey("Keywords")) ? file.Info["Keywords"] : "-";
+        if (Request["fileupload"] == null)
+        {
+            uploadedFile = Request.Files[0];
+            Random rnd = new Random();
+            grootte = (uploadedFile.ContentLength / 1024) / 1024;
+            type = uploadedFile.ContentType.Split('/')[1];
+            fileName = Path.GetFileName(uploadedFile.FileName);
+            var fileSavePath = Server.MapPath("~/Books/Files/temp/" + rnd.Next(1, 9999) +
+               fileName);
+            uploadedFile.SaveAs(fileSavePath);
+            PdfReader file = new PdfReader(fileSavePath);
+            metadata["Title"] = (file.Info.ContainsKey("Title")) ? file.Info["Title"] : "-";
+            metadata["Subject"] = (file.Info.ContainsKey("Subject")) ? file.Info["Subject"] : "-";
+            metadata["Author"] = (file.Info.ContainsKey("Author")) ? file.Info["Author"] : "-";
+            metadata["Keywords"] = (file.Info.ContainsKey("Keywords")) ? file.Info["Keywords"] : "-";
+        }
+        else
+        {
+            var data_grootte = Request["grootte"];
+            var data_type = Request["type"];
+            var data_filename = Request["filename"];
+            var data_titel = Request["titel"];
+            var data_onderwerp = Request["onderwerp"];
+            var data_auteur = Request["auteur"];
+            var data_uitgever = Request["uitgever"];
+            string data_uitgavedtm = Request["uitgavedtm"];
+            var data_taal = Request["taal"];
+            var data_beschrijving = Request["beschrijving"];
+            var data_boekserie = Request["boekserie"];
+            var data_tags = Request["tags"];
+            var currentuser = WebSecurity.CurrentUserId;
+            string currentTime = DateTime.Now.ToString();
+            var dirindex = "*" + data_filename;
+            string[] dirs = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirindex);
+
+            var db = Database.Open("StarterSite");
+            db.Query("INSERT INTO Books (Gebruiker,Titel,Auteur,Uitgever,UitgaveDatum,Taal,UploadDatum,Path,Cover,Beschrijving,Tags,Serie,Beoordeling,Grootte,Format)" +
+                "VALUES(@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13,@14)",
+                currentuser, data_titel, data_auteur, data_uitgever, data_uitgavedtm, data_taal, DateTime.Now, dirs[0], " ", data_beschrijving, data_tags, data_boekserie, 0, data_grootte, data_type);
+
+            var LastBookID = db.Query("SELECT Id FROM Books WHERE Path=@0", dirs[0]);
+            //db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", dirs[0] + LastBookID, LastBookID);
+
+            File.Move(dirs[0], Server.MapPath("~/Books/Files/" + data_filename));
+            Console.WriteLine(" ");
+            //Array.ForEach(Directory.GetFiles(Server.MapPath("~/Books/Files/temp/")), File.Delete);
+            //var final_Path = Server.MapPath("~/Books/Files/"+ data_filename);
+            //PdfWriter writer = PdfWriter.GetInstance(data_filename, new FileStream(final_Path, FileMode.Create));
+
+
+        }
+
+
     }
 
 }
@@ -47,21 +93,27 @@
         uploadText: "Upload")
 @if (IsPost)
 {
-    <button id="upload">Upload</button>
-    <form>
-        <table>
-            <tr><th>Titel&nbsp;&nbsp;</th><th>Onderwerp&nbsp;&nbsp;</th><th>Auteur&nbsp;&nbsp;</th><th>Uitgever&nbsp;&nbsp;</th><th>Uitgavedatum&nbsp;&nbsp;</th><th>Taal&nbsp;&nbsp;</th><th>Beschrijving&nbsp;&nbsp;</th><th>Boekserie&nbsp;&nbsp;</th><th>Tags</th></tr>
-            <tr>
-                <td><input type="text" name="titel" value="@metadata["Title"]" /></td>
-                <td><input type="text" name="onderwerp" value="@metadata["Subject"]" /></td>
-                <td><input type="text" name="auteur" value="@metadata["Author"]" /></td>
-                <td><input type="text" name="uitgever" value=@uitgever /></td>
-                <td><input type="text" name="uitgavedtm" value=@uitgavedtm /></td>
-                <td><input type="text" name="taal" value=@taal /></td>
-                <td><input type="text" name="beschrijving" value=@beschrijving /></td>
-                <td><input type="text" name="boekserie" value=@boekserie /></td>
-                <td><input type="text" name="tags" value="@metadata["Keywords"]" /></td>
-            </tr>
-        </table>
-    </form>
+    if (Request["fileupload"] == null)
+    {
+        <form method="post">
+            <input id="upload" type="submit" name="fileupload" value="Upload" /><br />
+            <input type="hidden" value=@grootte name="grootte" />
+            <input type="hidden" value=@type name="type" />
+            <input type="hidden" value=@fileName name="filename" />
+            <table>
+                <tr><th>Titel&nbsp;&nbsp;</th><th>Onderwerp&nbsp;&nbsp;</th><th>Auteur&nbsp;&nbsp;</th><th>Uitgever&nbsp;&nbsp;</th><th>Uitgavedatum&nbsp;&nbsp;</th><th>Taal&nbsp;&nbsp;</th><th>Beschrijving&nbsp;&nbsp;</th><th>Boekserie&nbsp;&nbsp;</th><th>Tags</th></tr>
+                <tr>
+                    <td><input type="text" name="titel" value="@metadata["Title"]" /></td>
+                    <td><input type="text" name="onderwerp" value="@metadata["Subject"]" /></td>
+                    <td><input type="text" name="auteur" value="@metadata["Author"]" /></td>
+                    <td><input type="text" name="uitgever" value=@uitgever /></td>
+                    <td><input type="text" name="uitgavedtm" value=@uitgavedtm /></td>
+                    <td><input type="text" name="taal" value=@taal /></td>
+                    <td><input type="text" name="beschrijving" value=@beschrijving /></td>
+                    <td><input type="text" name="boekserie" value=@boekserie /></td>
+                    <td><input type="text" name="tags" value="@metadata["Keywords"]" /></td>
+                </tr>
+            </table>
+        </form>
+    }
 }
