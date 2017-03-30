@@ -53,7 +53,6 @@
             var data_boekserie = Request["boekserie"];
             var data_tags = Request["tags"];
             int currentuser = WebSecurity.CurrentUserId;
-            string currentTime = DateTime.Now.ToString();
             var dirindex = "*" + data_filename;
             string[] dirs = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirindex);
 
@@ -64,8 +63,8 @@
 
 
             long lastId = (long)db.GetLastInsertId();
-            db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", dirs[0] + lastId, lastId);
-            
+            db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", lastId+data_filename, lastId);
+
             File.Copy(dirs[0], Server.MapPath("~/Books/Files/" + lastId + data_filename));
             Console.WriteLine(" ");
             //Array.ForEach(Directory.GetFiles(Server.MapPath("~/Books/Files/temp/")), File.Delete);
