@@ -60,14 +60,13 @@
             var db = Database.Open("StarterSite");
             var LastBookID = db.Query("INSERT INTO Books (Gebruiker,Titel,Auteur,Uitgever,UitgaveDatum,Taal,UploadDatum,Path,Beschrijving,Tags,Serie,Beoordeling,Grootte,OriginalFormat)" +
         "VALUES(@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13)",
-        currentuser, data_titel, data_auteur, data_uitgever, data_uitgavedtm, data_taal, DateTime.Now, dirs[0], data_beschrijving, data_tags, data_boekserie, 0, data_grootte, data_type);
+        currentuser, data_titel, data_auteur, data_uitgever, data_uitgavedtm, data_taal, DateTime.Now, data_filename, data_beschrijving, data_tags, data_boekserie, 0, data_grootte, data_type);
 
 
             long lastId = (long)db.GetLastInsertId();
-            //var LastBookID = db.Query("SELECT Id FROM Books WHERE Path=@0", dirs[0]);
-            //db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", dirs[0] + LastBookID, LastBookID);
-
-            File.Move(dirs[0], Server.MapPath("~/Books/Files/" + data_filename));
+            db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", dirs[0] + lastId, lastId);
+            
+            File.Copy(dirs[0], Server.MapPath("~/Books/Files/" + lastId + data_filename));
             Console.WriteLine(" ");
             //Array.ForEach(Directory.GetFiles(Server.MapPath("~/Books/Files/temp/")), File.Delete);
             //var final_Path = Server.MapPath("~/Books/Files/"+ data_filename);
