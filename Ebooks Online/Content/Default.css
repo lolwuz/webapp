@@ -90,7 +90,7 @@ body {
 .hallo{
     font-size: 15em;
     margin: auto;
-    width: 1000px;
+    width: 100%;
 }
 
 #body {
