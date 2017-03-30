@@ -1,10 +1,9 @@
 ﻿@{
-
-    // Titel en layout
+    // Title and layout.
     Page.Title = "Mijn Boeken";
     Layout = "~/_BookListLayout.cshtml";
 
-    // Inlog controle, niet ingelogd?: terug naar Default.cshtml
+    // Check Login.
     if (!WebSecurity.IsAuthenticated)
     {
         Response.Redirect("~/Default.cshtml");
@@ -15,12 +14,11 @@
 
     var db = Database.Open("StarterSite");
     var selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Titel";
-
-    // Boekenlijst sortatie.
     var sortBy = "0";
 
     if (!IsPost)
     {
+        // Sorting books.
         if (!Request.QueryString["sr"].IsEmpty() && Request.QueryString["sr"].AsInt() >= 0)
         {
             sortBy = Request.QueryString["sr"];
@@ -64,10 +62,17 @@
             var statement = "UPDATE Books SET Beoordeling = @0 WHERE Id = @1";
             db.Execute(statement, clickedStar, bookId);
         }
+
+
+        // Searchbar
+        if (!Request.QueryString["searchbar"].IsEmpty())
+        {
+            var searchCommand = "SELECT * FROM Movies WHERE Title LIKE @0";
+            var searchTerm = "%" + Request["searchbar"] + "%";
+        }
     }
 
     // List met geselecteerd uit lijst
-
 
     List<bool> selectList = new List<bool>();
     List<int> selectListId = new List<int>();
@@ -89,6 +94,14 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-2">
+            <form method="get">
+                @Html.ValidationSummary()
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search for..." name="searchbar" value="@Request["searchbar"]" />
+                    <input type="submit" class="btn btn-default" value="search"/>
+                </div><!-- /input-group -->
+            </form>
+            <hr />
             <ul class="list-group">
                 @{
                     string[] columnNames = new string[] { "Titel", "Auteur", "Uitgever", "UitgaveDatum", "Taal", "UploadDatum", "Serie", "Beoordeling" };
@@ -217,9 +230,8 @@
                                                         <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
                                                         <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
                                                     </tr>
-                                                                    }
-                                                                }
-                                                                
+                                }
+                            }                                                    
                         }
                     </tbody>
                 </table>
@@ -260,8 +272,7 @@
 
                             <div class="panel panel-default">
                                 <div class="panel-heading">
-                                    <h3 class="panel-title">@bookInfo.Titel</h3>
-                                    <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a>
+                                    <h3 class="panel-title">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>                   
                                 </div>
                                 <div class="panel-body">
                                     <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />

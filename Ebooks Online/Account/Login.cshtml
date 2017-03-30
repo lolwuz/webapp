@@ -83,22 +83,31 @@
                     <fieldset>
                         <h4>Log in to Your Account</h4>
 
-                        <label for="email" @if (!ModelState.IsValidField("email")) { <text> class="error-label" </text>  }>Email address</label>
-                        <input type="text" id="email" name="email" value="@email" @Validation.For("email") />
+                        @*<label for="email" @if (!ModelState.IsValidField("email")) { <text> class="error-label" </text>  }>Email address</label>*@
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1">&#64;</span>
+                            <input type="text" class="form-control" placeholder="example@provider.com" name="email" value="@email" @Validation.For("email") />
+                        </div>
+                        
                         @* Write any user name validation errors to the page *@
                         @Html.ValidationMessage("email")
 
+                        <br />
 
-                        <label for="password" @if (!ModelState.IsValidField("password")) { <text> class="error-label" </text>  }>Password</label>
-                        <input type="password" id="password" name="password" @Validation.For("password") />
+
+                        @*<label for="password" @if (!ModelState.IsValidField("password")) { <text> class="error-label" </text>  }>Password</label>*@
+                        <div class="input-group">      
+                            <input type="password" class="form-control" placeholder="Password" name="password" @Validation.For("password") />
+                            <span class="input-group-addon">
+                                <text>Onthouden</text>
+                                <input type="checkbox" form="rememberMe">
+                            </span>
+                        </div>
+
                         @* Write any password validation errors to the page *@
                         @Html.ValidationMessage("password")
 
-
-                        <input type="checkbox" id="rememberMe" name="rememberMe" value="true" checked="@rememberMe" />
-                        <label class="checkbox" for="rememberMe">Remember me?</label>
-
-                        <input type="submit" value="Log in" />
+                        <input class="btn btn-succes" type="submit" value="Log in" />
                     </fieldset>
                 </form>
                 <div class="text-center">
