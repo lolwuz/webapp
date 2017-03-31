@@ -3,25 +3,38 @@
     Layout = "~/_BookListLayout.cshtml";
 
     var titel = "";
-    var id = "";
+    int id;
     var db = Database.Open("StarterSite");
     var gebruiker = WebSecurity.CurrentUserName;
+    List<int> selectedId = Session["selectListId"] as List<int>;
+    int teller = selectedId.Count;
 
     if (WebSecurity.IsAuthenticated)
     {
-        if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0)
+        foreach (int i in selectedId)
         {
-            //id = Convert.ToString(Session["selectListId"]);
-            id = Request.QueryString["Id"];
-            var command = "SELECT Books.Titel, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
-            var row = db.QuerySingle(command, id, gebruiker);
-            if (row != null)
+            if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0)
             {
-                titel = row.Titel;
+                id = i;
+                var command = "SELECT Books.Titel, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
+                var row = db.QuerySingle(command, id, gebruiker);
+                if (row != null)
+                {
+                    titel = row.Titel;
+                }
+                else
+                {
+                    Validation.AddFormError("Dit boek bestaat niet.");
+                }
             }
-            else
+
+            if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0 && IsPost)
             {
-                Validation.AddFormError("Dit boek bestaat niet.");
+                id = i;
+                var delete = "DELETE FROM Books WHERE Id = @0";
+                db.Execute(delete, id);
+
+                Response.Redirect("~/List.cshtml");
             }
         }
     }
@@ -29,15 +42,6 @@
     {
         Validation.AddFormError("Je hebt hier geen rechten voor.");
         Response.Redirect("~/Default.cshtml");
-    }
-
-    if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0 && IsPost && WebSecurity.IsAuthenticated)
-    {
-        id = Request.Form["Id"];
-        var delete = "DELETE FROM Books WHERE Id = @0";
-        db.Execute(delete, id);
-
-        Response.Redirect("~/List.cshtml");
     }
 }
 
@@ -48,10 +52,12 @@
 <form method="post">
     <fieldset>
         <p>
-            <span>Titel van het boek:</span>
-            <span>@titel</span>
+            @for (int i = 0; i < teller; i++)
+            {
+                <span>Titel van het boek:</span>
+                <span>@titel</span>
+            }
         </p>
-        <input type="hidden" name="id" value="@id" />
         <p><input type="submit" name="Delete" value="Verwijder dit boek"/></p>
     </fieldset>
 </form>
