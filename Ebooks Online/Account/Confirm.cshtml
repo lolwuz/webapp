@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "~/_SiteLayout.cshtml";
-    Page.Title = "Registration Confirmation Page";
+    Page.Title = "Registratie Bevestigings Pagina";
 
     string message = "";
     var confirmationToken = Request["confirmationCode"];
@@ -8,16 +8,15 @@
     WebSecurity.Logout();
     if (!confirmationToken.IsEmpty()) {
         if (WebSecurity.ConfirmAccount(confirmationToken)) {
-            message = "Registration Confirmed! Click on the log in tab to log in to the site.";
+            message = "Uw registratie is voltooid! klik op het login knopje om in te loggen op de site.";
         } else {
-            message = "Could not confirm your registration info.";
+            message = "Uw registratie info kon niet bevestigd worden.";
         }
     }
 }
 
 <hgroup class="title">
     <h1>@Page.Title.</h1>
-    <h2>Use the form below to confirm your account.</h2>
 </hgroup>
 
 @if (!message.IsEmpty()) {
@@ -25,14 +24,14 @@
 } else {
     <form method="post">
         <fieldset>
-            <legend>Confirmation Code</legend>
+            <legend>Vul uw bevestigings code hieronder in</legend>
             <ol>
                 <li>
-                    <label for="confirmationCode">Confirmation code</label>
+                    <label for="confirmationCode">Bevestigings code</label>
                     <input type="text" id="confirmationCode" name="confirmationCode" />
                 </li>
             </ol>
-            <input type="submit" value="Confirm" />
+            <input type="submit" value="Bevestigen" />
         </fieldset>
     </form>
 }
