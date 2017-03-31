@@ -9,7 +9,7 @@
     <form method="post">
     @AntiForgery.GetHtml()
     <fieldset id="socialLoginList">
-        <legend>Log in using another service</legend>
+        <legend>Log in met een andere service</legend>
         <p>
             @foreach (var client in OAuthWebSecurity.RegisteredClientData) {
                 <button type="submit" name="provider" value="@client.AuthenticationClient.ProviderName"

@@ -10,7 +10,7 @@
     WebSecurity.RequireAuthenticatedUser();
 
     Layout = "~/_BookListLayout.cshtml";
-    Page.Title = "Manage Account";
+    Page.Title = "Beheer Account";
 
     var action = Request.Form["action"];
 
@@ -19,11 +19,11 @@
     string successMessage = "";
     var message = Request.QueryString["message"];
     if (message == "ChangedPassword") {
-        successMessage = "Your password has been changed.";
+        successMessage = "Uw wachtwoord is veranderd.";
     } else if (message == "SetPassword") {
-        successMessage = "Your password has been set.";
+        successMessage = "Uw wachtwoord is ingesteld.";
     } else if (message == "RemovedLogin") {
-        successMessage = "The external login was removed.";
+        successMessage = "De externe login is verwijderd.";
     }
 
     var externalLogins =
@@ -35,22 +35,22 @@
 
     // Setup validation
     if (hasLocalAccount) {
-        Validation.RequireField("currentPassword", "The current password field is required.");
+        Validation.RequireField("currentPassword", "Het huidige wachtwoord moet ingevuld worden.");
         Validation.Add("currentPassword",
             Validator.StringLength(
                 maxLength: Int32.MaxValue,
                 minLength: 6,
-                errorMessage: "Current password must be at least 6 characters"));
+                errorMessage: "Het huidige wachtwoord moet minstens 6 characters lang zijn."));
     }
-    Validation.RequireField("newPassword", "The new password field is required.");
+    Validation.RequireField("newPassword", "Het nieuwe wachtwoord moet ingevuld worden.");
     Validation.Add("confirmPassword",
-        Validator.Required("The confirm new password field is required."),
-        Validator.EqualsTo("newPassword", "The new password and confirmation password do not match."));
+        Validator.Required("Het herhaal wachtwoord moet ingevuld worden."),
+        Validator.EqualsTo("newPassword", "Het nieuwe wachtwoord en herhaal wachtwoord komen niet overeen."));
     Validation.Add("newPassword",
         Validator.StringLength(
             maxLength: Int32.MaxValue,
             minLength: 6,
-            errorMessage: "New password must be at least 6 characters"));
+            errorMessage: "Het nieuwe wachtwoord moet minstens 6 characters lang zijn."));
 
     if (IsPost) {
         AntiForgery.Validate();
@@ -66,7 +66,7 @@
                         Response.Redirect("~/Account/Manage?message=ChangedPassword");
                         return;
                     } else {
-                        ModelState.AddFormError("An error occurred when attempting to change the password. Please contact the site owner.");
+                        ModelState.AddFormError("Er is een fout opgetreden bij het veranderen van het wachtwoord. Neem contact op met de site beheerder.");
                     }
                 } else {
                     bool requireEmailConfirmation = !WebMail.SmtpServer.IsEmpty();
@@ -79,7 +79,7 @@
                     }
                 }
             } else {
-                ModelState.AddFormError("Password change was unsuccessful. Please correct the errors and try again.");
+                ModelState.AddFormError("Het wachtwoord veranderen is mislukt. Verbeter de fouten en probeer het opnieuw.");
             }
         } else if (action == "removeLogin") {
             // Remove external login
@@ -121,7 +121,7 @@
     <h3>Change password</h3>
 } else {
     <p>
-        You do not have a local password for this site. Add a local password so you can log in without an external login.
+        U heeft geen lokaal wachtwoord voor deze site. Voeg een lokaal wachtwoord toe zodat u kunt inloggen zonder externe login.
     </p>
 }
 
@@ -132,44 +132,44 @@
     <fieldset>
         <legend>
         @if (hasLocalAccount) {
-            <text>Change Password Form</text>
+            <text>Veranderen wachtwoord formulier</text>
         } else {
-            <text>Set Password Form</text>
+            <text>Stel wachtwoord in formulier</text>
         }
         </legend>
         <ol>
             @if (hasLocalAccount) {
                 <li class="current-password">
-                    <label for="currentPassword" @if (!ModelState.IsValidField("currentPassword")) {<text>class="error-label"</text>}>Current password</label>
+                    <label for="currentPassword" @if (!ModelState.IsValidField("currentPassword")) {<text>class="error-label"</text>}>Huidig wachtwoord</label>
                     <input type="password" id="currentPassword" name="currentPassword" @Validation.For("currentPassword")/>
                     @Html.ValidationMessage("currentPassword")
                 </li>
             }
             <li class="new-password">
-                <label for="newPassword" @if (!ModelState.IsValidField("newPassword")) {<text>class="error-label"</text>}>New password</label>
+                <label for="newPassword" @if (!ModelState.IsValidField("newPassword")) {<text>class="error-label"</text>}>nieuw wachtwoord</label>
                 <input type="password" id="newPassword" name="newPassword" @Validation.For("newPassword")/>
                 @Html.ValidationMessage("newPassword")
             </li>
             <li class="confirm-password">
-                <label for="confirmPassword" @if (!ModelState.IsValidField("confirmPassword")) {<text>class="error-label"</text>}>Confirm new password</label>
+                <label for="confirmPassword" @if (!ModelState.IsValidField("confirmPassword")) {<text>class="error-label"</text>}>Herhaal wachtwoord</label>
                 <input type="password" id="confirmPassword" name="confirmPassword" @Validation.For("confirmPassword")/>
                 @Html.ValidationMessage("confirmPassword")
             </li>
         </ol>
         @if (hasLocalAccount) {
-            <button type="submit" name="action" value="password">Change Password</button>
+            <button type="submit" name="action" value="password">Verander wachtwoord</button>
             <p>
-                Click <a href="~/Account/ForgotPassword" title="Forgot password page">here</a> if you've forgotten your password.
+                Klik <a href="~/Account/ForgotPassword" title="Forgot password page">hier</a> als u uw wachtwoord bent vergeten.
             </p>
         } else {
-            <button type="submit" name="action" value="password">Set Password</button>
+            <button type="submit" name="action" value="password">Stel wachtwoord in</button>
         }
     </fieldset>
 </form>
 
 <section id="externalLogins">
     @if (externalLogins.Count > 0) {
-        <h3>Registered external logins</h3>
+        <h3>Geregistreerde externe logins</h3>
         <table>
             <tbody>
             @foreach (var externalLogin in externalLogins) {
@@ -183,7 +183,7 @@
                                     <legend></legend>
                                     <input type="hidden" name="provider" value="@externalLogin.Provider" />
                                     <input type="hidden" name="userId" value="@externalLogin.UserId" />
-                                    <button type="submit" name="action" value="removeLogin" title="Remove this @externalLogin.ProviderDisplayName credential from your account">Remove</button>
+                                    <button type="submit" name="action" value="removeLogin" title="Remove this @externalLogin.ProviderDisplayName credential from your account">Verwijder</button>
                                 </fieldset>
                             </form>
                         } else {
@@ -196,6 +196,6 @@
         </table>
     }
 
-    <h3>Add an external login</h3>
+    <h3>Voeg een externe login toe</h3>
     @RenderPage("~/Account/_ExternalLoginsList.cshtml")
 </section>
