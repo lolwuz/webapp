@@ -1,8 +1,86 @@
 ﻿@{
+    if (!WebSecurity.IsAuthenticated)
+    {
+        Response.Redirect("~/Default.cshtml");
+    }
+
     Page.Title = "Update Books";
     Layout = "~/_BookListLayout.cshtml";
+
+    List<int> selectedId = Session["selectListId"] as List<int>;
+    Database db = Database.Open("StarterSite");
 }
 
-<div>
-    
+<div class="container">
+    <div class="row">
+        @{
+            // Loop trough selected Book list.
+            foreach (int id in selectedId)
+            {
+                // Check if ID is not 0: There is no book selected.
+                if (id > 0)
+                {
+                    var statement = "SELECT * FROM Books WHERE Id=@0";
+                    var row = db.QuerySingle(statement, id);
+
+                    <div class="col-lg-4 col-sm-6">
+                        <div class="bookinfocard">
+                            <div class="bookinfoheading">
+                                <h4 class="text-center">@row.Titel</h4>
+                            </div>
+                            <div class="bookinfobody">
+                                <form>
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Auteur</span>
+                                        <input id="msg" type="text" class="form-control" name="msg" placeholder="Auteur">
+                                    </div>
+                                    <br />
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Uitgever</span>
+                                        <input id="msg" type="text" class="form-control" name="msg" placeholder="Uitgever">
+                                    </div>
+                                    <br />
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Uitgave-Datum</span>
+                                        <input id="msg" type="text" class="form-control" name="msg" placeholder="09/01/1998">
+                                    </div>
+                                    <br />
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Taal</span>
+                                        <input id="msg" type="text" class="form-control" name="msg" placeholder="Engels">
+                                    </div>
+                                    <br />
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Text</span>
+                                        <input id="msg" type="text" class="form-control" name="msg" placeholder="09/01/1998">
+                                    </div>
+                                    <br />
+                                    <div class="form-group">
+                                        <label for="comment">Comment:</label>
+                                        <textarea class="form-control" rows="5" id="comment"></textarea>
+                                    </div>
+                                    <br />
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Tags</span>
+                                        <input id="msg" type="text" class="form-control" name="msg" placeholder="C#, Programeren">
+                                    </div>
+                                    <br />
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Serie</span>
+                                        <input id="msg" type="text" class="form-control" name="msg" placeholder="Harry Potter">
+                                    </div>
+                                    <br />
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Beoordeling</span>
+                                        <input id="msg" type="text" class="form-control" name="msg" placeholder="4/5">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <hr />
+                    </div>
+                }
+            }
+        }
+    </div>
 </div>
