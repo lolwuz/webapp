@@ -32,6 +32,33 @@
             var fileSavePath = Server.MapPath("~/Books/Files/temp/" + rnd.Next(1, 9999) +
                fileName);
             uploadedFile.SaveAs(fileSavePath);
+
+            string convertTypeA = "";
+            string convertTypeB = "";
+            if (type == "pdf") { convertTypeA = "epub"; convertTypeB = "mobi"; }
+            if (type == "epub") { convertTypeA = "pdf"; convertTypeB = "mobi"; }
+            if (type == "mobi") { convertTypeA = "pdf"; convertTypeB = "epub"; }
+
+            var fileSavePathConvertA = fileSavePath.Split('.')[0] + "."+convertTypeA;
+
+            System.Diagnostics.Process processA = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfoA = new System.Diagnostics.ProcessStartInfo();
+            startInfoA.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            startInfoA.FileName = "ebook-convert.exe";
+            startInfoA.Arguments = "\"" + @fileSavePath + "\" \"" + @fileSavePathConvertA + "\"";
+            processA.StartInfo = startInfoA;
+            processA.Start();
+
+
+            var fileSavePathConvertB = fileSavePath.Split('.')[0] + "." + convertTypeB;
+            System.Diagnostics.Process processB = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfoB = new System.Diagnostics.ProcessStartInfo();
+            startInfoB.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            startInfoB.FileName = "ebook-convert.exe";
+            startInfoB.Arguments = "\"" + @fileSavePath + "\" \"" + @fileSavePathConvertB + "\"";
+            processB.StartInfo = startInfoB;
+            processB.Start();
+
             PdfReader file = new PdfReader(fileSavePath);
             metadata["Title"] = (file.Info.ContainsKey("Title")) ? file.Info["Title"] : "-";
             metadata["Subject"] = (file.Info.ContainsKey("Subject")) ? file.Info["Subject"] : "-";
@@ -65,8 +92,23 @@
             long lastId = (long)db.GetLastInsertId();
             db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", lastId+data_filename, lastId);
 
-            File.Copy(dirs[0], Server.MapPath("~/Books/Files/" + lastId + data_filename+"."+data_type));
-            Console.WriteLine(" ");
+            File.Copy(dirs[0], Server.MapPath("~/Books/Files/"+data_type.ToUpper()+ "/" + lastId + data_filename+"."+data_type));
+            string dirIndexA = "";
+            string dirIndexB = "";
+            string indexA = "";
+            string indexB = "";
+            if (data_type == "pdf") { dirIndexA = data_filename+".epub"; indexA = "epub"; dirIndexB = data_filename + ".mobi"; indexB = "mobi"; }
+            if (data_type == "epub") { dirIndexA =  data_filename + ".pdf"; indexA = "pdf"; dirIndexB = data_filename + ".mobi"; indexB = "mobi"; }
+            if (data_type == "mobi") { dirIndexA = data_filename + ".pdf"; indexA = "pdf"; dirIndexB = data_filename + ".epub"; indexB = "epub"; }
+            var dirIndexAA = "*" + dirIndexA;
+            var dirIndexBB = "*" + dirIndexB;
+            string[] dirsA = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirIndexAA);
+            string[] dirsB = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirIndexBB);
+            var test = Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId + dirIndexA);
+            File.Copy(dirsA[0], Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId +dirIndexA));
+            File.Copy(dirsB[0], Server.MapPath("~/Books/Files/" + indexB.ToUpper() + "/" + lastId + dirIndexB));
+
+
             //Array.ForEach(Directory.GetFiles(Server.MapPath("~/Books/Files/temp/")), File.Delete);
             //var final_Path = Server.MapPath("~/Books/Files/"+ data_filename);
             //PdfWriter writer = PdfWriter.GetInstance(data_filename, new FileStream(final_Path, FileMode.Create));
