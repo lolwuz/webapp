@@ -26,7 +26,8 @@
     Validation.RequireField("name", "Je moet een naam invullen.");
     Validation.RequireField("lastName", "Je moet een achternaam invullen");
 
-    if (IsPost) {
+    if (IsPost)
+    {
         AntiForgery.Validate();
         email = Request.Form["email"];
         password = Request.Form["password"];
@@ -39,17 +40,21 @@
         //     ModelState.AddError("recaptcha", "Captcha response was not correct");
         // }
 
-        if (Validation.IsValid()) {
+        if (Validation.IsValid())
+        {
             var db = Database.Open("StarterSite");
 
             var user = db.QuerySingle("SELECT Email FROM UserProfile WHERE LOWER(Email) = LOWER(@0)", email);
-            if (user == null) {
+            if (user == null)
+            {
                 db.Execute("INSERT INTO UserProfile (Email, name, lastName) VALUES (@0, @1, @2)", email, name, lastName);
 
-                try {
+                try
+                {
                     bool requireEmailConfirmation = !WebMail.SmtpServer.IsEmpty();
                     var token = WebSecurity.CreateAccount(email, password, requireEmailConfirmation);
-                    if (requireEmailConfirmation) {
+                    if (requireEmailConfirmation)
+                    {
                         var hostUrl = Request.Url.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
                         var confirmationUrl = hostUrl + VirtualPathUtility.ToAbsolute("~/Account/Confirm?confirmationCode=" + HttpUtility.UrlEncode(token));
 
@@ -60,63 +65,91 @@
                         );
                     }
 
-                    if (requireEmailConfirmation) {
+                    if (requireEmailConfirmation)
+                    {
                         Response.Redirect("~/Account/Thanks");
-                    } else {
+                    }
+                    else
+                    {
                         WebSecurity.Login(email, password);
 
                         Response.Redirect("~/");
                     }
-                } catch (System.Web.Security.MembershipCreateUserException e) {
+                }
+                catch (System.Web.Security.MembershipCreateUserException e)
+                {
                     ModelState.AddFormError(e.Message);
                 }
-            } else {
+            }
+            else
+            {
                 ModelState.AddFormError("Dit e-mailadres wordt al gebruikt.");
             }
         }
     }
 }
 
-<hgroup class="title">
-    <h1>@Page.Title.</h1>
-    <h2>Nieuw account aanmaken</h2>
-</hgroup>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            <div class="logincard">
+                <h4 class="text-center">Maak een E-Books Online account</h4>
+                <hr />
+                <form method="post">
+                    @AntiForgery.GetHtml()
+                    @Html.ValidationSummary("Account aanmaken was onsuccesvol. Verbeter alstublieft de fouten.", excludeFieldErrors: true, htmlAttributes: null)
 
-<form method="post">
-    @AntiForgery.GetHtml()
-    @Html.ValidationSummary("Account aanmaken was onsuccesvol. Verbeter alstublieft de fouten.", excludeFieldErrors: true, htmlAttributes: null)
+                    <fieldset>
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1"><i class="glyphicon glyphicon-user"></i></span>
+                            <input type="text" class="form-control" id="email" name="email" placeholder="example@provider.com" value="@email" @Validation.For("email") />
+                        </div>
 
-    <fieldset>
-        <legend>Registration Form</legend>
-        <ol>
-            <li class="email">
-                <label for="email" @if(!ModelState.IsValidField("email")){<text>class="error-label"</text>}>Email address</label>
-                <input type="text" id="email" name="email" value="@email" @Validation.For("email") />
-                @* Write any email validation errors to the page *@
-                @Html.ValidationMessage("email")
-            </li>
-            <li class="password">
-                <label for="password" @if(!ModelState.IsValidField("password")) {<text>class="error-label"</text>}>Password</label>
-                <input type="password" id="password" name="password" @Validation.For("password") />
-                @* Write any password validation errors to the page *@
-                @Html.ValidationMessage("password")
-            </li>
-            <li class="confirm-password">
-                <label for="confirmPassword" @if(!ModelState.IsValidField("confirmPassword")) {<text>class="error-label"</text>}>Confirm password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" @Validation.For("confirmPassword") />
-                @* Write any password validation errors to the page *@
-                @Html.ValidationMessage("confirmPassword")
-            </li>
-            <li class="text">
-                <label for="name" @if (!ModelState.IsValidField("name")) { <text> class="error-label" </text> }>Voornaam</label>
-                <input type="text" id="name" name="name" value="@name" @Validation.For("name") />
-                @Html.ValidationMessage("naam")
-            </li>
-            <li class="text">
-                <label for="lastName" @if (!ModelState.IsValidField("lastName")) { <text> class="error-label" </text> }>Achternaam</label>
-                <input type="text" id="lastName" name="lastName" value="@lastName" @Validation.For("lastName") />
-                @Html.ValidationMessage("lastName")
-        </ol>
-        <input type="submit" value="Register" />
-    </fieldset>
-</form>
+       
+                        @* Write any email validation errors to the page *@
+                        @Html.ValidationMessage("email")
+
+                        <br />
+
+                        <div class="form-inline">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="sizing-addion1"><i class="glyphicon glyphicon-lock"></i></span>
+                                <input type="password" class="form-control" placeholder="Wachtwoord" id="password" name="password" @Validation.For("password") />
+                               
+                            </div>
+                            <div class="input-group">
+                                <input type="password" class="form-control" placeholder="Herhaal" id="confirmPassword" name="confirmPassword" @Validation.For("confirmPassword") />
+                            </div>                    
+                        </div>
+
+                        @* Write any password validation errors to the page *@
+                        @Html.ValidationMessage("password")
+                        @* Write any password validation errors to the page *@
+                        @Html.ValidationMessage("confirmPassword")
+
+                        <br />
+                        <br />
+
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Voornaam" id="name" name="name" value="@name" @Validation.For("name") />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Achternaam" id="lastName" name="lastName" value="@lastName" @Validation.For("lastName") />             
+                        </div>
+                        
+                        @Html.ValidationMessage("naam")
+                        @Html.ValidationMessage("lastName")
+
+                        <br />
+
+                        <input type="submit" class="btn btn-succes" value="Register" />
+                    </fieldset>
+                </form>
+                <hr />
+
+                <a href="~/Account/Login.cshtml" class="btn btn-default">Ik heb al een account</a>
+            </div>
+        </div>
+    </div>
+</div>

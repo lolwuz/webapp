@@ -68,21 +68,17 @@
 
 
 <div class="container">
-    <div class="row">
-        <div class="col-sm-4">
-            <img class="img-responsive" src="~/img/Logo-Black.png" alt="Logo-Black" width="600"/>
-        </div>
-        <div class="col-sm-6 col-sm-offset-2">
-            <div class="logincard text-center">
-                <h2>Use a local account to log in.</h2>
+    <div class="row">  
+        <div class="col-sm-6 col-sm-offset-3">
+            <div class="logincard">
+                <h4 class="text-center"> Inloggen met een E-Books Online account</h4>
+                <hr />
                 <form method="post">
                     @AntiForgery.GetHtml()
                     @* If one or more validation errors exist, show an error *@
                     @Html.ValidationSummary("Log in was unsuccessful. Please correct the errors and try again.", excludeFieldErrors: true, htmlAttributes: null)
 
                     <fieldset>
-                        <h4>Log in to Your Account</h4>
-
                         @*<label for="email" @if (!ModelState.IsValidField("email")) { <text> class="error-label" </text>  }>Email address</label>*@
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">&#64;</span>
@@ -93,7 +89,6 @@
                         @Html.ValidationMessage("email")
 
                         <br />
-
 
                         @*<label for="password" @if (!ModelState.IsValidField("password")) { <text> class="error-label" </text>  }>Password</label>*@
                         <div class="input-group">      
@@ -107,13 +102,16 @@
                         @* Write any password validation errors to the page *@
                         @Html.ValidationMessage("password")
 
+                        <br />
+
                         <input class="btn btn-succes" type="submit" value="Log in" />
                     </fieldset>
                 </form>
-                <div class="text-center">
+                <hr />
+                <div>
                     <p>
-                        <a href="~/Account/Register">Don't have a Account?</a>
-                        <a href="~/Account/ForgotPassword">Did you forget your password?</a>
+                        <a class="btn btn-default default-primary-color" href="~/Account/Register">Nog geen account?</a>
+                        <a class="btn btn-default" href="~/Account/ForgotPassword">Wachtwoord vergeten?</a>
                     </p>
                 </div>
             </div>
@@ -121,9 +119,3 @@
         </div>
     </div>
 </div>
-
-
-<section class="social" id="socialLoginForm">
-    <h2>Use another service to log in.</h2>
-    @RenderPage("~/Account/_ExternalLoginsList.cshtml")
-</section>

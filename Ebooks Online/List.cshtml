@@ -119,42 +119,40 @@
                 }
             </ul>
         </div>
-        <div class="col-sm-7 card">
-            <form method="post">
-                <table class="table table-responsive">
-                    <thead>
-                        <tr>
-                            <th>Titel</th>
-                            <th>Auteur</th>
-                            <th>Datum</th>
-                            <th>Grootte (mb)</th>
-                            <th>Beoordeling</th>
-                            <th>Tags</th>
-                            <th>Serie</th>
-                            <th>Uitgever</th>
-                            <th>Uitgave-datum</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{
-                            selectList = (List<bool>)Session["selectList"];
-                            selectListId = (List<int>)Session["selectListId"];
+        <div class="col-sm-7">
+            <div class="listcard">
+                <form method="post">
+                    <table class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <th>Titel</th>
+                                <th>Auteur</th>
+                                <th>Datum</th>
+                                <th>Grootte (mb)</th>
+                                <th>Beoordeling</th>
+                                <th>Tags</th>
+                                <th>Serie</th>
+                                <th>Uitgever</th>
+                                <th>Uitgave-datum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                selectList = (List<bool>)Session["selectList"];
+                                selectListId = (List<int>)Session["selectListId"];
 
-                            foreach (var row in db.Query(selectQueryString))
-                            {
-                                if (!IsPost)
+                                foreach (var row in db.Query(selectQueryString))
                                 {
-
-                                    if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                                    if (!IsPost)
                                     {
-                                        var bookId = Request.QueryString["id"];
 
-                                        if (row.ID == bookId.AsInt())
+                                        if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
                                         {
+                                            var bookId = Request.QueryString["id"];
 
-                                            int index = selectListId.IndexOf(row.ID);
-                                            if (index == -1)
+                                            if (row.ID == bookId.AsInt())
                                             {
+<<<<<<< HEAD
                                                 int emptyIndex = selectListId.IndexOf(0);
                                                 selectList[emptyIndex] = true;
                                                 selectListId[emptyIndex] = bookId.AsInt();
@@ -165,13 +163,30 @@
                                                 selectList[index] = false;
                                                 selectListId[index] = 0;
 
+=======
+
+                                                int index = selectListId.IndexOf(row.ID);
+                                                if (index == -1)
+                                                {
+                                                    int emptyIndex = selectListId.IndexOf(0);
+                                                    selectList[emptyIndex] = true;
+                                                    selectListId[emptyIndex] = bookId.AsInt();
+                                                }
+                                                else
+                                                {
+
+                                                    selectList[index] = false;
+                                                    selectListId[index] = 0;
+
+                                                }
+>>>>>>> origin/master
                                             }
+
                                         }
-
                                     }
-                                }
 
 
+<<<<<<< HEAD
                                 if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
                                 {
                                     <tr class="selectedTable">
@@ -184,11 +199,40 @@
                                                 for (int i = 0; i < 5; i++)
                                                 {
                                                     if (i < row.Beoordeling)
+=======
+                                    if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
+                                    {
+                                        <tr class="selectedTable">
+                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
+                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
+                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
+                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">10mb</a></td>
+                                            <td>
+                                                @{
+                                                    for (int i = 0; i < 5; i++)
+>>>>>>> origin/master
                                                     {
-                                                        <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                        if (i < row.Beoordeling)
+                                                        {
+                                                            <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                        }
+                                                    }
+                                                }
+                                                    </td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
+                                                    </tr>
+
                                                     }
                                                     else
                                                     {
+<<<<<<< HEAD
                                                         <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
                                                     }
                                                 }
@@ -229,21 +273,70 @@
                                                         <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Uitgever</a></td>
                                                         <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.UitgaveDatum</a></td>
                                                     </tr>
+=======
+
+                                                        <tr>
+                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
+                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
+                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
+                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">10mb</a></td>
+                                                            <td>
+                                                                @{
+                                                                    for (int i = 0; i < 5; i++)
+                                                                    {
+                                                                        if (i < row.Beoordeling)
+                                                                        {
+                                                                            <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </td>
+                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
+                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
+                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
+                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
+                                                        </tr>
+                                    }
+>>>>>>> origin/master
                                 }
-                            }                                                    
-                        }
-                    </tbody>
-                </table>
-            </form>
+                            }
+                        </tbody>
+                    </table>
+                </form>
+            </div>
         </div>
         <div class="col-sm-3">
-            <h4>Geselecteerd boeken</h4>
-            <h6>
-                Acties:
-                <a class="btn btn-default" href="~/Books/BooksDownload.cshtml">Download</a>
-                <a class="btn btn-default" href="~/Books/BooksEmail.cshtml">E-mail</a>
-                <a class="btn btn-danger" href="~/Books/BooksDelete.cshtml">Verwijderen</a>
-            </h6>
+            @{
+                int selectedbooks = 0;
+                foreach (int i in selectListId)
+                {
+                    if (i != 0)
+                    {
+                        selectedbooks++;
+                    }
+                }
+
+                if (selectedbooks > 0)
+                {
+                    <h4 id="selectedbooks">Aantal boeken geselecteerd: @selectedbooks</h4>           
+                    <h6>
+                        <a class="btn btn-default btn-sm" href="~/Books/BooksDownload.cshtml">Download</a>
+                        <a class="btn btn-default btn-sm" href="~/Books/BooksEmail.cshtml">E-mail</a>
+                        <a class="btn btn-danger accent-color btn-sm" href="~/Books/BooksDelete.cshtml">Verwijderen</a>
+                    </h6>
+                    <hr />
+                }
+                else
+                {
+                    <h4 id="selectedbooks">Welkom op terug op E-Book Online!</h4>
+                    <p><b>Tip:</b> Selecteer één of meerdere boeken uit uw bibliotheek voor meer Info.</p>
+                }
+            }
+                        
             @if (!IsPost)
             {
                 // Create a list from selected books.
@@ -269,11 +362,13 @@
                             var statement = "SELECT * FROM Books WHERE Id = @0";
                             var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h3 class="panel-title">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>                   
+                            <div class="bookinfocard">
+                                <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
+                                <div class="bookinfoheading">
+                                    <h3 class="panel-title text-center">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>
                                 </div>
-                                <div class="panel-body">
+                                
+                                <div class="bookinfobody">
                                     <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
                                     <h5>Auteur:</h5>
                                     <p>@bookInfo.Titel</p>
@@ -281,8 +376,8 @@
                                     <p>@bookInfo.Taal</p>
                                     <h5>Beschrijving</h5>
                                     <p>@bookInfo.Beschrijving</p>
-
                                 </div>
+                                
                             </div>
                         }
                         else
@@ -291,15 +386,17 @@
                             var statement = "SELECT * FROM Books WHERE Id = @0";
                             var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h3 class="panel-title">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>                               
+                            <div class="bookinfocard">
+                                <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
+                                <div class="bookinfoheading">
+                                    <h3 class="panel-title text-center">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3> 
                                 </div>
-                                <div class="panel-body">                                 
+                                <div class="bookinfobody">                                 
                                     <h5>Auteur: @bookInfo.Auteur</h5>                
                                     <h5>Taal: @bookInfo.Taal</h5>
                                 </div>
                             </div>
+                            <br />
                         }                      
                     }
                 }
