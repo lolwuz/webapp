@@ -14,43 +14,23 @@
 
     var db = Database.Open("StarterSite");
     var selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Titel";
-    var sortBy = "0";
+    string sortBy = "";
+    string sortOrder = Request.QueryString["sortOrder"];
+    string srQuery = Request.QueryString["sr"];
+    string searchTermQuery = Request.QueryString["searchbar"];
 
     if (!IsPost)
     {
         // Sorting books.
-        if (!Request.QueryString["sr"].IsEmpty() && Request.QueryString["sr"].AsInt() >= 0)
+        if (!srQuery.IsEmpty() && srQuery.Length < 12 && srQuery.Any(c => char.IsLetterOrDigit(c)))
         {
-            sortBy = Request.QueryString["sr"];
-
-            switch (sortBy.AsInt())
+            sortBy = " ORDER BY " + Request.QueryString["sr"];
+            if (sortOrder != "ASC" && sortOrder != "DESC")
             {
-                case 0:
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Titel";
-                    break;
-                case 1:
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Auteur";
-                    break;
-                case 2:
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY UitgaveDatum";
-                    break;
-                case 3:
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Taal";
-                    break;
-                case 4:
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY UploadDatum";
-                    break;
-                case 5:
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY UploadDatum";
-                    break;
-                case 6:
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Serie";
-                    break;
-                case 7:
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Beoordeling";
-                    break;
-
+                sortOrder = "ASC";
             }
+            selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + sortBy + " " + sortOrder;
+
         }
 
         // Geef sterren aanboek.
@@ -104,18 +84,37 @@
             <hr />
             <ul class="list-group">
                 @{
-                    string[] columnNames = new string[] { "Titel", "Auteur", "Uitgever", "UitgaveDatum", "Taal", "UploadDatum", "Serie", "Beoordeling" };
+                    string[] columnNames = new string[] { "Titel", "Auteur", "UploadDatum", "Grootte", "Beoordeling", "Serie", "Uitgever", "UitgaveDatum", "Taal" };
                     var amountStatement = "SELECT COUNT(Gebruiker) FROM Books WHERE Gebruiker = " + userId;
-                    var amount = db.QueryValue(amountStatement);
+                    var totalAmount = db.QueryValue(amountStatement);
+                    string newSort = Request.QueryString["newSort"];
 
                     for (int i = 0; i < columnNames.Length; i++)
                     {
                         string currCol = columnNames[i];
                         var countStatement = "SELECT COUNT(" + currCol + ") FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + currCol;
+                        var amount = totalAmount - db.QueryValue(countStatement) + 1;
 
-                        var count = amount - db.QueryValue(countStatement) + 1;
-
-                        <li class="list-group-item"><a href="~/List.cshtml?sr=@i">@columnNames[i]</a> <span class="badge">@count</span></li>
+                        string newSortOrder = "ASC";
+                        string newSortOrderIcon = "32";
+                        if (newSort == "1" && srQuery == columnNames[i])
+                        {
+                            if (sortOrder == "ASC")
+                            {
+                                newSortOrder = "DESC";
+                                newSortOrderIcon = "9660";
+                            }
+                            else
+                            {
+                                newSortOrder = "ASC";
+                                newSortOrderIcon = "9650";
+                            }
+                        }
+                        if (srQuery != "Beoordeling" && columnNames[i] == "Beoordeling")
+                        {
+                            newSortOrder = "DESC";
+                        }
+                        <li class="list-group-item"><a href="~/List.cshtml?sr=@columnNames[i]&newSort=1&sortOrder=@newSortOrder&searchbar=@searchTermQuery">&#@newSortOrderIcon; @columnNames[i]</a> <span class="badge">@amount</span></li>
                     }
                 }
             </ul>
@@ -162,10 +161,10 @@
                                             }
                                             else
                                             {
-                               
+
                                                 selectList[index] = false;
                                                 selectListId[index] = 0;
-                                                
+
                                             }
                                         }
 
@@ -176,10 +175,10 @@
                                 if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
                                 {
                                     <tr class="selectedTable">
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">10mb</a></td>
+                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Titel</a></td>
+                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Auteur</a></td>
+                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
+                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Grootte</a></td>
                                         <td>
                                             @{
                                                 for (int i = 0; i < 5; i++)
@@ -195,10 +194,10 @@
                                                 }
                                             }
                                         </td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
+                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Tags</a></td>
+                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Serie</a></td>
+                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Uitgever</a></td>
+                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.UitgaveDatum</a></td>
                                     </tr>
 
                                                 }
@@ -206,29 +205,29 @@
                                                 {
                                               
                                                     <tr>
-                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">10mb</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Titel</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Auteur</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Grootte</a></td>
                                                         <td>
                                                             @{
                                                                 for (int i = 0; i < 5; i++)
                                                                 {
                                                                     if (i < row.Beoordeling)
                                                                     {
-                                                                        <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                                        <a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID&st=@i"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <a href="~/List.cshtml?sr=@sortBy&id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                                        <a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID&st=@i"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
                                                                     }
                                                                 }
                                                             }
                                                         </td>
-                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum.ToString("dd-MMM-yy")</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Tags</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Serie</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.Uitgever</a></td>
+                                                        <td><a href="~/List.cshtml?sr=@srQuery&newSort=0&sortOrder=@sortOrder&searchbar=@searchTermQuery&id=@row.ID">@row.UitgaveDatum</a></td>
                                                     </tr>
                                 }
                             }                                                    
