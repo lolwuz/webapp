@@ -22,14 +22,28 @@
     if (!IsPost)
     {
         // Sorting books.
-        if (!srQuery.IsEmpty() && srQuery.Length < 12 && srQuery.Any(c => char.IsLetterOrDigit(c)))
+        List<string> nvarcharColumns = new List<string>() { "Titel", "Auteur", "Uitgever", "Taal", "Path", "Beschrijving", "Tags", "Serie", "OriginalFormat" };
+        string emptyDown = "'-'";
+        if (sortOrder != "ASC" && sortOrder != "DESC")
         {
-            sortBy = " ORDER BY " + Request.QueryString["sr"];
-            if (sortOrder != "ASC" && sortOrder != "DESC")
+            sortOrder = "ASC";
+            emptyDown = "'ZZZZZZZZZZ'";
+        }
+        else if (sortOrder == "ASC")
+        {
+            emptyDown = "'ZZZZZZZZZZ'";
+        }
+        if (!srQuery.IsEmpty() && srQuery.Length <= 12 && srQuery.Any(c => char.IsLetterOrDigit(c)))
+        {
+            sortBy = Request.QueryString["sr"];
+            if (nvarcharColumns.Contains(sortBy))
             {
-                sortOrder = "ASC";
+                selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY CASE WHEN " + sortBy + " = '-' THEN " + emptyDown + " ELSE " + sortBy + " END" + " " + sortOrder;
             }
-            selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + sortBy + " " + sortOrder;
+            else
+            {
+                selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY " + sortBy + " " + sortOrder;
+            }
 
         }
 
@@ -85,8 +99,6 @@
             <ul class="list-group">
                 @{
                     string[] columnNames = new string[] { "Titel", "Auteur", "UploadDatum", "Grootte", "Beoordeling", "Serie", "Uitgever", "UitgaveDatum", "Taal" };
-                    var amountStatement = "SELECT COUNT(Gebruiker) FROM Books WHERE Gebruiker = " + userId;
-                    var totalAmount = db.QueryValue(amountStatement);
                     string newSort = Request.QueryString["newSort"];
 
                     for (int i = 0; i < columnNames.Length; i++)
