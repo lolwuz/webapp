@@ -92,8 +92,9 @@
                     for (int i = 0; i < columnNames.Length; i++)
                     {
                         string currCol = columnNames[i];
-                        var countStatement = "SELECT COUNT(" + currCol + ") FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + currCol;
-                        var amount = totalAmount - db.QueryValue(countStatement) + 1;
+                        var countStatement = "SELECT " + currCol + " FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + currCol;
+                        var countQueryVal = db.Query(countStatement);
+                        var amount = countQueryVal.Count();
 
                         string newSortOrder = "ASC";
                         string newSortOrderIcon = "32";
