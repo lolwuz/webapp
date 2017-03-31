@@ -293,8 +293,9 @@
                             var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
                             <div class="bookinfocard">
+                                <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
                                 <div class="bookinfoheading">
-                                    <h3 class="panel-title text-center">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>             
+                                    <h3 class="panel-title text-center">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>
                                 </div>
                                 
                                 <div class="bookinfobody">
@@ -305,8 +306,8 @@
                                     <p>@bookInfo.Taal</p>
                                     <h5>Beschrijving</h5>
                                     <p>@bookInfo.Beschrijving</p>
-
                                 </div>
+                                
                             </div>
                         }
                         else
@@ -316,8 +317,9 @@
                             var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
                             <div class="bookinfocard">
+                                <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
                                 <div class="bookinfoheading">
-                                    <h3 class="panel-title text-center">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>                               
+                                    <h3 class="panel-title text-center">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3> 
                                 </div>
                                 <div class="bookinfobody">                                 
                                     <h5>Auteur: @bookInfo.Auteur</h5>                
