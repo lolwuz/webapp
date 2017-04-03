@@ -32,12 +32,12 @@
             var fileSavePath = Server.MapPath("~/Books/Files/temp/" + rnd.Next(1, 9999) +
                fileName);
             uploadedFile.SaveAs(fileSavePath);
-
+            var bestandstype = fileSavePath.Split('.')[1];
             string convertTypeA = "";
             string convertTypeB = "";
-            if (type == "pdf") { convertTypeA = "epub"; convertTypeB = "mobi"; }
-            if (type == "epub") { convertTypeA = "pdf"; convertTypeB = "mobi"; }
-            if (type == "mobi") { convertTypeA = "pdf"; convertTypeB = "epub"; }
+            if (bestandstype == "pdf") { convertTypeA = "epub"; convertTypeB = "mobi"; }
+            if (bestandstype == "epub") { convertTypeA = "pdf"; convertTypeB = "mobi"; }
+            if (bestandstype == "mobi") { convertTypeA = "pdf"; convertTypeB = "epub"; }
 
             var fileSavePathConvertA = fileSavePath.Split('.')[0] + "."+convertTypeA;
 
@@ -59,7 +59,15 @@
             processB.StartInfo = startInfoB;
             processB.Start();
 
-            PdfReader file = new PdfReader(fileSavePath);
+
+            int timer = 0;
+            while (!File.Exists(fileSavePathConvertA))
+            {
+                timer++;
+            }
+
+
+            PdfReader file = new PdfReader((bestandstype != "pdf") ? fileSavePathConvertA : fileSavePath);
             metadata["Title"] = (file.Info.ContainsKey("Title")) ? file.Info["Title"] : "-";
             metadata["Subject"] = (file.Info.ContainsKey("Subject")) ? file.Info["Subject"] : "-";
             metadata["Author"] = (file.Info.ContainsKey("Author")) ? file.Info["Author"] : "-";
@@ -119,7 +127,7 @@
 
     }
 
-}
+} 
 <script>
     $(document).ready(function () {
         $("input[name=files]").on("change", function () {
