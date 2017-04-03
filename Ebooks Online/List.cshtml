@@ -103,8 +103,7 @@
     <div class="row">
         <div class="col-sm-2">
             <ul class="sortcard list-unstyled">
-                @{
-                    //          
+                @{        
                     for (int i = 0; i < columnNames.Length; i++)
                     {
                         string currCol = columnNames[i];
@@ -150,7 +149,7 @@
                                 {
                                     // Make a list from all unique columnNames[i]. Example all inique authors are listed.
                                     var sortQuery = "SELECT " + columnNames[i] + " FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + columnNames[i];
-                                    <ul class="list-unstyled">   
+                                    <ul class="sortList">   
                                         
                                         @foreach (var row in db.Query(sortQuery))
                                         { 
@@ -312,44 +311,44 @@
                                                     }
                                                 }
                                             </td>
-                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
-                                        </tr>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
+                                            </tr>
 
+                                    }
+                                        else
+                                        {
+
+                                            <tr class="deselectedtable">
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Grootte</a></td>
+                                                <td>
+                                                    @{
+                                                        for (int i = 0; i < 5; i++)
+                                                        {
+                                                            string rating = Convert.ToString(row.ID) + Convert.ToString(i);
+                                                            if (i < row.Beoordeling)
+                                                            {
+                                                                <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/star.png' width="10" alt='*' /></a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/starempty.png' width="10" alt='' /></a>
+                                                            }
+                                                        }
                                                     }
-                                                    else
-                                                    {
-
-                                                        <tr class="deselectedtable">
-                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Grootte</a></td>
-                                                            <td>
-                                                                @{
-                                                                    for (int i = 0; i < 5; i++)
-                                                                    {
-                                                                        string rating = Convert.ToString(row.ID) + Convert.ToString(i);
-                                                                        if (i < row.Beoordeling)
-                                                                        {
-                                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/star.png' width="10" alt='*' /></a>
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/starempty.png' width="10" alt='' /></a>
-                                                                        }
-                                                                    }
-                                                                }
-                                                            </td>
-                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
-                                                        </tr>
-                                                                        }
-                                                                    }
+                                                </td>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
+                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
+                                            </tr>
+                                    }
+                                }
                             }
                         </tbody>
                     </table>
@@ -412,7 +411,7 @@
                             <div class="bookinfocard">
                                 <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
                                 <div class="bookinfoheading">
-                                    <h3 class="panel-title text-center">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>
+                                    <h3 class="panel-title text-center">@bookInfo.Titel</h3>
                                 </div>
 
                                 <div class="bookinfobody">
@@ -436,7 +435,7 @@
                             <div class="bookinfocard">
                                 <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
                                 <div class="bookinfoheading">
-                                    <h3 class="panel-title text-center">@bookInfo.Titel - <a style="font-size: 14px" href="~/Books/BooksView.cshtml?id=@bookInfo.Id">View Book</a></h3>
+                                    <h3 class="panel-title text-center">@bookInfo.Titel</h3>
                                 </div>
                                 <div class="bookinfobody">
                                     <h5>Auteur: @bookInfo.Auteur</h5>

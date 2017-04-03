@@ -1,9 +1,10 @@
-﻿@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700');
+﻿@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
 
 /* Body en Navbar */
 body {
-    font-family: 'Open Sans', sans-serif;
-    font-size: 12px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
     color: black;
     background-color:#f2f2f2;
     height: 100vh;
@@ -68,6 +69,12 @@ body {
 .sortdivider {
     margin-top: 8px;
     margin-bottom: 8px;
+}
+
+.sortList{
+    list-style-type:none;
+    margin-left: 10px;
+    padding-left: 8px;
 }
 
 .listcard {
