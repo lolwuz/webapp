@@ -1,35 +1,25 @@
 ﻿@{
-    Layout = "~/_SiteLayout.cshtml";
+    if (WebSecurity.IsAuthenticated)
+    {
+        Layout = "~/_BookListLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/_SiteLayout.cshtml";
+    }
+
     Page.Title = "About";
 }
 
-<hgroup class="title">
-    <h1>@Page.Title.</h1>
-    <h2>Your app description page.</h2>
-</hgroup>
-
-<article>
-    <p>
-        Use this area to provide additional information.
-    </p>
-
-    <p>
-        Use this area to provide additional information.
-    </p>
-
-    <p>
-        Use this area to provide additional information.
-    </p>
-</article>
-
-<aside>
-    <h3>Aside Title</h3>
-    <p>
-        Use this area to provide additional information.
-    </p>
-    <ul>
-        <li><a href="~/">Home</a></li>
-        <li><a href="~/About">About</a></li>
-        <li><a href="~/Contact">Contact</a></li>
-    </ul>
-</aside>
+ <div class="container">
+     <div class="row">
+         <div class="col-sm-6 col-sm-offset-3">
+             <div class="logincard">
+                 <h4 class="text-center">Over ons</h4>
+                 <hr />
+                 <p>E-Books Online is een website gemaakt door groep 16 van het P3P WEB-applicatie project in opdracht van <a href="http://www.aswinvanwoudenberg.com/">Aswin van Woudenberg</a>.</p>
+                 <p>De website is gebasseerd op het populaire E-Books management programma <a href="https://calibre-ebook.com/">Calibre</a>.</p>
+             </div>
+         </div>
+     </div>
+ </div>

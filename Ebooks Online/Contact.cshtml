@@ -1,5 +1,14 @@
 ﻿@{
-    Layout = "~/_SiteLayout.cshtml";
+
+    if (WebSecurity.IsAuthenticated)
+    {
+        Layout = "~/_BookListLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/_SiteLayout.cshtml";
+    }
+
     Page.Title = "Contact";
 }
 
