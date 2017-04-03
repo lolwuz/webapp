@@ -6,7 +6,8 @@
 @using iTextSharp.text.pdf;
 @{
     Layout = "~/_BookListLayout.cshtml";
-    if (!WebSecurity.IsAuthenticated) {
+    if (!WebSecurity.IsAuthenticated)
+    {
         Response.Redirect("~/default.cshtml");
     }
     var fileName = "";
@@ -35,17 +36,27 @@
             var bestandstype = fileSavePath.Split('.')[1];
             string convertTypeA = "";
             string convertTypeB = "";
-            if (bestandstype == "pdf") { convertTypeA = "epub"; convertTypeB = "mobi"; }
-            if (bestandstype == "epub") { convertTypeA = "pdf"; convertTypeB = "mobi"; }
-            if (bestandstype == "mobi") { convertTypeA = "pdf"; convertTypeB = "epub"; }
+            if (bestandstype == "pdf") {
+                convertTypeA = "epub";
+                convertTypeB = "mobi";
+            }
+            if (bestandstype == "epub") {
+                convertTypeA = "pdf";
+                convertTypeB = "mobi";
 
-            var fileSavePathConvertA = fileSavePath.Split('.')[0] + "."+convertTypeA;
+            }
+            if (bestandstype == "mobi") {
+                convertTypeA = "pdf";
+                convertTypeB = "epub";
+            }
+
+            var fileSavePathConvertA = fileSavePath.Split('.')[0] + "." + convertTypeA;
 
             System.Diagnostics.Process processA = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfoA = new System.Diagnostics.ProcessStartInfo();
             startInfoA.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             startInfoA.FileName = "ebook-convert.exe";
-            startInfoA.Arguments = "\"" + @fileSavePath + "\" \"" + @fileSavePathConvertA + "\"";
+            startInfoA.Arguments = "\"" + fileSavePath + "\" \"" + fileSavePathConvertA + "\"";
             processA.StartInfo = startInfoA;
             processA.Start();
 
@@ -55,23 +66,23 @@
             System.Diagnostics.ProcessStartInfo startInfoB = new System.Diagnostics.ProcessStartInfo();
             startInfoB.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             startInfoB.FileName = "ebook-convert.exe";
-            startInfoB.Arguments = "\"" + @fileSavePath + "\" \"" + @fileSavePathConvertB + "\"";
+            startInfoB.Arguments = "\"" + fileSavePath + "\" \"" + fileSavePathConvertB + "\"";
             processB.StartInfo = startInfoB;
             processB.Start();
 
 
-            int timer = 0;
+            int optellen = 0;
             while (!File.Exists(fileSavePathConvertA))
             {
-                timer++;
+                optellen++;
             }
 
 
-            PdfReader file = new PdfReader((bestandstype != "pdf") ? fileSavePathConvertA : fileSavePath);
-            metadata["Title"] = (file.Info.ContainsKey("Title")) ? file.Info["Title"] : "-";
-            metadata["Subject"] = (file.Info.ContainsKey("Subject")) ? file.Info["Subject"] : "-";
-            metadata["Author"] = (file.Info.ContainsKey("Author")) ? file.Info["Author"] : "-";
-            metadata["Keywords"] = (file.Info.ContainsKey("Keywords")) ? file.Info["Keywords"] : "-";
+            PdfReader bestand = new PdfReader((bestandstype != "pdf") ? fileSavePathConvertA : fileSavePath);
+            metadata["Title"] = (bestand.Info.ContainsKey("Title")) ? bestand.Info["Title"] : "-";
+            metadata["Subject"] = (bestand.Info.ContainsKey("Subject")) ? bestand.Info["Subject"] : "-";
+            metadata["Author"] = (bestand.Info.ContainsKey("Author")) ? bestand.Info["Author"] : "-";
+            metadata["Keywords"] = (bestand.Info.ContainsKey("Keywords")) ? bestand.Info["Keywords"] : "-";
         }
         else
         {
@@ -90,7 +101,7 @@
             int currentuser = WebSecurity.CurrentUserId;
             var dirindex = "*" + data_filename;
             string[] dirs = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirindex);
-            data_filename = data_filename.Split(new[] { "."+data_type }, StringSplitOptions.None)[0];
+            data_filename = data_filename.Split(new[] { "." + data_type }, StringSplitOptions.None)[0];
             var db = Database.Open("StarterSite");
             var LastBookID = db.Query("INSERT INTO Books (Gebruiker,Titel,Auteur,Uitgever,UitgaveDatum,Taal,UploadDatum,Path,Beschrijving,Tags,Serie,Beoordeling,Grootte,OriginalFormat)" +
         "VALUES(@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13)",
@@ -98,22 +109,22 @@
 
 
             long lastId = (long)db.GetLastInsertId();
-            db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", lastId+data_filename, lastId);
+            db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", lastId + data_filename, lastId);
 
-            File.Copy(dirs[0], Server.MapPath("~/Books/Files/"+data_type.ToUpper()+ "/" + lastId + data_filename+"."+data_type));
+            File.Copy(dirs[0], Server.MapPath("~/Books/Files/" + data_type.ToUpper() + "/" + lastId + data_filename + "." + data_type));
             string dirIndexA = "";
             string dirIndexB = "";
             string indexA = "";
             string indexB = "";
-            if (data_type == "pdf") { dirIndexA = data_filename+".epub"; indexA = "epub"; dirIndexB = data_filename + ".mobi"; indexB = "mobi"; }
-            if (data_type == "epub") { dirIndexA =  data_filename + ".pdf"; indexA = "pdf"; dirIndexB = data_filename + ".mobi"; indexB = "mobi"; }
+            if (data_type == "pdf") { dirIndexA = data_filename + ".epub"; indexA = "epub"; dirIndexB = data_filename + ".mobi"; indexB = "mobi"; }
+            if (data_type == "epub") { dirIndexA = data_filename + ".pdf"; indexA = "pdf"; dirIndexB = data_filename + ".mobi"; indexB = "mobi"; }
             if (data_type == "mobi") { dirIndexA = data_filename + ".pdf"; indexA = "pdf"; dirIndexB = data_filename + ".epub"; indexB = "epub"; }
             var dirIndexAA = "*" + dirIndexA;
             var dirIndexBB = "*" + dirIndexB;
             string[] dirsA = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirIndexAA);
             string[] dirsB = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirIndexBB);
             var test = Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId + dirIndexA);
-            File.Copy(dirsA[0], Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId +dirIndexA));
+            File.Copy(dirsA[0], Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId + dirIndexA));
             File.Copy(dirsB[0], Server.MapPath("~/Books/Files/" + indexB.ToUpper() + "/" + lastId + dirIndexB));
 
 
@@ -126,8 +137,7 @@
 
 
     }
-
-} 
+}
 <script>
     $(document).ready(function () {
         $("input[name=files]").on("change", function () {
