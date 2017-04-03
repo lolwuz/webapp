@@ -3,6 +3,7 @@
     Page.Title = "Mijn Boeken";
     Layout = "~/_BookListLayout.cshtml";
 
+
     // Check Login.
     if (!WebSecurity.IsAuthenticated)
     {
@@ -14,6 +15,26 @@
 
     var db = Database.Open("StarterSite");
     var selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Titel";
+
+
+    // List met geselecteerd uit lijst
+
+    List<bool> selectList = new List<bool>();
+    List<int> selectListId = new List<int>();
+
+    foreach (var row in db.Query(selectQueryString))
+    {
+        selectList.Add(false);
+        selectListId.Add(0);
+    }
+
+    if (Session["selectList"] == null)
+    {
+        Session["selectList"] = selectList;
+        Session["selectListId"] = selectListId;
+    }
+
+    // Sorting the book list. 
     string sortOrder = "a";
     string sortBy = Request.QueryString["sr"];
     string searchTermQuery = Request.QueryString["searchbar"];
@@ -22,6 +43,7 @@
 
     if (!IsPost)
     {
+
         // Sorting books.
         if (!Request.QueryString["sr"].IsEmpty())
         {
@@ -75,24 +97,6 @@
             var searchTerm = "%" + Request["searchbar"] + "%";
         }
     }
-
-    // List met geselecteerd uit lijst
-
-    List<bool> selectList = new List<bool>();
-    List<int> selectListId = new List<int>();
-
-    foreach (var row in db.Query(selectQueryString))
-    {
-        selectList.Add(false);
-        selectListId.Add(0);
-    }
-
-    if (Session["selectList"] == null)
-    {
-        Session["selectList"] = selectList;
-        Session["selectListId"] = selectListId;
-    }
-
 }
 
 <div class="container-fluid">
@@ -152,11 +156,39 @@
                             @{ 
                                 if (sortCount == i)
                                 {
+                                    // Make a list from all unique columnNames[i]. Example all inique authors are listed.
                                     var sortQuery = "SELECT " + columnNames[i] + " FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + columnNames[i];
                                     <ul class="list-unstyled">   
+                                        
                                         @foreach (var row in db.Query(sortQuery))
-                                        {
-                                            <li><a href="~/List.cshtml?sr=@sortBy">@row[0]</a></li>
+                                        { 
+                                            // Select all ID's from the books with the (for example) author names.
+                                            var sortFindQuery = "SELECT Id FROM Books WHERE " + columnNames[i] + " = @0";
+                                            string selectBooks = "";
+
+                                            // Make a string for passing the selected books.
+                                            foreach (var id in db.Query(sortFindQuery, row[0]))
+                                            {
+                                                selectBooks += id[0];
+                                                selectBooks += "+";
+                                            }
+                                            
+                                            // Remove the "+" at the end of the string.
+                                            string selectedBooks = "";
+                                            if (selectBooks[selectBooks.Length-1]== '+')
+                                            {
+                                                for (int ii = 0; ii < selectBooks.Length - 1; ii++)
+                                                {
+                                                    selectedBooks += selectBooks[ii];
+                                                }
+                                            }
+                                            else
+                                            {
+                                                // Only 1 book is selected.
+                                                selectedBooks = selectBooks; 
+                                            }
+
+                                            <li><a href="~/List.cshtml?sr=@sortBy&at=@selectedBooks">@row[0]</a></li>
                                         }
                                     </ul>
                                 }
@@ -192,12 +224,45 @@
                             @{
                                 selectList = (List<bool>)Session["selectList"];
                                 selectListId = (List<int>)Session["selectListId"];
-                               
+
                                 foreach (var row in db.Query(selectQueryString))
                                 {
                                     if (!IsPost)
                                     {
+                                        // Selecting multiple books.
+                                        if (!Request.QueryString["at"].IsEmpty())
+                                        {
+                                            // Clearing all selected Books.
+                                            //for(int i = 0; i < selectListId.Count; i++)
+                                            //{
+                                            //    selectListId[i] = 0;
+                                            //    selectList[i] = false;
+                                            //}
 
+                                            string selectedBooks = Request.QueryString["at"];
+                                            string[] selectID = selectedBooks.Split(' '); // Splitting select books from QueryString
+
+                                            foreach (string id in selectID)
+                                            {
+                                                if(row.ID == id.AsInt())
+                                                {
+                                                    int index = selectListId.IndexOf(row.ID);
+                                                    if (index == -1)
+                                                    {
+                                                        int emptyIndex = selectListId.IndexOf(0);
+                                                        selectList[emptyIndex] = true;
+                                                        selectListId[emptyIndex] = id.AsInt();
+                                                    }
+                                                    else
+                                                    {
+                                                        selectList[index] = false;
+                                                        selectListId[index] = 0;
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        // Selecting a single book from the List.
                                         if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
                                         {
                                             var bookId = Request.QueryString["id"];
@@ -214,10 +279,8 @@
                                                 }
                                                 else
                                                 {
-
                                                     selectList[index] = false;
                                                     selectListId[index] = 0;
-
                                                 }
                                             }
 
