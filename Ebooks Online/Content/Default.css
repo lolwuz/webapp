@@ -5,7 +5,7 @@ body {
     font-family: 'Open Sans', sans-serif;
     font-size: 12px;
     color: black;
-    background-color: whitesmoke;
+    background-color:#f2f2f2;
     height: 100vh;
     color: #212121;
 }
@@ -61,7 +61,7 @@ body {
   background: #fff;
   border-radius: 2px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  margin: 0px 0px 0px 0px;
+  margin: 10px 0px 0px 0px;
   padding: 10px 10px 10px 10px;
 }
 
@@ -130,11 +130,17 @@ body {
 }
 
 .selectedTable {
-    background-color: #0091EA;
+    background-color: #BBDEFB;
 }
 
 .selectedTable td a {
-    color: white;
+    color: #212121;
+    font-weight: 600;
+}
+
+.deselectedtable td a{
+    color: #212121;
+    font-weight: 400;
 }
 
 .hallo{
@@ -177,4 +183,88 @@ body {
 
 .footer {
     color: black;
+}
+
+/* Google Material input stylings */
+.searchform{
+    display: block;
+    margin-top: 0px;
+}
+
+.group 			  { 
+  position:relative; 
+  margin: 0px 0px 0px 0px;
+  padding: 0px 0px 0px 0px;
+}
+
+.inputmaterial 				{
+  font-size:12px;
+  padding: 10px 5px 10px 10px;
+  margin: 0px 0px 0px 0px;
+  display: block;
+  width: 100%;
+  border:none;
+  border-bottom:1px solid #757575;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+.inputmaterial:focus 		{ outline:none; }
+
+
+.inputmaterial:focus ~ label, input:valid ~ label 		{
+  top:-20px;
+  font-size:14px;
+  color:#FF5252;
+}
+
+.bar 	{ position:relative; display:block; width:100%; }
+.bar:before, .bar:after 	{
+  content:'';
+  height:2px; 
+  width:0;
+  bottom:1px; 
+  position:absolute;
+  background:#FF5252; 
+  transition:0.2s ease all; 
+  -moz-transition:0.2s ease all; 
+  -webkit-transition:0.2s ease all;
+}
+.bar:before {
+  left:50%;
+}
+.bar:after {
+  right:50%; 
+}
+
+.inputmaterial:focus ~ .bar:before, input:focus ~ .bar:after {
+  width:50%;
+}
+
+.highlight {
+  position:absolute;
+  height:60%; 
+  width:100px; 
+  top:25%; 
+  left:0;
+  pointer-events:none;
+  opacity:0.5;
+}
+
+.inputmaterial:focus ~ .highlight {
+  -webkit-animation:inputHighlighter 0.3s ease;
+  -moz-animation:inputHighlighter 0.3s ease;
+  animation:inputHighlighter 0.3s ease;
+}
+
+@-webkit-keyframes inputHighlighter {
+	from { background:#FF5252; }
+  to 	{ width:0; background:transparent; }
+}
+@-moz-keyframes inputHighlighter {
+	from { background:#FF5252; }
+  to 	{ width:0; background:transparent; }
+}
+@keyframes inputHighlighter {
+	from { background:#FF5252; }
+  to 	{ width:0; background:transparent; }
 }

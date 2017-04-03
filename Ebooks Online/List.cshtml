@@ -102,14 +102,6 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-2">
-            <form method="get">
-                @Html.ValidationSummary()
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search for..." name="searchbar" value="@Request["searchbar"]" />
-                    <input type="submit" class="btn btn-default" value="search" />
-                </div><!-- /input-group -->
-            </form>
-            <hr />
             <ul class="sortcard list-unstyled">
                 @{
                     //          
@@ -204,8 +196,17 @@
             </ul>
         </div>
         <div class="col-sm-7">
+            <form class="searchform" method="get">
+                @Html.ValidationSummary()
+                <div class="group">
+                    <input class="inputmaterial" type="search" placeholder="Druk op enter om te zoeken..." name="sb" value="@Request["sb"]" />
+                    <span class="bar"></span>
+                </div>
+            </form>
+            <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+
             <div class="listcard">
-                <form method="post">
+                <form class="" method="post">
                     <table class="table table-responsive">
                         <thead>
                             <tr>
@@ -302,11 +303,11 @@
                                                         string rating = Convert.ToString(row.ID) + Convert.ToString(i);
                                                         if (i < row.Beoordeling)
                                                         {
-                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/star.png' width="10" alt='*' /></a>
                                                         }
                                                         else
                                                         {
-                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/starempty.png' width="10" alt='' /></a>
                                                         }
                                                     }
                                                 }
@@ -321,7 +322,7 @@
                                                     else
                                                     {
 
-                                                        <tr>
+                                                        <tr class="deselectedtable">
                                                             <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
                                                             <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
                                                             <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
@@ -333,11 +334,11 @@
                                                                         string rating = Convert.ToString(row.ID) + Convert.ToString(i);
                                                                         if (i < row.Beoordeling)
                                                                         {
-                                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Books/Coverart/star.png' width="12" alt='*' /></a>
+                                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/star.png' width="10" alt='*' /></a>
                                                                         }
                                                                         else
                                                                         {
-                                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Books/Coverart/starempty.png' width="12" alt='' /></a>
+                                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/starempty.png' width="10" alt='' /></a>
                                                                         }
                                                                     }
                                                                 }
