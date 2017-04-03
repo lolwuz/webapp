@@ -2,62 +2,60 @@
     Page.Title = "Boek verwijderen";
     Layout = "~/_BookListLayout.cshtml";
 
-    var titel = "";
-    int id;
-    var db = Database.Open("StarterSite");
-    var gebruiker = WebSecurity.CurrentUserName;
-    List<int> selectedId = Session["selectListId"] as List<int>;
-    int teller = selectedId.Count;
-
-    if (WebSecurity.IsAuthenticated)
+    if (!WebSecurity.IsAuthenticated)
     {
-        foreach (int i in selectedId)
-        {
-            if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0)
-            {
-                id = i;
-                var command = "SELECT Books.Titel, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
-                var row = db.QuerySingle(command, id, gebruiker);
-                if (row != null)
-                {
-                    titel = row.Titel;
-                }
-                else
-                {
-                    Validation.AddFormError("Dit boek bestaat niet.");
-                }
-            }
-
-            if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].AsInt() > 0 && IsPost)
-            {
-                id = i;
-                var delete = "DELETE FROM Books WHERE Id = @0";
-                db.Execute(delete, id);
-
-                Response.Redirect("~/List.cshtml");
-            }
-        }
+        Response.Redirect("~/Default.cshtml");
     }
-    else
+
+    var db = Database.Open("StarterSite");
+    var userId = WebSecurity.CurrentUserId;
+    List<int> selectedId = Session["selectListId"] as List<int>;
+
+    //als de Session is verlopen, en er geen selectie meer is:
+    if (selectedId == null)
     {
-        Validation.AddFormError("Je hebt hier geen rechten voor.");
         Response.Redirect("~/Default.cshtml");
     }
 }
 
-@Html.ValidationSummary()
-<h2>Verwijderen</h2>
-<p><a href="~/Books/BooksView.cshtml">Terug naar mijn boekenlijst</a></p>
-
-<form method="post">
-    <fieldset>
-        <p>
-            @for (int i = 0; i < teller; i++)
+<div class="container">
+    <div class="row">
+        @{
+            // Loop trough selected Book list.
+            for (int i = 0; i < selectedId.Count; i++)
             {
-                <span>Titel van het boek:</span>
-                <span>@titel</span>
+                if (selectedId[i] != 0)
+                {
+                    // Select book Info
+                    var bookInfo = db.QuerySingle("SELECT * FROM Books WHERE Id = @0", selectedId[i]);
+                    <div class="col-lg-4 col-sm-6">
+                        <div class="bookinfocard">
+
+                            <div class="bookinfoheading">
+                                <h3 class="panel-title text-center">@bookInfo.Titel</h3>
+                            </div>
+
+                            <div class="bookinfobody">
+                                <div class="col-sm-6">
+                                    <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <h5>Auteur:</h5>
+                                    <p>@bookInfo.Titel</p>
+                                    <h5>Taal</h5>
+                                    <p>@bookInfo.Taal</p>
+                                </div>
+                                <div class="col-sm-12">
+                                    <h5>Beschrijving</h5>
+                                    <p>@bookInfo.Beschrijving</p>
+                                </div>
+                                <p></p>
+                            </div>
+
+                        </div>
+                    </div>
+                }
             }
-        </p>
-        <p><input type="submit" name="Delete" value="Verwijder dit boek"/></p>
-    </fieldset>
-</form>
+        }
+    </div>
+</div>
