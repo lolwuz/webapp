@@ -44,7 +44,7 @@
     //    Response.ContentType = "application/mobi";
     //}
 
-    string[] download = new string[selectedId.Count]; 
+    string[] download = new string[selectedId.Count];
 
     if (WebSecurity.IsAuthenticated)
     {
@@ -68,14 +68,14 @@
             download[i] += filepath;
         }
 
-        using (Zipfile Zip = new Zipfile())
-        {
-            Zip.AddFile(download, "Boeken");
-        }
+        //using (Zipfile Zip = new Zipfile())
+        //{
+        //    Zip.AddFile(download, "Boeken");
+        //}
 
-        //Response.WriteFile(filepath);
-        //Response.Flush();
-        zip.Save(@"C:\Users\user\Desktop\Boekenzip.zip");
+        ////Response.WriteFile(filepath);
+        ////Response.Flush();
+        //zip.Save(@"C:\Users\user\Desktop\Boekenzip.zip");
     }
     else
     {
