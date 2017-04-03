@@ -79,12 +79,44 @@
             if (isValid)
             {
                 var hostUrl = Request.Url.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                List<string> a = new List<string>();
+                long grootte = 0;
+                foreach (var file in attachfile)
+                {
+                    string fileGoed = "Files/" + file.Split('/')[2] + "/" + file.Split('/')[3];
+
+                    FileInfo f = new FileInfo(Server.MapPath(fileGoed));
+                    if ((grootte + f.Length) < 24000000)
+                    {
+                        grootte = grootte + f.Length;
+                        a.Add(file);
+                    }
+                    else
+                    {
+                        WebMail.Send(
+                        to: email,
+                        subject: "EBooks",
+                        body: "Hierbij ontvangt u uw gemailde EBooks",
+                        filesToAttach: a);
+                        a.Clear();
+                        a.Add(file);
+                        grootte = f.Length;
+                    }
+                }
+
                 WebMail.Send(
-                    to: email,
-                    subject: "EBooks",
-                    body: "Hierbij ontvangt u uw gemailde EBooks",
-                    filesToAttach: attachfile
-                );
+                        to: email,
+                        subject: "EBooks",
+                        body: "Hierbij ontvangt u uw gemailde EBooks",
+                        filesToAttach: a);
+
+                //    WebMail.Send(
+                //    to: email,
+                //    subject: "EBooks",
+                //    body: "Hierbij ontvangt u uw gemailde EBooks",
+                //    filesToAttach: attachfile
+                //);
+
                 passwordSent = true;
             }
         }

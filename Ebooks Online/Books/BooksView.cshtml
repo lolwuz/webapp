@@ -15,11 +15,49 @@
     {
         string fileName = db.QueryValue("SELECT Path FROM Books WHERE Id = @0", currentId) + ".pdf";
 
-        <div class="pdfViewer">
-            <object data="~/Books/Files/PDF/@fileName" type='application/pdf' class="pdfViewer">
-                <embed src="~/Books/Files/PDF/@fileName" type='application/pdf' class="pdfViewer"></embed>
-            </object>
+        <div class="container-fluid">                
+            <div class="row">
+                <div class="col-md-9">
+                    <object data="~/Books/Files/PDF/@fileName" type='application/pdf' class="pdfViewer">
+                        <embed src="~/Books/Files/PDF/@fileName" type='application/pdf' class="pdfViewer"></embed>
+                    </object>
+                </div>
+                <div class="col-md-3">
+                    <h6>
+                        <a class="btn btn-default btn-sm" href="~/Books/BooksDownload.cshtml">Download</a>
+                        <a class="btn btn-default btn-sm" href="~/Books/BooksEmail.cshtml">E-mail</a>
+                        <a class="btn btn-danger accent-color btn-sm" href="~/Books/BooksDelete.cshtml">Verwijderen</a>
+                    </h6>
+                    <hr />
+                    @{
+                        // Select book Info
+                        var statement = "SELECT * FROM Books WHERE Id = @0";
+                        var bookInfo = db.QuerySingle(statement, currentId);
+
+                        <div class="bookinfocard">
+
+                            <div class="bookinfoheading">
+                                <h3 class="panel-title text-center">@bookInfo.Titel</h3>
+                            </div>
+
+                            <div class="bookinfobody">
+                                <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                                <h5>Auteur:</h5>
+                                <p>@bookInfo.Titel</p>
+                                <h5>Taal</h5>
+                                <p>@bookInfo.Taal</p>
+                                <h5>Beschrijving</h5>
+                                <p>@bookInfo.Beschrijving</p>
+                            </div>
+
+                        </div>
+                    }
+                </div>
+
+            </div>
         </div>
+
+
     }
     else
     {
