@@ -25,6 +25,10 @@
             selectedbooks++;
         }
     }
+    if (selectedbooks <= 0)
+    {
+        Response.Redirect("~/Default.cshtml");
+    }
 
     if (IsPost)
     {
@@ -52,6 +56,11 @@
                     }
                 }
             }
+
+            Session["selectList"] = null;
+            Session["selectListId"] = null;
+
+            Response.Redirect("~/List");
         }
     }
 }
@@ -60,7 +69,15 @@
     <div class="row">
         <div class="col-sm-12">
             <h2>Verwijderen</h2>
-            <p>Weet u zeker dat u de volgende @selectedbooks boeken wilt verwijderen?</p>
+            @if (selectedbooks == 1)
+            {
+                <p>Weet u zeker dat u het volgende boek wilt verwijderen?</p>
+            }
+            else
+            {
+                <p>Weet u zeker dat u de volgende @selectedbooks boeken wilt verwijderen?</p>
+            }
+
             <form method="post">
                 <button name="actionButton" value="Yes">Ja, verwijderen</button>
                 <button name="actionButton" value="No">Nee, behouden</button>
@@ -87,10 +104,10 @@
 
                             <div class="bookinfobody">
                                 <div class="row">
-                                    <div class="col-sm-5">
-                                        <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                                    <div class="col-xs-5">
+                                        <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" text-align="center" class="img-responsive" />
                                     </div>
-                                    <div class="col-sm-7">
+                                    <div class="col-xs-7">
                                         <h5>Auteur:</h5>
                                         <p>@bookInfo.Titel</p>
                                         <h5>Taal</h5>
@@ -98,7 +115,7 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-sm-12">
+                                    <div class="col-xs-12">
                                         <h5>Beschrijving</h5>
                                         <p>@bookInfo.Beschrijving</p>
                                     </div>
