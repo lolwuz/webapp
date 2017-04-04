@@ -137,7 +137,7 @@
                             @{ 
                                 if (sortCount == i)
                                 {
-                                    // Make a list from all unique columnNames[i]. Example all inique authors are listed.
+                                    // Make a list from all unique columnNames[i]. Example all unique authors are listed.
                                     var sortQuery = "SELECT " + columnNames[i] + " FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + columnNames[i];
                                     <ul class="sortList">                   
                                         @foreach (var row in db.Query(sortQuery))
@@ -195,11 +195,25 @@
             @if (!Request.QueryString["sb"].IsEmpty())
             {
                 var searchTitel = "SELECT * FROM Books WHERE Titel LIKE @0";
+                var searchAuthor = "SELECT * FROM Books WHERE Auteur LIKE @0";
+                var searchSerie = "SELECT * FROM Books WHERE Serie LIKE @0";
+                var searchUitgever = "SELECT * FROM Books WHERE Uitgever LIKE @0";
+
                 var searchTerm = "%" + Request["sb"] + "%";
                 var resultTitel = db.Query(searchTitel, searchTerm);
+                var resultAuthor = db.Query(searchAuthor, searchTerm);
+                var resultSerie = db.Query(searchSerie, searchTerm);
+                var resultUitgever = db.Query(searchUitgever, searchTerm);
 
-                if (resultTitel.Count() > 0)
+                if (resultTitel.Count() > 0 || resultAuthor.Count() > 0 || resultSerie.Count() > 0 || resultUitgever.Count() > 0)
                 {
+                    <br />
+                    <ul class="nav nav-pills" role="tablist">
+                        <li role="presentation" class="active"><a href="#">Home <span class="badge">42</span></a></li>
+                        <li role="presentation"><a href="#">Profile</a></li>
+                        <li role="presentation"><a href="#">Messages <span class="badge">3</span></a></li>
+                    </ul>
+
                     <div class="searchcard">
                         <table class="table table-responsive">
                             <thead>
@@ -219,7 +233,34 @@
                                         <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
                                         <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
                                     </tr>
-                                }           
+                                }
+                                @foreach (var row in resultAuthor)
+                                {
+                                    <tr>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
+                                    </tr>
+                                } 
+                                @foreach (var row in resultSerie)
+                                {
+                                    <tr>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
+                                    </tr>
+                                } 
+                                @foreach (var row in resultUitgever)
+                                {
+                                    <tr>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
+                                    </tr>
+                                }            
                             </tbody>
                         </table>
                     </div>

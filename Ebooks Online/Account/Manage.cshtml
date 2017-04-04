@@ -105,67 +105,92 @@
         }
     }
 }
-<hgroup class="title">
-    <h1>@Page.Title.</h1>
-</hgroup>
 
-@if (!successMessage.IsEmpty()) {
-    <p class="message-success">
-        @successMessage
-    </p>
-}
 
-<p>You're logged in as <strong>@WebSecurity.CurrentUserName</strong>.</p>
 
-@if (hasLocalAccount) {
-    <h3>Change password</h3>
-} else {
-    <p>
-        U heeft geen lokaal wachtwoord voor deze site. Voeg een lokaal wachtwoord toe zodat u kunt inloggen zonder externe login.
-    </p>
-}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            <div class="logincard">
 
-<form method="post">
-    @AntiForgery.GetHtml()
-    @Html.ValidationSummary(excludeFieldErrors: true)
+                @if (!successMessage.IsEmpty())
+                {
+                    <p class="message-success">
+                        @successMessage
+                    </p>
+                }
 
-    <fieldset>
-        <legend>
-        @if (hasLocalAccount) {
-            <text>Veranderen wachtwoord formulier</text>
-        } else {
-            <text>Stel wachtwoord in formulier</text>
-        }
-        </legend>
-        <ol>
-            @if (hasLocalAccount) {
-                <li class="current-password">
-                    <label for="currentPassword" @if (!ModelState.IsValidField("currentPassword")) {<text>class="error-label"</text>}>Huidig wachtwoord</label>
-                    <input type="password" id="currentPassword" name="currentPassword" @Validation.For("currentPassword")/>
-                    @Html.ValidationMessage("currentPassword")
-                </li>
-            }
-            <li class="new-password">
-                <label for="newPassword" @if (!ModelState.IsValidField("newPassword")) {<text>class="error-label"</text>}>nieuw wachtwoord</label>
-                <input type="password" id="newPassword" name="newPassword" @Validation.For("newPassword")/>
-                @Html.ValidationMessage("newPassword")
-            </li>
-            <li class="confirm-password">
-                <label for="confirmPassword" @if (!ModelState.IsValidField("confirmPassword")) {<text>class="error-label"</text>}>Herhaal wachtwoord</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" @Validation.For("confirmPassword")/>
-                @Html.ValidationMessage("confirmPassword")
-            </li>
-        </ol>
-        @if (hasLocalAccount) {
-            <button type="submit" name="action" value="password">Verander wachtwoord</button>
-            <p>
-                Klik <a href="~/Account/ForgotPassword" title="Forgot password page">hier</a> als u uw wachtwoord bent vergeten.
-            </p>
-        } else {
-            <button type="submit" name="action" value="password">Stel wachtwoord in</button>
-        }
-    </fieldset>
-</form>
+                <p>Je bent ingelogd als <strong>@WebSecurity.CurrentUserName</strong>.</p>
+
+                @if (hasLocalAccount)
+                {
+                    <h4>Bewerk mijn account.</h4>
+                }
+                else
+                {
+                    <p>
+                        U heeft geen lokaal wachtwoord voor deze site. Voeg een lokaal wachtwoord toe zodat u kunt inloggen zonder externe login.
+                    </p>
+                }
+
+                <hr />
+
+                <form method="post">
+                    @AntiForgery.GetHtml()
+                    @Html.ValidationSummary(excludeFieldErrors: true)
+                    <fieldset>
+                       
+                        @if (hasLocalAccount)
+                        {
+                            <h5>Verander je wachtwoord.</h5>
+                        }
+                        else
+                        {
+                            <h5>Stel je wachtwoord in voor een lokaal account.</h5>
+                        }
+                        
+                        <br />
+
+                        @if (hasLocalAccount)
+                        {
+                            <label for="currentPassword" @if (!ModelState.IsValidField("currentPassword")) { <text> class="error-label" </text> }>Huidig wachtwoord</label>
+                            <div class="input-group">
+                                <input class="form-control" type="password" id="currentPassword" name="currentPassword" @Validation.For("currentPassword") />
+                            </div>
+                            @Html.ValidationMessage("currentPassword")
+                        }
+
+                        <label for="newPassword" @if (!ModelState.IsValidField("newPassword")) { <text> class="error-label" </text> }>Nieuw wachtwoord</label>
+                        <div class="input-group">
+                            <input class="form-control" type="password" id="newPassword" name="newPassword" @Validation.For("newPassword") />
+                        </div>
+                        @Html.ValidationMessage("newPassword")
+
+
+                        <label for="confirmPassword" @if (!ModelState.IsValidField("confirmPassword")) { <text> class="error-label" </text> }>Herhaal wachtwoord</label>
+                        <div class="input-group">
+                            <input class="form-control" type="password" id="confirmPassword" name="confirmPassword" @Validation.For("confirmPassword") />
+                        </div>
+                        @Html.ValidationMessage("confirmPassword")
+
+                        <hr />
+
+                        @if (hasLocalAccount)
+                        {
+                            <button class="btn btn-danger accent-color" type="submit" name="action" value="password">Verander wachtwoord</button>
+                            <a class="btn btn-default" href="~/Account/ForgotPassword.cshtml">Ik ben mijn wachtwoord vergeten</a>
+                        }
+                        else
+                        {
+                            <button class="btn btn-danger accent-color" type="submit" name="action" value="password">Stel wachtwoord in.</button>
+                        }
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <section id="externalLogins">
     @if (externalLogins.Count > 0) {
