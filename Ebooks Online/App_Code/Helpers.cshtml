@@ -1,147 +1,61 @@
-﻿@helper createBookList(List<int> selectListId, Database db, string selectQueryString, string sortBy)
+﻿@helper createCards(Database db, List<int> selectListId)
 {
-    <div class="listcard">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Titel</th>
-                    <th>Auteur</th>
-                    <th>Datum</th>
-                    <th>Grootte (mb)</th>
-                    <th>Beoordeling</th>
-                    <th>Tags</th>
-                    <th>Serie</th>
-                    <th>Uitgever</th>
-                    <th>Uitgave-datum</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
-                    // Getting the selectlist back from the Session.
-                    selectListId = (List<int>)Session["selectListId"];
-
-                    // For each titel in the database create a Row. 
-                    foreach (var row in db.Query(selectQueryString))
-                    {
-                        if (!IsPost)
-                        {
-                            // Selecting multiple books.
-                            if (!Request.QueryString["at"].IsEmpty())
-                            {
-                                // Clearing all selected Books.
-                                //for(int i = 0; i < selectListId.Count; i++)
-                                //{
-                                //    selectListId[i] = 0;
-                                //    selectList[i] = false;
-                                //}
-
-                                string selectedBooks = Request.QueryString["at"];
-                                string[] selectID = selectedBooks.Split(' '); // Splitting select books from QueryString
-
-                                foreach (string id in selectID)
-                                {
-                                    if (row.ID == id.AsInt())
-                                    {
-                                        int index = selectListId.IndexOf(row.ID);
-                                        if (index == -1)
-                                        {
-                                            int emptyIndex = selectListId.IndexOf(0);
-                                            selectListId[emptyIndex] = id.AsInt();
-                                        }
-                                        else
-                                        {
-                                            selectListId[index] = 0;
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Selecting a single book from the List.
-                            if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
-                            {
-                                var bookId = Request.QueryString["id"];
-
-                                if (row.ID == bookId.AsInt())
-                                {
-
-                                    int index = selectListId.IndexOf(row.ID);
-                                    if (index == -1)
-                                    {
-                                        int emptyIndex = selectListId.IndexOf(0);
-
-                                        selectListId[emptyIndex] = bookId.AsInt();
-                                    }
-                                    else
-                                    {
-                                        selectListId[index] = 0;
-                                    }
-                                }
-
-                            }
-                        }
-
-                        // If the index of the book Id != -1 the book is selected.
-                        if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
-                        {
-                            <tr class="selectedTable">
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Grootte</a></td>
-                                <td>
-                                    <!-- Adding stars -->
-                                    @for (int i = 0; i < 5; i++)
-                                    {
-                                        string rating = Convert.ToString(row.ID) + Convert.ToString(i);
-                                        if (i < row.Beoordeling)
-                                        {
-                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/star.png' width="10" alt='*' /></a>
-                                        }
-                                        else
-                                        {
-                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/starempty.png' width="10" alt='' /></a>
-                                        }
-                                    }
-
-                                </td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
-                            </tr>
-                        }
-                        else
-                        {
-                            <!-- Adding stars -->
-                            <tr class="deselectedtable">
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Grootte</a></td>
-                                <td>
-                                    <!-- Adding stars -->
-                                    @for (int i = 0; i < 5; i++)
-                                    {
-                                        string rating = Convert.ToString(row.ID) + Convert.ToString(i);
-                                        if (i < row.Beoordeling)
-                                        {
-                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/star.png' width="10" alt='*' /></a>
-                                        }
-                                        else
-                                        {
-                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/starempty.png' width="10" alt='' /></a>
-                                        }
-                                    }
-                                </td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
-                            </tr>
-                        }
-                    }
+        for (int i = 0; i < selectListId.Count; i++)
+        {
+        // If ListId = 0: There is no selected book.
+        if (selectListId[i] != 0)
+        {
+            // Count the amount off !selected books.
+            int countEmpty = 0;
+            foreach (int ii in selectListId)
+            {
+                if (ii == 0)
+                {
+                    countEmpty++;
                 }
-            </tbody>
-        </table>
-    </div>
+            }
+
+            // If there is only 1 books selected. Show big "preview"
+            if (countEmpty > selectListId.Count - 2)
+            {      
+                var statement = "SELECT * FROM Books WHERE Id = @0";
+                var bookInfo = db.QuerySingle(statement, selectListId[i]);
+
+                <div class="bookinfocard">
+                    <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
+                    <div class="bookinfoheading">
+                        <h3 class="panel-title text-center">@bookInfo.Titel</h3>
+                    </div>
+
+                    <div class="bookinfobody">
+                        <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                        <h5>Auteur:</h5>
+                        <p>@bookInfo.Titel</p>
+                        <h5>Taal</h5>
+                        <p>@bookInfo.Taal</p>
+                        <h5>Beschrijving</h5>
+                        <p>@bookInfo.Beschrijving</p>
+                    </div>   
+                </div>
+            }
+            else
+            {
+                // Select book Info
+                var statement = "SELECT * FROM Books WHERE Id = @0";
+                var bookInfo = db.QuerySingle(statement, selectListId[i]);
+
+                <div class="bookinfocard">
+                    <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
+                    <div class="bookinfoheading">
+                        <h3 class="panel-title text-center">@bookInfo.Titel</h3>
+                    </div>
+                    <div class="bookinfobody">
+                        <h5>Auteur: @bookInfo.Auteur</h5>
+                        <h5>Taal: @bookInfo.Taal</h5>
+                    </div>
+                </div>
+                <br />
+            }       
+        }
+    }
 }
