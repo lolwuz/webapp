@@ -16,9 +16,59 @@
     {
         Response.Redirect("~/Default.cshtml");
     }
+
+    int selectedbooks = 0;
+    foreach (int i in selectedId)
+    {
+        if (i != 0)
+        {
+            selectedbooks++;
+        }
+    }
+
+    if (IsPost)
+    {
+        if (Request.Form["actionButton"] == "No")
+        {
+            Response.Redirect("~/List.cshtml");
+        }
+        else if (Request.Form["actionButton"] == "Yes")
+        {
+            for (int i = 0; i < selectedId.Count; i++)
+            {
+                if (selectedId[i] != 0)
+                {
+                    string fileName = "Files/EPUB/" + db.QueryValue("SELECT Path FROM Books WHERE Id=@0 AND Gebruiker=@1", selectedId[i], userId);
+                    if (fileName != null && !fileName.IsEmpty())
+                    {
+                        string filePath = Server.MapPath(fileName + ".epub");
+                        File.Delete(filePath);
+                        filePath = Server.MapPath(fileName + ".mobi");
+                        File.Delete(filePath);
+                        filePath = Server.MapPath(fileName + ".pdf");
+                        File.Delete(filePath);
+
+                        db.Execute("DELETE FROM Books WHERE Id=@0 AND Gebruiker=@1", selectedId[i], userId);
+                    }
+                }
+            }
+        }
+    }
 }
 
 <div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>Verwijderen</h2>
+            <p>Weet u zeker dat u de volgende @selectedbooks boeken wilt verwijderen?</p>
+            <form method="post">
+                <button name="actionButton" value="Yes">Ja, verwijderen</button>
+                <button name="actionButton" value="No">Nee, behouden</button>
+            </form>
+        </div>
+        
+
+    </div>
     <div class="row">
         @{
             // Loop trough selected Book list.
@@ -28,30 +78,32 @@
                 {
                     // Select book Info
                     var bookInfo = db.QuerySingle("SELECT * FROM Books WHERE Id = @0", selectedId[i]);
-                    <div class="col-lg-4 col-sm-6">
+                    <div class="col-md-4 col-sm-6">
                         <div class="bookinfocard">
 
                             <div class="bookinfoheading">
-                                <h3 class="panel-title text-center">@bookInfo.Titel</h3>
+                                <h3 class="panel-title text-left">@bookInfo.Titel</h3>
                             </div>
 
                             <div class="bookinfobody">
-                                <div class="col-sm-6">
-                                    <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <h5>Auteur:</h5>
+                                        <p>@bookInfo.Titel</p>
+                                        <h5>Taal</h5>
+                                        <p>@bookInfo.Taal</p>
+                                    </div>
                                 </div>
-                                <div class="col-sm-6">
-                                    <h5>Auteur:</h5>
-                                    <p>@bookInfo.Titel</p>
-                                    <h5>Taal</h5>
-                                    <p>@bookInfo.Taal</p>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <h5>Beschrijving</h5>
+                                        <p>@bookInfo.Beschrijving</p>
+                                    </div>
                                 </div>
-                                <div class="col-sm-12">
-                                    <h5>Beschrijving</h5>
-                                    <p>@bookInfo.Beschrijving</p>
-                                </div>
-                                <p></p>
                             </div>
-
                         </div>
                     </div>
                 }
