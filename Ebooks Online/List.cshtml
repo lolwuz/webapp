@@ -194,6 +194,8 @@
                 }
             </ul>
         </div>
+
+        
         <div class="col-sm-7">
             <form class="searchform" method="get">
                 @Html.ValidationSummary()
@@ -202,158 +204,11 @@
                     <span class="bar"></span>
                 </div>
             </form>
+
             <hr style="margin-top: 10px; margin-bottom: 10px;"/>
-
-            <div class="listcard">
-                <form class="" method="post">
-                    <table class="table table-responsive">
-                        <thead>
-                            <tr>
-                                <th>Titel</th>
-                                <th>Auteur</th>
-                                <th>Datum</th>
-                                <th>Grootte (mb)</th>
-                                <th>Beoordeling</th>
-                                <th>Tags</th>
-                                <th>Serie</th>
-                                <th>Uitgever</th>
-                                <th>Uitgave-datum</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{
-                                selectList = (List<bool>)Session["selectList"];
-                                selectListId = (List<int>)Session["selectListId"];
-
-                                foreach (var row in db.Query(selectQueryString))
-                                {
-                                    if (!IsPost)
-                                    {
-                                        // Selecting multiple books.
-                                        if (!Request.QueryString["at"].IsEmpty())
-                                        {
-                                            // Clearing all selected Books.
-                                            //for(int i = 0; i < selectListId.Count; i++)
-                                            //{
-                                            //    selectListId[i] = 0;
-                                            //    selectList[i] = false;
-                                            //}
-
-                                            string selectedBooks = Request.QueryString["at"];
-                                            string[] selectID = selectedBooks.Split(' '); // Splitting select books from QueryString
-
-                                            foreach (string id in selectID)
-                                            {
-                                                if(row.ID == id.AsInt())
-                                                {
-                                                    int index = selectListId.IndexOf(row.ID);
-                                                    if (index == -1)
-                                                    {
-                                                        int emptyIndex = selectListId.IndexOf(0);
-                                                        selectList[emptyIndex] = true;
-                                                        selectListId[emptyIndex] = id.AsInt();
-                                                    }
-                                                    else
-                                                    {
-                                                        selectList[index] = false;
-                                                        selectListId[index] = 0;
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        // Selecting a single book from the List.
-                                        if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
-                                        {
-                                            var bookId = Request.QueryString["id"];
-
-                                            if (row.ID == bookId.AsInt())
-                                            {
-
-                                                int index = selectListId.IndexOf(row.ID);
-                                                if (index == -1)
-                                                {
-                                                    int emptyIndex = selectListId.IndexOf(0);
-                                                    selectList[emptyIndex] = true;
-                                                    selectListId[emptyIndex] = bookId.AsInt();
-                                                }
-                                                else
-                                                {
-                                                    selectList[index] = false;
-                                                    selectListId[index] = 0;
-                                                }
-                                            }
-
-                                        }
-                                    }
-
-
-                                    if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
-                                    {
-                                        <tr class="selectedTable">
-                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                            <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Grootte</a></td>
-                                            <td>
-                                                @{
-                                                    for (int i = 0; i < 5; i++)
-                                                    {
-                                                        string rating = Convert.ToString(row.ID) + Convert.ToString(i);
-                                                        if (i < row.Beoordeling)
-                                                        {
-                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/star.png' width="10" alt='*' /></a>
-                                                        }
-                                                        else
-                                                        {
-                                                            <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/starempty.png' width="10" alt='' /></a>
-                                                        }
-                                                    }
-                                                }
-                                            </td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
-                                            </tr>
-
-                                    }
-                                        else
-                                        {
-
-                                            <tr class="deselectedtable">
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Grootte</a></td>
-                                                <td>
-                                                    @{
-                                                        for (int i = 0; i < 5; i++)
-                                                        {
-                                                            string rating = Convert.ToString(row.ID) + Convert.ToString(i);
-                                                            if (i < row.Beoordeling)
-                                                            {
-                                                                <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/star.png' width="10" alt='*' /></a>
-                                                            }
-                                                            else
-                                                            {
-                                                                <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/starempty.png' width="10" alt='' /></a>
-                                                            }
-                                                        }
-                                                    }
-                                                </td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                                <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
-                                            </tr>
-                                    }
-                                }
-                            }
-                        </tbody>
-                    </table>
-                </form>
-            </div>
+            
+            <!-- Creating the booklist -->
+            @Helpers.createBookList(selectListId, db, selectQueryString, sortBy); 
         </div>
         <div class="col-sm-3">
             @{
@@ -378,7 +233,7 @@
                 }
                 else
                 {
-                    <h4 id="selectedbooks">Welkom op terug op E-Book Online!</h4>
+                    <h4 id="selectedbooks">Welkom terug op E-Book Online!</h4>
                     <p><b>Tip:</b> Selecteer één of meerdere boeken uit uw bibliotheek voor meer Info.</p>
                 }
             }
