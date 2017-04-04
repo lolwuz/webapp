@@ -1,6 +1,11 @@
 ﻿@{
     Layout = "~/_SiteLayout.cshtml";
     Page.Title = "Home Page";
+
+    if (WebSecurity.IsAuthenticated)
+    {
+        Response.Redirect("~/List");
+    }
 }
 
 <h1 class="hallo">Hallo Aswin</h1>
