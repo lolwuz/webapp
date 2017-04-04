@@ -66,26 +66,24 @@
 }
 
 <div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <h2>Verwijderen</h2>
-            @if (selectedbooks == 1)
-            {
-                <p>Weet u zeker dat u het volgende boek wilt verwijderen?</p>
-            }
-            else
-            {
-                <p>Weet u zeker dat u de volgende @selectedbooks boeken wilt verwijderen?</p>
-            }
+    <h2>Verwijderen</h2>
+    @if (selectedbooks == 1)
+    {
+        <p>Weet u zeker dat u het volgende boek wilt verwijderen?</p>
+    }
+    else
+    {
+        <p>Weet u zeker dat u de volgende @selectedbooks boeken wilt verwijderen?</p>
+    }
 
-            <form method="post">
-                <button name="actionButton" value="Yes">Ja, verwijderen</button>
-                <button name="actionButton" value="No">Nee, behouden</button>
-            </form>
-        </div>
+    <form method="post">
+        <button class="btn btn-danger accent-color" name="actionButton" value="Yes">Ja, verwijderen</button>
+        <button class="btn btn-default" name="actionButton" value="No">Nee, behouden</button>
+    </form>
+    <hr />
+</div>
         
-
-    </div>
+<div class="container">
     <div class="row">
         @{
             // Loop trough selected Book list.
@@ -97,9 +95,8 @@
                     var bookInfo = db.QuerySingle("SELECT * FROM Books WHERE Id = @0", selectedId[i]);
                     <div class="col-md-4 col-sm-6">
                         <div class="bookinfocard">
-
                             <div class="bookinfoheading">
-                                <h3 class="panel-title text-left">@bookInfo.Titel</h3>
+                                <h3 class="panel-title text-center">@bookInfo.Titel</h3>
                             </div>
 
                             <div class="bookinfobody">
@@ -122,6 +119,7 @@
                                 </div>
                             </div>
                         </div>
+                        <br />
                     </div>
                 }
             }
