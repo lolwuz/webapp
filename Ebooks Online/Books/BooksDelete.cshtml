@@ -42,14 +42,14 @@
             {
                 if (selectedId[i] != 0)
                 {
-                    string fileName = "Files/EPUB/" + db.QueryValue("SELECT Path FROM Books WHERE Id=@0 AND Gebruiker=@1", selectedId[i], userId);
+                    string fileName = db.QueryValue("SELECT Path FROM Books WHERE Id=@0 AND Gebruiker=@1", selectedId[i], userId);
                     if (fileName != null && !fileName.IsEmpty())
                     {
-                        string filePath = Server.MapPath(fileName + ".epub");
+                        string filePath = Server.MapPath("Files/EPUB/" + fileName + ".epub");
                         File.Delete(filePath);
-                        filePath = Server.MapPath(fileName + ".mobi");
+                        filePath = Server.MapPath("Files/MOBI/" + fileName + ".mobi");
                         File.Delete(filePath);
-                        filePath = Server.MapPath(fileName + ".pdf");
+                        filePath = Server.MapPath("Files/PDF/" + fileName + ".pdf");
                         File.Delete(filePath);
 
                         db.Execute("DELETE FROM Books WHERE Id=@0 AND Gebruiker=@1", selectedId[i], userId);
