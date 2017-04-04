@@ -100,22 +100,32 @@
                         var countStatement = "SELECT " + currCol + " FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + currCol;
                         var countQueryVal = db.Query(countStatement);
                         var amount = countQueryVal.Count();
+                        string newSortOrder = "b";
+                        string searchTerm = Request["sb"];
 
-
-                        if (sortBy.Length > 2)
+                        if (sortBy.Length > 2 || i == 0)
                         {
-                            if (sortBy[1] == 'a')
+                            if (sortBy[1] == 'b' && currCol == columnNames[sortBy[0] - 48])
                             {
-                                sortOrder = "b";
+                                newSortOrder = "a";
                             }
                             else
                             {
-                                sortOrder = "a";
+                                newSortOrder = "b";
                             }
-
+                        }
+                        if (currCol == "Beoordeling" && columnNames[sortBy[0] - 48] != "Beoordeling")
+                        {
+                            newSortOrder = "a";
                         }
 
-                        string sortBySwitch = i + sortOrder + 1;
+                        // Set the url value for the link
+                        string sortBySwitch = i + newSortOrder + 1;
+
+                        if (!(searchTerm.IsEmpty() || searchTerm == null))
+                        {
+                            sortBySwitch += "&sb=" + searchTerm;
+                        }
 
                         // Set the indicator when selected.
                         string indicator = "32";
