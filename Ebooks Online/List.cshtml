@@ -139,8 +139,7 @@
                                 {
                                     // Make a list from all unique columnNames[i]. Example all inique authors are listed.
                                     var sortQuery = "SELECT " + columnNames[i] + " FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + columnNames[i];
-                                    <ul class="sortList">   
-                                        
+                                    <ul class="sortList">                   
                                         @foreach (var row in db.Query(sortQuery))
                                         { 
                                             // Select all ID's from the books with the (for example) author names.
@@ -192,8 +191,46 @@
                     <span class="bar"></span>
                 </div>
             </form>
-            <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+            
+            @if (!Request.QueryString["sb"].IsEmpty())
+            {
+                var searchTitel = "SELECT * FROM Books WHERE Titel LIKE @0";
+                var searchTerm = "%" + Request["sb"] + "%";
+                var resultTitel = db.Query(searchTitel, searchTerm);
 
+                if (resultTitel.Count() > 0)
+                {
+                    <div class="searchcard">
+                        <table class="table table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Titel</th>
+                                    <th>Auteur</th>
+                                    <th>Tags</th>
+                                    <th>Serie</th>
+                                </tr>
+                            </thead>
+                            <tbody>                   
+                                @foreach (var row in resultTitel)
+                                {
+                                    <tr>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
+                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
+                                    </tr>
+                                }           
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <h4>Helaas, niks gevonden.</h4>
+                }
+            }
+
+            <hr style="margin-top: 10px; margin-bottom: 10px;" />
             <div class="listcard">    
                 <table class="table table-responsive">
                     <thead>
@@ -216,48 +253,22 @@
 
                             foreach (var row in db.Query(selectQueryString))
                             {
-                                if (!IsPost)
+                                // Selecting multiple books.
+                                if (!Request.QueryString["at"].IsEmpty())
                                 {
-                                    // Selecting multiple books.
-                                    if (!Request.QueryString["at"].IsEmpty())
+                                    string selectedBooks = Request.QueryString["at"];
+                                    string[] selectID = selectedBooks.Split(' '); // Splitting select books from QueryString
+
+                                    foreach (string id in selectID)
                                     {
-                                        string selectedBooks = Request.QueryString["at"];
-                                        string[] selectID = selectedBooks.Split(' '); // Splitting select books from QueryString
-
-                                        foreach (string id in selectID)
+                                        if(row.ID == id.AsInt())
                                         {
-                                            if(row.ID == id.AsInt())
-                                            {
-                                                int index = selectListId.IndexOf(row.ID);
-                                                if (index == -1)
-                                                {
-                                                    int emptyIndex = selectListId.IndexOf(0);
-                                                    selectList[emptyIndex] = true;
-                                                    selectListId[emptyIndex] = id.AsInt();
-                                                }
-                                                else
-                                                {
-                                                    selectList[index] = false;
-                                                    selectListId[index] = 0;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    // Selecting a single book from the List.
-                                    if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
-                                    {
-                                        var bookId = Request.QueryString["id"];
-
-                                        if (row.ID == bookId.AsInt())
-                                        {
-
                                             int index = selectListId.IndexOf(row.ID);
                                             if (index == -1)
                                             {
                                                 int emptyIndex = selectListId.IndexOf(0);
                                                 selectList[emptyIndex] = true;
-                                                selectListId[emptyIndex] = bookId.AsInt();
+                                                selectListId[emptyIndex] = id.AsInt();
                                             }
                                             else
                                             {
@@ -266,33 +277,57 @@
                                             }
                                         }
                                     }
-                                    // Selecting searched Books.
-                                    if (!Request.QueryString["sb"].IsEmpty())
+                                }
+
+                                // Selecting a single book from the List.
+                                if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+                                {
+                                    var bookId = Request.QueryString["id"];
+
+                                    if (row.ID == bookId.AsInt())
                                     {
-                                        var searchTitel = "SELECT * FROM Books WHERE Titel LIKE @0";
 
-                                        var searchTerm = "%" + Request["sb"] + "%";
-
-                                        foreach (var rowResult in db.Query(searchTitel, searchTerm))
+                                        int index = selectListId.IndexOf(row.ID);
+                                        if (index == -1)
                                         {
-                                            if (row.ID == rowResult.ID)
-                                            {
-                                                int index = selectListId.IndexOf(row.ID);
-                                                if (index == -1)
-                                                {
-                                                    int emptyIndex = selectListId.IndexOf(0);
-                                                    selectList[emptyIndex] = true;
-                                                    selectListId[emptyIndex] = rowResult.ID;
-                                                }
-                                                else
-                                                {
-                                                    selectList[index] = false;
-                                                    selectListId[index] = 0;
-                                                }
-                                            }
+                                            int emptyIndex = selectListId.IndexOf(0);
+                                            selectList[emptyIndex] = true;
+                                            selectListId[emptyIndex] = bookId.AsInt();
+                                        }
+                                        else
+                                        {
+                                            selectList[index] = false;
+                                            selectListId[index] = 0;
                                         }
                                     }
                                 }
+
+                                // Selecting searched Books.
+                                //if (!Request.QueryString["sb"].IsEmpty())
+                                //{
+                                //    var searchTitel = "SELECT * FROM Books WHERE Titel LIKE @0";
+                                //    var searchTerm = "%" + Request["sb"] + "%";
+
+                                //    foreach (var rowResult in db.Query(searchTitel, searchTerm))
+                                //    {
+                                //        if (row.ID == rowResult.ID)
+                                //        {
+                                //            int index = selectListId.IndexOf(row.ID);
+                                //            if (index == -1)
+                                //            {
+                                //                int emptyIndex = selectListId.IndexOf(0);
+                                //                selectList[emptyIndex] = true;
+                                //                selectListId[emptyIndex] = rowResult.ID;
+                                //            }
+                                //            else
+                                //            {
+                                //                selectList[index] = false;
+                                //                selectListId[index] = 0;
+                                //            }
+                                //        }
+                                //    }
+                                //}
+
 
 
                                 if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
