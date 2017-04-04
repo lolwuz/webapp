@@ -5,9 +5,10 @@
 @{
     string path = "";
     var id = "";
+
     List<int> selectedId = Session["selectListId"] as List<int>;
     var db = Database.Open("StarterSite");
-    var username = WebSecurity.CurrentUserName;
+
     int length = selectedId.Count;
     string[] download = new string[length];
 
@@ -25,12 +26,12 @@
 
     if (WebSecurity.IsAuthenticated)
     {
-        foreach (int i in selectedId)
+        for (int i = 0; i < length; i ++)
         { if (selectedId[i] != 0)
             {
                 id = Convert.ToString(selectedId[i]);
                 var command = "SELECT Books.Path, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
-                var row = db.QuerySingle(command, id, username);
+                var row = db.QuerySingle(command, id, WebSecurity.CurrentUserName);
                 if (row != null)
                 {
                     path = row.Path;
@@ -57,7 +58,7 @@
         {
             Zip.AddFiles(goed, "Boeken");
 
-            string zipName = String.Format("Boeken_{0}.zip", DateTime.Now.ToString("yyyy-MMM-dd-HHmmss"));
+            string zipName = String.Format("Boeken_{0}.zip", DateTime.Now.ToString("dd-MM-yyyy-HHmmss"));
             Response.ContentType = "application/zip";
             Response.AddHeader("content-disposition", "attachment; filename=" + zipName);
             Zip.Save(Response.OutputStream);
