@@ -1,4 +1,30 @@
-﻿@helper createCards(Database db, List<int> selectListId)
+﻿@helper searchList(IEnumerable<dynamic> queryResult, string sortBy) {
+    <div class="searchcard">
+        <table class="table table-responsive">
+            <thead>
+                <tr>
+                    <th>Titel</th>
+                    <th>Auteur</th>
+                    <th>Serie</th>
+                    <th>Uitgever</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in queryResult)
+                {
+                    <tr>
+                        <td><a href="~/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID">@row.Titel</a></td>
+                        <td><a href="~/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID">@row.Auteur</a></td>
+                        <td><a href="~/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID">@row.Tags</a></td>
+                        <td><a href="~/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID">@row.Serie</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@helper createCards(Database db, List<int> selectListId)
 {
         for (int i = 0; i < selectListId.Count; i++)
         {
