@@ -31,7 +31,7 @@
         // If ListId = 0: There is no selected book.
         if (selectListId[i] != 0)
         {
-            // Count the amount off !selected books.
+            // Count the amount of !selected books.
             int countEmpty = 0;
             foreach (int ii in selectListId)
             {
@@ -47,7 +47,7 @@
                 var statement = "SELECT * FROM Books WHERE Id = @0";
                 var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
-                <div class="bookinfocard">
+                <div class="bookinfocard bookinfocard-hover">
                     <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
                     <div class="bookinfoheading">
                         <h3 class="panel-title text-center">@bookInfo.Titel</h3>
@@ -70,7 +70,7 @@
                 var statement = "SELECT * FROM Books WHERE Id = @0";
                 var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
-                <div class="bookinfocard">
+                <div class="bookinfocard bookinfocard-hover">
                     <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
                     <div class="bookinfoheading">
                         <h3 class="panel-title text-center">@bookInfo.Titel</h3>
