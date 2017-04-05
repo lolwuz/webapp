@@ -12,12 +12,13 @@
     }
     var fileName = "";
     var uitgever = "-";
-    var uitgavedtm = "00/00/00 00:00:00";
+    var uitgavedtm = "-";
     var taal = "-";
     var beschrijving = "-";
     var boekserie = "-";
     var type = "";
     var grootte = 0;
+    var genre = "-";
     HttpPostedFileBase uploadedFile = null;
     Dictionary<String, String> metadata = new Dictionary<String, String>();
 
@@ -28,7 +29,7 @@
             uploadedFile = Request.Files[0];
             Random rnd = new Random();
             grootte = (uploadedFile.ContentLength / 1024) / 1024;
-            type = uploadedFile.ContentType.Split('/')[1];
+            type = uploadedFile.FileName.Split('.')[1];
             fileName = Path.GetFileName(uploadedFile.FileName);
             var fileSavePath = Server.MapPath("~/Books/Files/temp/" + rnd.Next(1, 9999) +
                fileName);
@@ -36,16 +37,19 @@
             var bestandstype = fileSavePath.Split('.')[1];
             string convertTypeA = "";
             string convertTypeB = "";
-            if (bestandstype == "pdf") {
+            if (bestandstype == "pdf")
+            {
                 convertTypeA = "epub";
                 convertTypeB = "mobi";
             }
-            if (bestandstype == "epub") {
+            if (bestandstype == "epub")
+            {
                 convertTypeA = "pdf";
                 convertTypeB = "mobi";
 
             }
-            if (bestandstype == "mobi") {
+            if (bestandstype == "mobi")
+            {
                 convertTypeA = "pdf";
                 convertTypeB = "epub";
             }
@@ -55,7 +59,7 @@
             System.Diagnostics.Process processA = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfoA = new System.Diagnostics.ProcessStartInfo();
             startInfoA.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfoA.FileName = "ebook-convert.exe";
+            startInfoA.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "ebook-convert.exe";
             startInfoA.Arguments = "\"" + fileSavePath + "\" \"" + fileSavePathConvertA + "\"";
             processA.StartInfo = startInfoA;
             processA.Start();
@@ -65,11 +69,13 @@
             System.Diagnostics.Process processB = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfoB = new System.Diagnostics.ProcessStartInfo();
             startInfoB.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfoB.FileName = "ebook-convert.exe";
+            startInfoB.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "ebook-convert.exe";
             startInfoB.Arguments = "\"" + fileSavePath + "\" \"" + fileSavePathConvertB + "\"";
             processB.StartInfo = startInfoB;
             processB.Start();
 
+            uploadedFile.SaveAs(fileSavePathConvertA);
+            uploadedFile.SaveAs(fileSavePathConvertB);
 
             int optellen = 0;
             while (!File.Exists(fileSavePathConvertA))
@@ -77,12 +83,21 @@
                 optellen++;
             }
 
-
-            PdfReader bestand = new PdfReader((bestandstype != "pdf") ? fileSavePathConvertA : fileSavePath);
-            metadata["Title"] = (bestand.Info.ContainsKey("Title")) ? bestand.Info["Title"] : "-";
-            metadata["Subject"] = (bestand.Info.ContainsKey("Subject")) ? bestand.Info["Subject"] : "-";
-            metadata["Author"] = (bestand.Info.ContainsKey("Author")) ? bestand.Info["Author"] : "-";
-            metadata["Keywords"] = (bestand.Info.ContainsKey("Keywords")) ? bestand.Info["Keywords"] : "-";
+            if (bestandstype == "pdf")
+            {
+                PdfReader bestand = new PdfReader(fileSavePath);
+                metadata["Title"] = (bestand.Info.ContainsKey("Title")) ? bestand.Info["Title"] : "-";
+                metadata["Subject"] = (bestand.Info.ContainsKey("Subject")) ? bestand.Info["Subject"] : "-";
+                metadata["Author"] = (bestand.Info.ContainsKey("Author")) ? bestand.Info["Author"] : "-";
+                metadata["Keywords"] = (bestand.Info.ContainsKey("Keywords")) ? bestand.Info["Keywords"] : "-";
+            }
+            else
+            {
+                metadata["Title"] = "-";
+                metadata["Subject"] = "-";
+                metadata["Author"] = "-";
+                metadata["Keywords"] = "-";
+            }
         }
         else
         {
@@ -95,6 +110,7 @@
             var data_uitgever = Request["uitgever"];
             string data_uitgavedtm = Request["uitgavedtm"];
             var data_taal = Request["taal"];
+            var data_genre = Request["genre"];
             var data_beschrijving = Request["beschrijving"];
             var data_boekserie = Request["boekserie"];
             var data_tags = Request["tags"];
@@ -103,9 +119,9 @@
             string[] dirs = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirindex);
             data_filename = data_filename.Split(new[] { "." + data_type }, StringSplitOptions.None)[0];
             var db = Database.Open("StarterSite");
-            var LastBookID = db.Query("INSERT INTO Books (Gebruiker,Titel,Auteur,Uitgever,UitgaveDatum,Taal,UploadDatum,Path,Beschrijving,Tags,Serie,Beoordeling,Grootte,OriginalFormat)" +
-        "VALUES(@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13)",
-        currentuser, data_titel, data_auteur, data_uitgever, data_uitgavedtm, data_taal, DateTime.Now, data_filename, data_beschrijving, data_tags, data_boekserie, 0, data_grootte, data_type);
+            var LastBookID = db.Query("INSERT INTO Books (Gebruiker,Titel,Auteur,Uitgever,UitgaveDatum,Taal,UploadDatum,Path,Beschrijving,Tags,Serie,Beoordeling,Grootte,OriginalFormat,Genre)" +
+        "VALUES(@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13,@14)",
+        currentuser, data_titel, data_auteur, data_uitgever, data_uitgavedtm, data_taal, DateTime.Now, data_filename, data_beschrijving, data_tags, data_boekserie, 0, data_grootte, data_type, data_genre);
 
 
             long lastId = (long)db.GetLastInsertId();
@@ -128,8 +144,14 @@
             File.Copy(dirsB[0], Server.MapPath("~/Books/Files/" + indexB.ToUpper() + "/" + lastId + dirIndexB));
 
 
-            //Array.ForEach(Directory.GetFiles(Server.MapPath("~/Books/Files/temp/")), File.Delete);
-            //var final_Path = Server.MapPath("~/Books/Files/"+ data_filename);
+            int count = 0;
+            while (count != 100000)
+            {
+                count++;
+            }
+            var path = Server.MapPath("~/Books/Files/temp/") + "clearfolder.bat";
+            System.Diagnostics.Process.Start(@"C:\Users\DionVelberg\Documents\GitHub\webapp\Ebooks Online\Books\Files\temp\clearfolder.bat");
+
             //PdfWriter writer = PdfWriter.GetInstance(data_filename, new FileStream(final_Path, FileMode.Create));
 
 
@@ -156,7 +178,7 @@
         uploadText: "Upload")
 @if (IsPost)
 {
-    if (Request["fileupload"] == null)
+    if (Request.Form["fileupload"] == null)
     {
         <form method="post">
             <input id="upload" type="submit" name="fileupload" value="Upload" /><br />
@@ -164,7 +186,7 @@
             <input type="hidden" value=@type name="type" />
             <input type="hidden" value=@fileName name="filename" />
             <table>
-                <tr><th>Titel&nbsp;&nbsp;</th><th>Onderwerp&nbsp;&nbsp;</th><th>Auteur&nbsp;&nbsp;</th><th>Uitgever&nbsp;&nbsp;</th><th>Uitgavedatum&nbsp;&nbsp;</th><th>Taal&nbsp;&nbsp;</th><th>Beschrijving&nbsp;&nbsp;</th><th>Boekserie&nbsp;&nbsp;</th><th>Tags</th></tr>
+                <tr><th>Titel&nbsp;&nbsp;</th><th>Onderwerp&nbsp;&nbsp;</th><th>Auteur&nbsp;&nbsp;</th><th>Uitgever&nbsp;&nbsp;</th><th>Uitgavedatum&nbsp;&nbsp;</th><th>Taal&nbsp;&nbsp;</th><th>Genre</th><th>Beschrijving&nbsp;&nbsp;</th><th>Boekserie&nbsp;&nbsp;</th><th>Tags</th></tr>
                 <tr>
                     <td><input type="text" name="titel" value="@metadata["Title"]" /></td>
                     <td><input type="text" name="onderwerp" value="@metadata["Subject"]" /></td>
@@ -172,6 +194,7 @@
                     <td><input type="text" name="uitgever" value=@uitgever /></td>
                     <td><input type="text" name="uitgavedtm" value=@uitgavedtm /></td>
                     <td><input type="text" name="taal" value=@taal /></td>
+                    <td><input type="text" name="genre" value=@genre /></td>
                     <td><input type="text" name="beschrijving" value=@beschrijving /></td>
                     <td><input type="text" name="boekserie" value=@boekserie /></td>
                     <td><input type="text" name="tags" value="@metadata["Keywords"]" /></td>
