@@ -60,6 +60,12 @@ body {
     margin-top: 10px; 
 }
 
+/* Form control elements */
+
+.formfill{
+    width: 100%;
+}
+
 /* Cards */
 
 .sortcard {
