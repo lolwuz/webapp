@@ -149,8 +149,8 @@
             {
                 count++;
             }
-            var path = Server.MapPath("~/Books/Files/temp/") + "clearfolder.bat";
-            System.Diagnostics.Process.Start(@"C:\Users\DionVelberg\Documents\GitHub\webapp\Ebooks Online\Books\Files\temp\clearfolder.bat");
+            var path = Server.MapPath("~/Books/Files/") + "clearfolder.bat";
+            System.Diagnostics.Process.Start(@""+ path + "");
 
             //PdfWriter writer = PdfWriter.GetInstance(data_filename, new FileStream(final_Path, FileMode.Create));
 
@@ -184,7 +184,7 @@
             <input id="upload" type="submit" name="fileupload" value="Upload" /><br />
             <input type="hidden" value=@grootte name="grootte" />
             <input type="hidden" value=@type name="type" />
-            <input type="hidden" value=@fileName name="filename" />
+            <input type="hidden" value="@fileName" name="filename" />
             <table>
                 <tr><th>Titel&nbsp;&nbsp;</th><th>Onderwerp&nbsp;&nbsp;</th><th>Auteur&nbsp;&nbsp;</th><th>Uitgever&nbsp;&nbsp;</th><th>Uitgavedatum&nbsp;&nbsp;</th><th>Taal&nbsp;&nbsp;</th><th>Genre</th><th>Beschrijving&nbsp;&nbsp;</th><th>Boekserie&nbsp;&nbsp;</th><th>Tags</th></tr>
                 <tr>
