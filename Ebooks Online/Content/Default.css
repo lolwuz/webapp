@@ -172,11 +172,11 @@ body {
 
 .selectedTable td a {
     color: #212121;
-    font-weight: 500;
+    font-weight: 300;
 }
 
 .deselectedtable td a{
-    color: #212121;
+    color: #757575; 
     font-weight: 300;
 }
 
