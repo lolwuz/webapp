@@ -10,37 +10,54 @@
     var db = Database.Open("StarterSite");
     var userId = WebSecurity.CurrentUserId;
     List<int> selectedId = Session["selectListId"] as List<int>;
+    List<bool> selectedList = Session["selectList"] as List<bool>;
 
-    //als de Session is verlopen, en er geen selectie meer is:
-    if (selectedId == null)
+    //Redirect when the session variables are expired
+    if (selectedId == null || selectedList == null)
     {
         Response.Redirect("~/Default.cshtml");
     }
 
+    //Determine if 0, 1, or multiple books are selected
     int selectedbooks = 0;
-    foreach (int i in selectedId)
+    foreach (bool b in selectedList)
     {
-        if (i != 0)
+        if (b == true)
         {
             selectedbooks++;
         }
     }
-    if (selectedbooks <= 0)
+    //Check if there is at least one book that has been deselected
+    if (selectedbooks == 0)
     {
-        Response.Redirect("~/Default.cshtml");
+        foreach (int i in selectedId)
+        {
+            if (i > 0)
+            {
+                selectedbooks = -1;
+                break;
+            }
+        }
+        if (selectedbooks == 0)
+        {
+            Response.Redirect("~/Default.cshtml");
+        }
     }
 
+    //Delete books, or redirect if the user doesn't want to delete books
     if (IsPost)
     {
+        //redirect and don't do anything
         if (Request.Form["actionButton"] == "No")
         {
             Response.Redirect("~/List.cshtml");
         }
+        //delete all selected books before redirecting
         else if (Request.Form["actionButton"] == "Yes")
         {
-            for (int i = 0; i < selectedId.Count; i++)
+            for (int i = 0; i < selectedList.Count; i++)
             {
-                if (selectedId[i] != 0)
+                if (selectedList[i] == true)
                 {
                     string fileName = db.QueryValue("SELECT Path FROM Books WHERE Id=@0 AND Gebruiker=@1", selectedId[i], userId);
                     if (fileName != null && !fileName.IsEmpty())
@@ -57,17 +74,41 @@
                 }
             }
 
+            //clear selection
             Session["selectList"] = null;
             Session["selectListId"] = null;
 
             Response.Redirect("~/List");
         }
     }
+
+    if (!IsPost && !Request["dId"].IsEmpty())
+    {
+        int deselectId = Request["dId"].AsInt();
+        int index = selectedId.IndexOf(deselectId);
+        if (index != -1)
+        {
+            if (selectedList[index] == true)
+            {
+                selectedList[index] = false;
+            }
+            else
+            {
+                selectedList[index] = true;
+
+            }
+        }
+        Response.Redirect("~/Books/BooksDelete.cshtml");
+    }
 }
 
 <div class="container">
     <h2>Verwijderen</h2>
-    @if (selectedbooks == 1)
+    @if (selectedbooks == -1)
+    {
+        <p>U heeft al uw boeken gedeselecteerd.</p>
+    }
+    else if (selectedbooks == 1)
     {
         <p>Weet u zeker dat u het volgende boek wilt verwijderen?</p>
     }
@@ -77,7 +118,14 @@
     }
 
     <form method="post">
-        <button class="btn btn-danger accent-color" name="actionButton" value="Yes">Ja, verwijderen</button>
+        @if (selectedbooks == -1)
+        {
+            <button class="btn" disabled="disabled">Ja, verwijderen</button>
+        }
+        else
+        {
+            <button class="btn btn-danger accent-color" name="actionButton" value="Yes">Ja, verwijderen</button>
+        }
         <button class="btn btn-default" name="actionButton" value="No">Nee, behouden</button>
     </form>
     <hr />
@@ -91,36 +139,73 @@
             {
                 if (selectedId[i] != 0)
                 {
-                    // Select book Info
-                    var bookInfo = db.QuerySingle("SELECT * FROM Books WHERE Id = @0", selectedId[i]);
-                    <div class="col-md-4 col-sm-6">
-                        <div class="bookinfocard">
-                            <div class="bookinfoheading">
-                                <h3 class="panel-title text-center">@bookInfo.Titel</h3>
-                            </div>
-
-                            <div class="bookinfobody">
-                                <div class="row">
-                                    <div class="col-xs-5">
-                                        <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" text-align="center" class="img-responsive" />
+                    if (selectedList[i] == true)
+                    {
+                        // Select book Info
+                        var bookInfo = db.QuerySingle("SELECT * FROM Books WHERE Id = @0", selectedId[i]);
+                        <div class="col-md-4 col-sm-6">
+                            <div class="bookinfocard">
+                                <div class="bookinfoheading">
+                                    <h3 class="panel-title text-center">@bookInfo.Titel</h3>
+                                </div>
+                                <div class="bookinfobody">
+                                    <div class="row">
+                                        <div class="col-xs-5">
+                                            <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" text-align="center" class="img-responsive" />
+                                        </div>
+                                        <div class="col-xs-7">
+                                            <h5>Auteur:</h5>
+                                            <p>@bookInfo.Titel</p>
+                                            <h5>Taal</h5>
+                                            <p>@bookInfo.Taal</p>
+                                        </div>
                                     </div>
-                                    <div class="col-xs-7">
-                                        <h5>Auteur:</h5>
-                                        <p>@bookInfo.Titel</p>
-                                        <h5>Taal</h5>
-                                        <p>@bookInfo.Taal</p>
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <h5>Beschrijving</h5>
+                                            <p>@bookInfo.Beschrijving</p>
+                                        </div>
+                                        <a class="btn" href="~/Books/BooksDelete.cshtml?dId=@bookInfo.Id">Deselecteer</a>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                        <h5>Beschrijving</h5>
-                                        <p>@bookInfo.Beschrijving</p>
-                                    </div>
-                                </div>
                             </div>
+                            <br />
                         </div>
-                        <br />
-                    </div>
+                    }
+                    else
+                    {
+                        // Select book Info
+                        var bookInfo = db.QuerySingle("SELECT * FROM Books WHERE Id = @0", selectedId[i]);
+                        <div class="col-md-4 col-sm-6">
+                            <div class="bookinfocard-deselected">
+                                <div class="bookinfoheading-deselected">
+                                    <h3 class="panel-title text-center">@bookInfo.Titel</h3>
+                                </div>
+                                <div class="bookinfobody-deselected">
+                                    <div class="row">
+                                        <div class="col-xs-5">
+                                            <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" text-align="center" class="img-responsive" />
+                                        </div>
+                                        <div class="col-xs-7">
+                                            <h5>Auteur:</h5>
+                                            <p>@bookInfo.Titel</p>
+                                            <h5>Taal</h5>
+                                            <p>@bookInfo.Taal</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <h5>Beschrijving</h5>
+                                            <p>@bookInfo.Beschrijving</p>
+                                        </div>
+                                        <a class="btn" href="~/Books/BooksDelete.cshtml?dId=@bookInfo.Id">selecteer</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                        </div>
+                    }
+
                 }
             }
         }

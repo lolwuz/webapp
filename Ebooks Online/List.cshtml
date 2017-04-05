@@ -31,6 +31,24 @@
         Session["selectList"] = selectList;
         Session["selectListId"] = selectListId;
     }
+    else
+    {
+        //reset deselected books
+        List<int> selectedId = Session["selectListId"] as List<int>;
+        List<bool> selectedList = Session["selectList"] as List<bool>;
+
+        for (int i = 0; i < selectedId.Count; i++)
+        {
+            if (selectedId[i] > 0)
+            {
+                selectedList[i] = true;
+            }
+            else
+            {
+                selectedList[i] = false;
+            }
+        }
+    }
 
     // Sorting the book list.
     string sortOrder = "a";
