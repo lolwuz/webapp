@@ -12,7 +12,7 @@
         <legend>Log in met een andere service</legend>
         <p>
             @foreach (var client in OAuthWebSecurity.RegisteredClientData) {
-                <button type="submit" name="provider" value="@client.AuthenticationClient.ProviderName"
+                <button type="submit" name="provider" class="btn btn-default default-primary-color" value="@client.AuthenticationClient.ProviderName"
                         title="Log in using your @client.DisplayName account">@client.DisplayName</button>
             }
         </p>
