@@ -12,8 +12,8 @@
         <legend>Log in met een andere service</legend>
         <p>
             @foreach (var client in OAuthWebSecurity.RegisteredClientData) {
-                <button type="submit" name="provider" class="btn btn-default default-primary-color" value="@client.AuthenticationClient.ProviderName"
-                        title="Log in using your @client.DisplayName account">@client.DisplayName</button>
+                <button type="submit" name="provider" class="btn btn-default facebook-color" value="@client.AuthenticationClient.ProviderName"
+                        title="Log in using your @client.DisplayName account"><img src="~/Account/Images/FacebookLogo.png" alt="F " height="25" width="25"><text>    </text>@client.DisplayName</button>
             }
         </p>
     </fieldset>
