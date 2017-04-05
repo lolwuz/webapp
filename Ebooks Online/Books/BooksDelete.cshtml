@@ -126,7 +126,7 @@
         {
             <button class="btn btn-danger accent-color" name="actionButton" value="Yes">Ja, verwijderen</button>
         }
-        <button class="btn btn-default" name="actionButton" value="No">Nee, behouden</button>
+        <button class="btn btn-default" name="actionButton" value="No">Nee, ga terug</button>
     </form>
     <hr />
 </div>
@@ -139,6 +139,7 @@
             {
                 if (selectedId[i] != 0)
                 {
+                    //show this layout if the book is selected
                     if (selectedList[i] == true)
                     {
                         // Select book Info
@@ -172,6 +173,7 @@
                             <br />
                         </div>
                     }
+                    //show this layout of the book is deselected
                     else
                     {
                         // Select book Info
@@ -181,7 +183,7 @@
                                 <div class="bookinfoheading-deselected">
                                     <h3 class="panel-title text-center">@bookInfo.Titel</h3>
                                 </div>
-                                <div class="bookinfobody-deselected">
+                                <div class="bookinfobody">
                                     <div class="row">
                                         <div class="col-xs-5">
                                             <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" text-align="center" class="img-responsive" />
@@ -205,7 +207,6 @@
                             <br />
                         </div>
                     }
-
                 }
             }
         }

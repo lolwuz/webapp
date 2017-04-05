@@ -56,6 +56,7 @@
     string searchTermQuery = Request.QueryString["searchbar"];
 
     string[] columnNames = new string[] { "Titel", "Auteur", "UploadDatum", "Grootte", "Beoordeling", "Serie", "Uitgever", "UitgaveDatum", "Taal" };
+    string[] displayedColumnNames = new string[] { "Titel", "Auteur", "Toegevoegd", "Grootte", "Beoordeling", "Serie", "Uitgever", "Uitgave", "Taal" };
 
     if (!IsPost)
     {
@@ -161,7 +162,7 @@
                         }
 
                         <li>
-                            <a href="~/List.cshtml?sr=@sortBySwitch">&#@indicator; @columnNames[i]</a> <span class="badge" style="float: right;">@amount</span>
+                            <a href="~/List.cshtml?sr=@sortBySwitch">&#@indicator; @displayedColumnNames[i]</a> <span class="badge" style="float: right;">@amount</span>
                             @{
                                 if (sortCount == i)
                                 {
@@ -275,15 +276,32 @@
                 <table class="table table-responsive">
                     <thead>
                         <tr>
-                            <th>Titel</th>
-                            <th>Auteur</th>
-                            <th>Toegevoegd</th>
-                            <th>Grootte</th>
-                            <th>Beoordeling</th>
-                            <th>Tags</th>
-                            <th>Serie</th>
-                            <th>Uitgever</th>
-                            <th>Uitgave</th>
+                            @{ 
+                                List<string> listColNames = new List<string> { "Titel", "Auteur", "Toegevoegd", "Grootte", "Beoordeling", "Tags", "Serie", "Uitgever", "Uitgave" };
+
+                                for (int i = 0; i < listColNames.Count; i++)
+                                {
+                                    string currCol = listColNames[i];
+                                    string indicator = "32";
+
+                                    if (currCol == displayedColumnNames[sortBy[0] - 48])
+                                    {
+                                        if (sortBy[1] == 'a')
+                                        {
+                                            indicator = "9660";
+                                        }
+                                        else
+                                        {
+                                            indicator = "9650";
+                                        }
+                                        <th>&#@indicator; @currCol</th>
+                                    }
+                                    else
+                                    {
+                                        <th>@currCol</th>
+                                    }
+                                }
+                            }
                         </tr>
                     </thead>
                     <tbody>
