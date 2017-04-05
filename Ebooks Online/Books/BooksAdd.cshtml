@@ -150,7 +150,7 @@
                 count++;
             }
             var path = Server.MapPath("~/Books/Files/") + "clearfolder.bat";
-            System.Diagnostics.Process.Start(@""+ path + "");
+            System.Diagnostics.Process.Start(@"" + path + "");
 
             //PdfWriter writer = PdfWriter.GetInstance(data_filename, new FileStream(final_Path, FileMode.Create));
 
@@ -168,38 +168,103 @@
         $(".file-upload-buttons").hide();
     });
 </script>
-<h1>Boek toevoegen.</h1>
-<b>Bestand : </b><i>@fileName</i>
-@FileUpload.GetHtml(
+<div class="row">
+    <div class="col-sm-6 col-sm-offset-3">
+        <div class="logincard">
+            <h1 class="text-center">Boek toevoegen</h1>
+            <b>Bestand : </b><i>@fileName</i>
+            <br />
+            <br />
+            @FileUpload.GetHtml(
         name: "files",
         initialNumberOfFiles: 1,
         allowMoreFilesToBeAdded: false,
         includeFormTag: true,
         uploadText: "Upload")
-@if (IsPost)
-{
-    if (Request.Form["fileupload"] == null)
-    {
-        <form method="post">
-            <input id="upload" type="submit" name="fileupload" value="Upload" /><br />
-            <input type="hidden" value=@grootte name="grootte" />
-            <input type="hidden" value=@type name="type" />
-            <input type="hidden" value="@fileName" name="filename" />
-            <table>
-                <tr><th>Titel&nbsp;&nbsp;</th><th>Onderwerp&nbsp;&nbsp;</th><th>Auteur&nbsp;&nbsp;</th><th>Uitgever&nbsp;&nbsp;</th><th>Uitgavedatum&nbsp;&nbsp;</th><th>Taal&nbsp;&nbsp;</th><th>Genre</th><th>Beschrijving&nbsp;&nbsp;</th><th>Boekserie&nbsp;&nbsp;</th><th>Tags</th></tr>
-                <tr>
-                    <td><input type="text" name="titel" value="@metadata["Title"]" /></td>
-                    <td><input type="text" name="onderwerp" value="@metadata["Subject"]" /></td>
-                    <td><input type="text" name="auteur" value="@metadata["Author"]" /></td>
-                    <td><input type="text" name="uitgever" value=@uitgever /></td>
-                    <td><input type="text" name="uitgavedtm" value=@uitgavedtm /></td>
-                    <td><input type="text" name="taal" value=@taal /></td>
-                    <td><input type="text" name="genre" value=@genre /></td>
-                    <td><input type="text" name="beschrijving" value=@beschrijving /></td>
-                    <td><input type="text" name="boekserie" value=@boekserie /></td>
-                    <td><input type="text" name="tags" value="@metadata["Keywords"]" /></td>
-                </tr>
-            </table>
-        </form>
-    }
-}
+            <br />
+            @if (IsPost)
+            {
+                if (Request.Form["fileupload"] == null)
+                {
+                    <form method="post">
+                        <input id="upload" class="btn btn-default" type="submit" name="fileupload" value="Upload" /><br />
+                        <br />
+                        <input type="hidden" value=@grootte name="grootte" />
+                        <input type="hidden" value=@type name="type" />
+                        <input type="hidden" value="@fileName" name="filename" />
+                            @*<tr>
+                                <th>Titel&nbsp;&nbsp;</th>
+                                <th>Onderwerp&nbsp;&nbsp;</th>
+                                <th>Auteur&nbsp;&nbsp;</th>
+                                <th>Uitgever&nbsp;&nbsp;</th>
+                                <th>Uitgavedatum&nbsp;&nbsp;</th>
+                                <th>Taal&nbsp;&nbsp;</th>
+                                <th>Genre</th>
+                                <th>Beschrijving&nbsp;&nbsp;</th>
+                                <th>Boekserie&nbsp;&nbsp;</th>
+                                <th>Tags</th>
+                            </tr>*@
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1">Titel</span>
+                            <input type="text" class="form-control" name="titel" value="@metadata["Title"]" />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1">Onderwerp</span>
+                            <input type="text" class="form-control" name="onderwerp" value="@metadata["Subject"]" />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1">Auteur</span>
+                            <input type="text" class="form-control" name="auteur" value="@metadata["Author"]" />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1">Uitgever</span>
+                            <input type="text" class="form-control" name="uitgever" value=@uitgever />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1">Uitgavedatum</span>
+                            <input type="text" class="form-control" name="uitgavedtm" value=@uitgavedtm />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1">Taal</span>
+                            <input type="text"  class="form-control"name="taal" value=@taal />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1">Genre</span>
+                            <input type="text" class="form-control" name="genre" value=@genre />
+                        </div>
+                        <br />
+                        <div class="form-group">
+                            <span class="input-group-addon" id="sizing-addion1">Beschrijving</span>
+                            <textarea type="text" class="form-control" name="beschrijving" value=@beschrijving rows="3"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1">Boekserie</span>
+                            <input type="text" class="form-control" name="boekserie" value=@boekserie />
+                        </div>
+                        <br />
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1">Tags</span>
+                            <input type="text" class="form-control" name="tags" value="@metadata["Keywords"]" />
+                        </div>
+                                @*<td><input type="text" name="titel" value="@metadata["Title"]" /></td>
+                                <td><input type="text" name="onderwerp" value="@metadata["Subject"]" /></td>
+                                <td><input type="text" name="auteur" value="@metadata["Author"]" /></td>
+                                <td><input type="text" name="uitgever" value=@uitgever /></td>
+                                <td><input type="text" name="uitgavedtm" value=@uitgavedtm /></td>
+                                <td><input type="text" name="taal" value=@taal /></td>
+                                <td><input type="text" name="genre" value=@genre /></td>
+                                <td><input type="text" name="beschrijving" value=@beschrijving /></td>
+                                <td><input type="text" name="boekserie" value=@boekserie /></td>
+                                <td><input type="text" name="tags" value="@metadata["Keywords"]" /></td>*@
+                    </form>
+                }
+            }
+        </div>
+    </div>
+</div>
