@@ -12,9 +12,9 @@
 
     if (IsPost)
     {
-        foreach(int id in selectedId)
+        foreach (int id in selectedId)
         {
-            if(id > 0)
+            if (id > 0)
             {
                 // Get book info from database.
                 var statement = "SELECT * FROM Books WHERE Id=@0";
@@ -37,9 +37,30 @@
             }
         }
         // is this an external login request
+    }
 
+
+    if (!Request.QueryString["id"].IsEmpty())
+    {
+        string bookMeta = Request.QueryString["id"];
+
+        System.Diagnostics.Process processA = new System.Diagnostics.Process();
+        System.Diagnostics.ProcessStartInfo startInfoA = new System.Diagnostics.ProcessStartInfo();
+        startInfoA.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
+        startInfoA.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "fetch-ebook-metadata.exe";
+        startInfoA.Arguments = "-a" + "\"" + bookMeta + "\"";
+        processA.StartInfo = startInfoA;
+        processA.StartInfo.RedirectStandardOutput = true;
+        processA.StartInfo.UseShellExecute = false;
+        processA.Start();
+
+        //* Read the output (or the error)
+        var output = processA.StandardOutput.ReadToEnd();
+        Console.WriteLine(output);
+       
     }
 }
+    
 
 <form method="post">
     <div class="container">
@@ -47,6 +68,7 @@
         <p>Hier kunt u de metadata van de reselecteerde boeken aanpassen.</p>
 
         <button class="btn btn-danger accent-color" name="actionButton">Opslaan</button>
+
         <hr />
     </div>
 
@@ -115,7 +137,7 @@
                                 <option>5</option>
                             </select>
                         </div>
-                       
+                        <a class="btn" href="~/Books/BooksUpdate.cshtml?id=@id">Auto-update Metadata</a>
                     </div>
                 </div>
                 <hr />
