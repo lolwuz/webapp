@@ -1,4 +1,5 @@
-﻿@helper searchList(IEnumerable<dynamic> queryResult, string sortBy) {
+﻿@helper searchList(IEnumerable<dynamic> queryResult, string sortBy)
+{
     <div class="searchcard">
         <table class="table table-responsive">
             <thead>
@@ -26,8 +27,8 @@
 
 @helper createCards(Database db, List<int> selectListId)
 {
-        for (int i = 0; i < selectListId.Count; i++)
-        {
+    for (int i = 0; i < selectListId.Count; i++)
+    {
         // If ListId = 0: There is no selected book.
         if (selectListId[i] != 0)
         {
@@ -43,26 +44,26 @@
 
             // If there is only 1 books selected. Show big "preview"
             if (countEmpty > selectListId.Count - 2)
-            {      
+            {
                 var statement = "SELECT * FROM Books WHERE Id = @0";
                 var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
-                <div class="bookinfocard bookinfocard-hover">
-                    <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
-                    <div class="bookinfoheading">
-                        <h3 class="panel-title text-center">@bookInfo.Titel</h3>
-                    </div>
+                    <div class="bookinfocard bookinfocard-hover animated zoomIn">
+                        <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
+                        <div class="bookinfoheading">
+                            <h3 class="panel-title text-center">@bookInfo.Titel</h3>
+                        </div>
 
-                    <div class="bookinfobody">
-                        <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
-                        <h5>Auteur:</h5>
-                        <p>@bookInfo.Titel</p>
-                        <h5>Taal</h5>
-                        <p>@bookInfo.Taal</p>
-                        <h5>Beschrijving</h5>
-                        <p>@bookInfo.Beschrijving</p>
-                    </div>   
-                </div>
+                        <div class="bookinfobody">
+                            <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                            <h5>Auteur:</h5>
+                            <p>@bookInfo.Titel</p>
+                            <h5>Taal</h5>
+                            <p>@bookInfo.Taal</p>
+                            <h5>Beschrijving</h5>
+                            <p>@bookInfo.Beschrijving</p>
+                        </div>
+                    </div>
             }
             else
             {
@@ -70,7 +71,13 @@
                 var statement = "SELECT * FROM Books WHERE Id = @0";
                 var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
-                <div class="bookinfocard bookinfocard-hover">
+                string animation = "";
+                if (i == selectListId.Count - 1- countEmpty)
+                {
+                    animation = "animated zoomIn";
+                }
+
+                <div class="bookinfocard bookinfocard-hover @animation">
                     <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
                     <div class="bookinfoheading">
                         <h3 class="panel-title text-center">@bookInfo.Titel</h3>
@@ -81,7 +88,7 @@
                     </div>
                 </div>
                 <br />
-            }       
+            }
         }
     }
 }
