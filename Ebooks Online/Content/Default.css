@@ -327,3 +327,22 @@ body {
 	from { background:#FF5252; }
   to 	{ width:0; background:transparent; }
 }
+
+/*.active{
+    background-color: #286090 !important;
+    color: white !important;
+}*/
+
+.btn-primary {
+    color: black;
+    background-color: white;
+}
+.btn-primary:active {
+    background-color: #286090 !important;
+    color: white !important;
+}
+
+.btn-primary:focus {
+    background-color: none !important;
+    color: none !important;
+}
