@@ -333,16 +333,33 @@ body {
     color: white !important;
 }*/
 
-.btn-primary {
-    color: black;
-    background-color: white;
+label input {
+  visibility: hidden;/* <-- hide the default checkbox, the rest is to hide and alllow tabbing, which display:none prevents */
+  display:block;
+  height:0;
+  width:0;
+  position:absolute;
+  overflow:hidden;
+  user-select: none;
 }
-.btn-primary:active {
-    background-color: #286090 !important;
-    color: white !important;
+label span {/* <-- style the artificial checkbox */
+  height: auto;
+  width: 7vh;
+  border: 1px solid grey;
+  display: inline-block;
+  padding: 2px;
+  text-align: center;
+  user-select: none;
+  -moz-user-select: none;
 }
-
-.btn-primary:focus {
-    background-color: none !important;
-    color: none !important;
+label .btn-toggleLeft {
+    border-bottom-left-radius: 1vh;
+    border-top-left-radius: 1vh;
+}
+label .btn-toggleRight {
+    border-bottom-right-radius: 1vh;
+    border-top-right-radius: 1vh;
+}
+[type=checkbox]:checked + span {/* <-- style its checked state */
+  background: #2196F3;
 }

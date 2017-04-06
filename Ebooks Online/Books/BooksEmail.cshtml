@@ -4,7 +4,7 @@
     Layout = "~/_BookListLayout.cshtml";
     Page.Title = "Ebooks mailen";
 
-    bool passwordSent = false;
+    bool booksSent = false;
     var email = Request.Form["email"] ?? Request.QueryString["email"];
 
     // Setup validation
@@ -39,85 +39,90 @@
                             }
                         }
                     </ul>
-                                if (Request["PDF"] == "on")
+                    if (Request["PDF"] == "on")
+                    {
+                        for (int i = 0; i < selectedId.Count; i++)
+                        {
+                            string AttachedFile = "Books/Files/PDF/" + db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i]) + ".pdf";
+                            if (!((db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i])) == null))
+                            {
+                                attachfile.Add(AttachedFile);
+                            }
+                        }
+                    }
+
+                    if (Request["EPUB"] == "on")
+                    {
+                        for (int i = 0; i < selectedId.Count; i++)
+                        {
+                            string AttachedFile = "Books/Files/EPUB/" + db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i]) + ".epub";
+                            if (!((db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i])) == null))
+                            {
+                                attachfile.Add(AttachedFile);
+                            }
+                        }
+                    }
+
+                    if (Request["MOBI"] == "on")
+                    {
+                        for (int i = 0; i < selectedId.Count; i++)
+                        {
+                            string AttachedFile = "Books/Files/MOBI/" + db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i]) + ".mobi";
+                            if (!((db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i])) == null))
+                            {
+                                attachfile.Add(AttachedFile);
+                            }
+                        }
+                    }
+
+                    if (IsPost)
+                    {
+                        AntiForgery.Validate();
+                        // validate email
+                        bool isValid = true;
+                        if (isValid)
+                        {
+                            var hostUrl = Request.Url.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                            List<string> a = new List<string>();
+                            long grootte = 0;
+                            foreach (var file in attachfile)
+                            {
+                                string fileGoed = "Files/" + file.Split('/')[2] + "/" + file.Split('/')[3];
+
+                                FileInfo f = new FileInfo(Server.MapPath(fileGoed));
+                                if ((grootte + f.Length) < 24000000)
                                 {
-                                    for (int i = 0; i < selectedId.Count; i++)
-                                    {
-                                        string AttachedFile = "Books/Files/PDF/" + db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i]) + ".pdf";
-                                        if (!((db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i])) == null))
-                                        {
-                                            attachfile.Add(AttachedFile);
-                                        }
-                                    }
+                                    grootte = grootte + f.Length;
+                                    a.Add(file);
                                 }
-
-                                if (Request["EPUB"] == "on")
+                                else
                                 {
-                                    for (int i = 0; i < selectedId.Count; i++)
-                                    {
-                                        string AttachedFile = "Books/Files/EPUB/" + db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i]) + ".epub";
-                                        if (!((db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i])) == null))
-                                        {
-                                            attachfile.Add(AttachedFile);
-                                        }
-                                    }
-                                }
-
-                                if (Request["MOBI"] == "on")
-                                {
-                                    for (int i = 0; i < selectedId.Count; i++)
-                                    {
-                                        string AttachedFile = "Books/Files/MOBI/" + db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i]) + ".mobi";
-                                        if (!((db.QueryValue("SELECT Path FROM Books Where Id = " + selectedId[i])) == null))
-                                        {
-                                            attachfile.Add(AttachedFile);
-                                        }
-                                    }
-                                }
-
-                                if (IsPost)
-                                {
-                                    AntiForgery.Validate();
-                                    // validate email
-                                    bool isValid = true;
-                                    if (isValid)
-                                    {
-                                        var hostUrl = Request.Url.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
-                                        List<string> a = new List<string>();
-                                        long grootte = 0;
-                                        foreach (var file in attachfile)
-                                        {
-                                            string fileGoed = "Files/" + file.Split('/')[2] + "/" + file.Split('/')[3];
-
-                                            FileInfo f = new FileInfo(Server.MapPath(fileGoed));
-                                            if ((grootte + f.Length) < 24000000)
-                                            {
-                                                grootte = grootte + f.Length;
-                                                a.Add(file);
-                                            }
-                                            else
-                                            {
-                                                WebMail.Send(
-                                                to: email,
-                                                subject: "EBooks",
-                                                body: "Hierbij ontvangt u uw gemailde EBooks",
-                                                filesToAttach: a);
-                                                a.Clear();
-                                                a.Add(file);
-                                                grootte = f.Length;
-                                            }
-                                        }
-
-                                        WebMail.Send(
-                                                to: email,
-                                                subject: "EBooks",
-                                                body: "Hierbij ontvangt u uw gemailde EBooks",
-                                                filesToAttach: a);
-
-                                        passwordSent = true;
-                                    }
+                                    WebMail.Send(
+                                    to: email,
+                                    subject: "EBooks",
+                                    body: "Hierbij ontvangt u uw gemailde EBooks",
+                                    filesToAttach: a);
+                                    a.Clear();
+                                    a.Add(file);
+                                    grootte = f.Length;
                                 }
                             }
+
+                            WebMail.Send(
+                                    to: email,
+                                    subject: "EBooks",
+                                    body: "Hierbij ontvangt u uw gemailde EBooks",
+                                    filesToAttach: a);
+
+                            booksSent = true;
+                        }
+                    }
+                }
+                @if (booksSent)
+                {
+                    <h4>Uw Ebooks zijn verzonden</h4>
+                    <a href="~/List.cshtml">Klik hier om terug te gaan naar uw lijst</a>
+                }
             </div>
         </div>
     </div>
@@ -127,65 +132,56 @@
 
 @if (!WebMail.SmtpServer.IsEmpty())
 {
-    if (passwordSent)
+    if (!booksSent)
     {
-        <p class="message-success">
-            <font size="25" color="red">De Ebooks zijn verzonden</font>
-        </p>
-    }
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-6 col-sm-offset-3">
-                <div class="logincard">
-                    <form method="post">
-                        @AntiForgery.GetHtml()
-                        @Html.ValidationSummary(excludeFieldErrors: true)
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6 col-sm-offset-3">
+                    <div class="logincard">
+                        <form method="post">
+                            @AntiForgery.GetHtml()
+                            @Html.ValidationSummary(excludeFieldErrors: true)
 
-                        <fieldset>
-                            <h3>Ebooks Mailen</h3>
+                            <fieldset>
+                                <h3>Ebooks Mailen</h3>
 
-                            <h4>Selecteer bestandsformaten</h4>
-
-                            <hr />
-
-                            <div class="btn-group" data-toggle="buttons">
-                                <label class="btn btn-primary active">
-                                    <input type="checkbox" autocomplete="off" name="PDF"> PDF
+                                <h4>Selecteer bestandsformaten</h4>
+                                <label>
+                                    <input type="checkbox" name="PDF" />
+                                    <span class="btn-toggleLeft">PDF</span>
                                 </label>
-                                <label class="btn btn-primary active">
-                                    <input type="checkbox" autocomplete="off" name="EPUB"> EPUB
+                                <label>
+                                    <input type="checkbox" name="EPUB" />
+                                    <span>EPUB</span>
                                 </label>
-                                <label class="btn btn-primary active">
-                                    <input type="checkbox" autocomplete="off" name="MOBI"> MOBI
+                                <label>
+                                    <input type="checkbox" name="MOBI" />
+                                    <span class="btn-toggleRight">MOBI</span>
                                 </label>
-                            </div>
 
-                            <br />
-                            <br />
+                                <hr />
 
-                            <h4>Vul uw email adres in</h4>
+                                <h4>Vul uw email adres in</h4>
+                                <label for="email" @if (!ModelState.IsValidField("email")) { <text> class="error-label" </text>      }></label>
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="sizing-addion1">&#64;</span>
+                                    <input type="text" class="form-control" id="email" name="email" value="@email" disabled="@booksSent" @Validation.For("email") />
+                                </div>
 
-                            <hr />
-
-                            <label for="email" @if (!ModelState.IsValidField("email")) { <text> class="error-label" </text>   }></label>
-                            <div class="input-group">
-                                <span class="input-group-addon" id="sizing-addion1">&#64;</span>
-                                <input type="text" class="form-control" id="email" name="email" value="@email" disabled="@passwordSent" @Validation.For("email") />
-                            </div>
-
-                            @Html.ValidationMessage("email")
-                            <br />
-                            <p class="form-actions">
-                                <input type="submit" class="btn btn-default default-primary-color" value="Send instructions" disabled="@passwordSent" />
-                            </p>
-                        </fieldset>
-                    </form>
+                                @Html.ValidationMessage("email")
+                                <br />
+                                <p class="form-actions">
+                                    <input type="submit" class="btn btn-default default-primary-color" value="Email boeken" disabled="@booksSent" />
+                                </p>
+                            </fieldset>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
 }
 else
 {
-    <p>Mail server error.</p>
+<p>Mail server error.</p>
 }
