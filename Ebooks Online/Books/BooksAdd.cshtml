@@ -10,6 +10,11 @@
     {
         Response.Redirect("~/default.cshtml");
     }
+
+    Validation.RequireField("titel", "Je moet een titel invullen.");
+    Validation.Add("titel", Validator.StringLength(maxLength: Int32.MaxValue, minLength: 2, errorMessage: "De titel moet minimaal 2 karakters lang zijn."));
+
+    var goodfile = Session["goodfile"];
     var fileName = "";
     var uitgever = "-";
     var uitgavedtm = "-";
@@ -35,68 +40,78 @@
                fileName);
             uploadedFile.SaveAs(fileSavePath);
             var bestandstype = fileSavePath.Split('.')[1];
+            Session["goodfile"] = "";
             string convertTypeA = "";
             string convertTypeB = "";
-            if (bestandstype == "pdf")
+            if (bestandstype != "pdf" && bestandstype != "epub" && bestandstype != "mobi")
             {
-                convertTypeA = "epub";
-                convertTypeB = "mobi";
-            }
-            if (bestandstype == "epub")
-            {
-                convertTypeA = "pdf";
-                convertTypeB = "mobi";
-
-            }
-            if (bestandstype == "mobi")
-            {
-                convertTypeA = "pdf";
-                convertTypeB = "epub";
-            }
-
-            var fileSavePathConvertA = fileSavePath.Split('.')[0] + "." + convertTypeA;
-
-            System.Diagnostics.Process processA = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfoA = new System.Diagnostics.ProcessStartInfo();
-            startInfoA.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfoA.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "ebook-convert.exe";
-            startInfoA.Arguments = "\"" + fileSavePath + "\" \"" + fileSavePathConvertA + "\"";
-            processA.StartInfo = startInfoA;
-            processA.Start();
-
-
-            var fileSavePathConvertB = fileSavePath.Split('.')[0] + "." + convertTypeB;
-            System.Diagnostics.Process processB = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfoB = new System.Diagnostics.ProcessStartInfo();
-            startInfoB.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfoB.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "ebook-convert.exe";
-            startInfoB.Arguments = "\"" + fileSavePath + "\" \"" + fileSavePathConvertB + "\"";
-            processB.StartInfo = startInfoB;
-            processB.Start();
-
-            uploadedFile.SaveAs(fileSavePathConvertA);
-            uploadedFile.SaveAs(fileSavePathConvertB);
-
-            int optellen = 0;
-            while (!File.Exists(fileSavePathConvertA))
-            {
-                optellen++;
-            }
-
-            if (bestandstype == "pdf")
-            {
-                PdfReader bestand = new PdfReader(fileSavePath);
-                metadata["Title"] = (bestand.Info.ContainsKey("Title")) ? bestand.Info["Title"] : "-";
-                metadata["Subject"] = (bestand.Info.ContainsKey("Subject")) ? bestand.Info["Subject"] : "-";
-                metadata["Author"] = (bestand.Info.ContainsKey("Author")) ? bestand.Info["Author"] : "-";
-                metadata["Keywords"] = (bestand.Info.ContainsKey("Keywords")) ? bestand.Info["Keywords"] : "-";
+                Session["goodfile"] = "Je moet wel een pdf, epub of mobi bestand uploaden!";
+                Response.Redirect("~/Books/BooksAdd.cshtml");
             }
             else
             {
-                metadata["Title"] = "-";
-                metadata["Subject"] = "-";
-                metadata["Author"] = "-";
-                metadata["Keywords"] = "-";
+                Session["leeg"] = "";
+                if (bestandstype == "pdf")
+                {
+                    convertTypeA = "epub";
+                    convertTypeB = "mobi";
+                }
+                if (bestandstype == "epub")
+                {
+                    convertTypeA = "pdf";
+                    convertTypeB = "mobi";
+
+                }
+                if (bestandstype == "mobi")
+                {
+                    convertTypeA = "pdf";
+                    convertTypeB = "epub";
+                }
+
+                var fileSavePathConvertA = fileSavePath.Split('.')[0] + "." + convertTypeA;
+
+                System.Diagnostics.Process processA = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfoA = new System.Diagnostics.ProcessStartInfo();
+                startInfoA.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfoA.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "ebook-convert.exe";
+                startInfoA.Arguments = "\"" + fileSavePath + "\" \"" + fileSavePathConvertA + "\"";
+                processA.StartInfo = startInfoA;
+                processA.Start();
+
+
+                var fileSavePathConvertB = fileSavePath.Split('.')[0] + "." + convertTypeB;
+                System.Diagnostics.Process processB = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfoB = new System.Diagnostics.ProcessStartInfo();
+                startInfoB.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfoB.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "ebook-convert.exe";
+                startInfoB.Arguments = "\"" + fileSavePath + "\" \"" + fileSavePathConvertB + "\"";
+                processB.StartInfo = startInfoB;
+                processB.Start();
+
+                uploadedFile.SaveAs(fileSavePathConvertA);
+                uploadedFile.SaveAs(fileSavePathConvertB);
+
+                int optellen = 0;
+                while (!File.Exists(fileSavePathConvertA))
+                {
+                    optellen++;
+                }
+
+                if (bestandstype == "pdf")
+                {
+                    PdfReader bestand = new PdfReader(fileSavePath);
+                    metadata["Title"] = (bestand.Info.ContainsKey("Title")) ? bestand.Info["Title"] : "-";
+                    metadata["Subject"] = (bestand.Info.ContainsKey("Subject")) ? bestand.Info["Subject"] : "-";
+                    metadata["Author"] = (bestand.Info.ContainsKey("Author")) ? bestand.Info["Author"] : "-";
+                    metadata["Keywords"] = (bestand.Info.ContainsKey("Keywords")) ? bestand.Info["Keywords"] : "-";
+                }
+                else
+                {
+                    metadata["Title"] = "-";
+                    metadata["Subject"] = "-";
+                    metadata["Author"] = "-";
+                    metadata["Keywords"] = "-";
+                }
             }
         }
         else
@@ -151,11 +166,13 @@
             }
             var path = Server.MapPath("~/Books/Files/") + "clearfolder.bat";
             System.Diagnostics.Process.Start(@"" + path + "");
-
-
+            Session.Abandon();
         }
 
-
+    }
+    else
+    {
+        Session.Abandon();
     }
 }
 <script>
@@ -163,6 +180,7 @@
         $("input[name=files]").on("change", function () {
             $("input[name=files]").parent().parent().parent().submit();
         });
+        $("input[name=files]").attr("accept", ".pdf,.epub,.mobi");
         $(".file-upload-buttons").hide();
     });
 </script>
@@ -170,6 +188,7 @@
     <div class="col-sm-6 col-sm-offset-3">
         <div class="logincard">
             <h1 class="text-center">Boek toevoegen</h1>
+            <b>@goodfile</b> <br/>
             <b>Bestand : </b><i>@fileName</i>
             <br />
             <br />
@@ -181,9 +200,9 @@
         uploadText: "Upload")
             <br />
             @if (IsPost)
-            {
-                if (Request.Form["fileupload"] == null)
-                {
+                        {
+                            if (Request.Form["fileupload"] == null)
+                            {
                     <form method="post">
                         <input id="upload" class="btn btn-default" type="submit" name="fileupload" value="Upload" /><br />
                         <br />
@@ -194,6 +213,7 @@
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Titel</span>
                             <input type="text" class="form-control" name="titel" value="@metadata["Title"]" />
+                            @Html.ValidationMessage("titel");
                         </div>
                         <br />
                         <div class="input-group">
