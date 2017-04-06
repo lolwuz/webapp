@@ -3,72 +3,108 @@
 @using Ionic.Zip;
 
 @{
+    if (!WebSecurity.IsAuthenticated)
+    {
+        Response.Redirect("~/Default.cshtml");
+    }
+
+    Page.Title = "Boek downloaden";
+    Layout = "~/_BookListLayout.cshtml";
+
     string path = "";
     var id = "";
 
+    //if there is nothing selected, go back to list
+    if (Session["selectedId"] == null)
+    {
+        Response.Redirect("~/List.cshtml");
+    }
     List<int> selectedId = Session["selectListId"] as List<int>;
     var db = Database.Open("StarterSite");
-
     int length = selectedId.Count;
-    string[] download = new string[length];
 
+    //different arrays for different files
+    string[] downloadpdf = new string[length];
+    string[] downloadepub = new string[length];
+    string[] downloadmobi = new string[length];
+    
     length = 0;
 
     for (int i = 0; i < selectedId.Count; i++)
-    {
+    {   //if the selectedid is not empty, add it to the length to make a array of the right length
         if (selectedId[i] != 0)
         {
             length += 1;
         }
     }
 
-    string[] goed = new string[length];
+    string[] goodpdf = new string[length];
+    string[] goodepub = new string[length];
+    string[] goodmobi = new string[length];
 
-    if (WebSecurity.IsAuthenticated)
+    //for each selectedid[i], search for the filename and add the path in right download array
+    for (int i = 0; i < length; i++)
     {
-        for (int i = 0; i < length; i ++)
-        { if (selectedId[i] != 0)
+        if (selectedId[i] != 0)
+        {
+            string filepdf = "";
+            string fileepub = "";
+            string filemobi = "";
+
+            string filepathpdf = "";
+            string filepathepub = "";
+            string filepathmobi = "";
+
+            id = Convert.ToString(selectedId[i]);
+            var command = "SELECT Books.Path, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
+            var row = db.QuerySingle(command, id, WebSecurity.CurrentUserName);
+            if (row != null)
             {
-                id = Convert.ToString(selectedId[i]);
-                var command = "SELECT Books.Path, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
-                var row = db.QuerySingle(command, id, WebSecurity.CurrentUserName);
-                if (row != null)
-                {
-                    path = row.Path;
-                }
-                else
-                {
-                    Validation.AddFormError("Er gaat iets fout.");
-                }
-
-                string filename = path.Substring(14);
-                string file = path.Substring(6);
-                string filepath = Server.MapPath(file);
-
-                download[i] = filepath;
+                path = row.Path;
             }
+            else
+            {
+                Validation.AddFormError("Er gaat iets fout.");
+            }
+            //if there are spaces in the filename, replace them with %20 so it is readable ??
+            path.Replace(" ", "%20");
+
+            filepdf =  "Files/PDF/" + path + ".pdf";
+            fileepub = "Files/EPUB/" + path + ".epub";
+            filemobi = "Files/MOBI/" + path + ".mobi";
+
+            filepathpdf = Server.MapPath(filepdf);
+            filepathepub = Server.MapPath(fileepub);
+            filepathmobi = Server.MapPath(filemobi);
+
+            downloadpdf[i] = filepathpdf;
+            downloadepub[i] = filepathepub;
+            downloadmobi[i] = filepathmobi;
         }
-
-        for (int i = 0; i < length; i ++)
-        {
-            goed[i] = download[i];
-        }
-
-        using (ZipFile Zip = new ZipFile())
-        {
-            Zip.AddFiles(goed, "Boeken");
-
-            string zipName = String.Format("Boeken_{0}.zip", DateTime.Now.ToString("dd-MM-yyyy-HHmmss"));
-            Response.ContentType = "application/zip";
-            Response.AddHeader("content-disposition", "attachment; filename=" + zipName);
-            Zip.Save(Response.OutputStream);
-            Response.End();
-            Response.Redirect("~/List.cshtml");
-        }
-
     }
-    else
+
+    for (int i = 0; i < length; i++)
     {
-        Response.Redirect("~/Default.cshtml");
+        //foreach variable in download, add it to the right good array
+        goodpdf[i] =  downloadpdf[i];
+        goodepub[i] = downloadepub[i];
+        goodmobi[i] = downloadmobi[i];
+    }
+
+    using (ZipFile Zip = new ZipFile())
+    {
+        //add the right files to the right folder
+        Zip.AddFiles(goodpdf, "Pdf");
+        Zip.AddFiles(goodepub, "Epub");
+        Zip.AddFiles(goodmobi, "Mobi");
+
+        //give a unique name for the zip file
+        string zipName = String.Format("Boeken_{0}.zip", DateTime.Now.ToString("dd-MM-yyyy-HHmmss"));
+        Response.ContentType = "application/zip";
+        Response.AddHeader("content-disposition", "attachment; filename=" + zipName);
+        //save the file in downloadfolder of the user
+        Zip.Save(Response.OutputStream);
+        Response.End();
+        Response.Redirect("~/List.cshtml");
     }
 }
