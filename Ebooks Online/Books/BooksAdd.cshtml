@@ -24,7 +24,7 @@
 
     if (IsPost)
     {
-        if (Request["fileupload"] == null)
+        if (Request.Form["fileupload"] == null)
         {
             uploadedFile = Request.Files[0];
             Random rnd = new Random();
@@ -152,8 +152,6 @@
             var path = Server.MapPath("~/Books/Files/") + "clearfolder.bat";
             System.Diagnostics.Process.Start(@"" + path + "");
 
-            //PdfWriter writer = PdfWriter.GetInstance(data_filename, new FileStream(final_Path, FileMode.Create));
-
 
         }
 
@@ -192,18 +190,7 @@
                         <input type="hidden" value=@grootte name="grootte" />
                         <input type="hidden" value=@type name="type" />
                         <input type="hidden" value="@fileName" name="filename" />
-                            @*<tr>
-                                <th>Titel&nbsp;&nbsp;</th>
-                                <th>Onderwerp&nbsp;&nbsp;</th>
-                                <th>Auteur&nbsp;&nbsp;</th>
-                                <th>Uitgever&nbsp;&nbsp;</th>
-                                <th>Uitgavedatum&nbsp;&nbsp;</th>
-                                <th>Taal&nbsp;&nbsp;</th>
-                                <th>Genre</th>
-                                <th>Beschrijving&nbsp;&nbsp;</th>
-                                <th>Boekserie&nbsp;&nbsp;</th>
-                                <th>Tags</th>
-                            </tr>*@
+
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Titel</span>
                             <input type="text" class="form-control" name="titel" value="@metadata["Title"]" />
@@ -252,16 +239,6 @@
                             <span class="input-group-addon" id="sizing-addion1">Tags</span>
                             <input type="text" class="form-control" name="tags" value="@metadata["Keywords"]" />
                         </div>
-                                @*<td><input type="text" name="titel" value="@metadata["Title"]" /></td>
-                                <td><input type="text" name="onderwerp" value="@metadata["Subject"]" /></td>
-                                <td><input type="text" name="auteur" value="@metadata["Author"]" /></td>
-                                <td><input type="text" name="uitgever" value=@uitgever /></td>
-                                <td><input type="text" name="uitgavedtm" value=@uitgavedtm /></td>
-                                <td><input type="text" name="taal" value=@taal /></td>
-                                <td><input type="text" name="genre" value=@genre /></td>
-                                <td><input type="text" name="beschrijving" value=@beschrijving /></td>
-                                <td><input type="text" name="boekserie" value=@boekserie /></td>
-                                <td><input type="text" name="tags" value="@metadata["Keywords"]" /></td>*@
                     </form>
                 }
             }
