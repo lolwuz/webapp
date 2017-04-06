@@ -45,9 +45,9 @@
     //for each selectedid[i], search for the filename and add the path in right download array
     if (IsPost)
     {
-        if ((Request["pdf"] == "off") && (Request["epub"] == "off") && (Request["mobi"] == "off"))
+        if (Request.Form["type[]"] == null)
         {
-              Validation.AddFormError("Gelieve minimaal 1 checkbox aanvinken.");
+            Validation.AddFormError("Gelieve minimaal 1 checkbox aanvinken.");
         }
         else
         {
@@ -75,19 +75,19 @@
                         Validation.AddFormError("Er gaat iets fout.");
                     }
                     //if there are spaces in the filename, replace them with %20 so it is readable ??
-                    if (Request["pdf"] == "on")
+                    if (Request["type[]"].Split(',').Contains("pdf"))
                     {
                         filepdf = "Books/Files/PDF/" + "" + path + "" + ".pdf";
                         filepathpdf = Server.MapPath("~/" + filepdf);
                         downloadpdf[i] = filepathpdf;
                     }
-                    if (Request["epub"] == "on")
+                    if (Request["type[]"].Split(',').Contains("epub"))
                     {
                         fileepub = "Books/Files/EPUB/" + "" + path + "" + ".epub";
                         filepathepub = Server.MapPath("~/" + fileepub);
                         downloadepub[i] = filepathepub;
                     }
-                    if (Request["mobi"] == "on")
+                    if (Request["type[]"].Split(',').Contains("mobi"))
                     {
                         filemobi = "Books/Files/MOBI/" + "" + path + "" + ".mobi";
                         filepathmobi = Server.MapPath("~/" + filemobi);
@@ -99,15 +99,15 @@
             for (int i = 0; i < length; i++)
             {
                 //foreach variable in download, add it to the right good array
-                if (Request["pdf"] == "on")
+                if (Request["type[]"].Split(',').Contains("pdf"))
                 {
                     goodpdf[i] = downloadpdf[i];
                 }
-                if (Request["epub"] == "on")
+                if (Request["type[]"].Split(',').Contains("epub"))
                 {
                     goodepub[i] = downloadepub[i];
                 }
-                if (Request["mobi"] == "on")
+                if (Request["type[]"].Split(',').Contains("mobi"))
                 {
                     goodmobi[i] = downloadmobi[i];
                 }
@@ -116,15 +116,15 @@
             using (ZipFile Zip = new ZipFile())
             {
                 //add the right files to the right folder
-                if (Request["pdf"] == "on")
+                if (Request["type[]"].Split(',').Contains("pdf"))
                 {
                     Zip.AddFiles(goodpdf, "Pdf");
                 }
-                if (Request["epub"] == "on")
+                if (Request["type[]"].Split(',').Contains("epub"))
                 {
                     Zip.AddFiles(goodepub, "Epub");
                 }
-                if (Request["mobi"] == "on")
+                if (Request["type[]"].Split(',').Contains("mobi"))
                 {
                     Zip.AddFiles(goodmobi, "Mobi");
                 }
@@ -152,15 +152,15 @@
 
                     <label class="btn btn-primary">
                         Pdf
-                        <input id="pdf" type="checkbox" name="pdf" value="pdf" />
+                        <input id="pdf" type="checkbox" name="type[]" value="pdf" />
                     </label>
                     <label class="btn btn-primary">
                         Epub
-                        <input id="epub" type="checkbox" name="epub" value="epub" />
+                        <input id="epub" type="checkbox" name="type[]" value="epub" />
                     </label>
                     <label class="btn btn-primary">
                         Mobi
-                        <input id="mobi" type="checkbox" name="mobi" value="mobi" />
+                        <input id="mobi" type="checkbox" name="type[]" value="mobi" />
                     </label>
             </div>
                 <p>
