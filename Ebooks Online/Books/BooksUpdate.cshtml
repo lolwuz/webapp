@@ -38,45 +38,6 @@
         }
         // is this an external login request
     }
-
-
-    if (!Request.QueryString["id"].IsEmpty())
-    {
-        // Check if Id is in selectedList
-        int bookId = Request.QueryString["id"].AsInt();
-        if (selectedId.IndexOf(bookId) != -1)
-        {
-
-            string searchQuery = "SELECT Auteur FROM Books WHERE Id=@0";
-            string searchAuthor = db.QueryValue(searchQuery, bookId);
-            // Start calibre fectch meta process
-            try
-            {
-                System.Diagnostics.Process processA = new System.Diagnostics.Process();
-                System.Diagnostics.ProcessStartInfo startInfoA = new System.Diagnostics.ProcessStartInfo();
-                startInfoA.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-
-                startInfoA.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "fetch-ebook-metadata.exe";
-                startInfoA.Arguments = "-a:" + searchAuthor;
-                startInfoA.UseShellExecute = false;
-                startInfoA.RedirectStandardOutput = true;
-
-                processA.StartInfo = startInfoA;
-                processA.Start();
-
- 
-                while (!processA.StandardOutput.EndOfStream)
-                {
-                    string line = processA.StandardOutput.ReadLine();
-                    // do something with line
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-        }
-    }
 }
     
 
@@ -91,78 +52,93 @@
     </div>
 
     <div class="container">
-        <div class="row">
-            @{
-            // Loop trough selected Book list.
-            foreach (int id in selectedId)
+        <div class="row">      
+            @foreach (int id in selectedId)
             {
-            // Check if ID is not 0: There is no book selected.
-            if (id > 0)
-            {
-            var statement = "SELECT * FROM Books WHERE Id=@0";
-            var row = db.QuerySingle(statement, id);
+                // Check if ID is not 0: There is no book selected.
+                if (id > 0)
+                {
+                    var statement = "SELECT * FROM Books WHERE Id=@0";
+                    var row = db.QuerySingle(statement, id);
 
-            <div class="col-lg-4 col-sm-6">
-                <div class="bookinfocard">
-                    <div class="bookinfoheading">
-                        <h4 class="text-center">@row.Titel</h4>
-                    </div>
-                    <div class="bookinfobody">
-                       
-                        <label for="at">Auteur: </label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="inputauthor=@id" placeholder="Auteur" value="@row.Auteur">
-                        </div>
-                        <br />
-                        <label for="comment">Uitgever: </label>
-                        <div class="input-group">
-                            <input type="text" class="form-control formfill" name="inputuitgever=@id" placeholder="Uitgever" value="@row.Uitgever">
-                        </div>
-                        <br />
-                        <label for="comment">Uitgave-Datum: </label>
-                        <div class="input-group">
-                            <input type="text" class="form-control formfill" name="inputuitgave=@id" placeholder="09/01/1998" value="@row.UitgaveDatum">
-                        </div>
-                        <br />
-                        <label for="comment">Taal: </label>
-                        <div class="input-group">
-                            <input type="text" class="form-control formfill" name="inputtaal=@id" placeholder="Engels" value="@row.Taal">
-                        </div>
-                        <br />
+                    <div class="col-lg-4 col-sm-6">
+                        <div class="bookinfocard">
+                            <div class="bookinfoheading">
+                                <h4 class="text-center">@row.Titel</h4>
+                            </div>
+                            <div class="bookinfobody">
+                                <label for="at">Auteur: </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="inputauthor=@id" placeholder="Auteur" value="@row.Auteur">
+                                </div>
+                                <br />
+                                <label for="comment">Uitgever: </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control formfill" name="inputuitgever=@id" placeholder="Uitgever" value="@row.Uitgever">
+                                </div>
+                                <br />
+                                <label for="comment">Uitgave-Datum: </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control formfill" name="inputuitgave=@id" placeholder="09/01/1998" value="@row.UitgaveDatum">
+                                </div>
+                                <br />
+                                <label for="comment">Taal: </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control formfill" name="inputtaal=@id" placeholder="Engels" value="@row.Taal">
+                                </div>
+                                <br />
 
-                        <div class="form-group">
-                            <label for="comment">Beschrijving: </label>
-                            <textarea class="form-control" rows="5" id="comment" name="inputcomment=@id"></textarea>
+                                <div class="form-group">
+                                    <label for="comment">Beschrijving: </label>
+                                    <textarea class="form-control" rows="5" id="comment" name="inputcomment=@id"></textarea>
+                                </div>
+                                <br />
+                                <label for="comment">Tags: </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control formfill" name="inputtags=@id" placeholder="C#, Programeren" value="@row.Tags">
+                                </div>
+                                <br />
+                                <label for="comment">Serie: </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control formfill" name="inputserie=@id" placeholder="Harry Potter" value="@row.Serie">
+                                </div>
+                                <br />
+                                <div class="form-group">
+                                    <label for="sel1">Beoordeling (@row.Beoordeling/5 sterren):</label>
+                                    <select class="form-control" id="sel1">
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                    </select>
+                                </div>
+                                <a class="btn" href="~/Books/BooksAutoMeta.cshtml?id=@id">Auto-update Metadata</a>
+                            </div>
                         </div>
-                        <br />
-                        <label for="comment">Tags: </label>
-                        <div class="input-group">
-                            <input type="text" class="form-control formfill" name="inputtags=@id" placeholder="C#, Programeren" value="@row.Tags">
-                        </div>
-                        <br />
-                        <label for="comment">Serie: </label>
-                        <div class="input-group">
-                            <input type="text" class="form-control formfill" name="inputserie=@id" placeholder="Harry Potter" value="@row.Serie">
-                        </div>
-                        <br />
-                        <div class="form-group">
-                            <label for="sel1">Beoordeling (@row.Beoordeling/5 sterren):</label>
-                            <select class="form-control" id="sel1">
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                            </select>
-                        </div>
-                        <a class="btn" href="~/Books/BooksUpdate.cshtml?id=@id">Auto-update Metadata</a>
+                        <hr />
                     </div>
+                }
+            }
+        
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="autoMetaModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
                 </div>
-                <hr />
+                <div class="modal-body">
+                    <p>This is a large modal.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
             </div>
-            }
-            }
-            }
         </div>
     </div>
 </form>

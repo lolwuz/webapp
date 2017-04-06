@@ -1,0 +1,148 @@
+﻿@{
+    if (!WebSecurity.IsAuthenticated)
+    {
+        Response.Redirect("~/Default.cshtml");
+    }
+
+    Page.Title = "Automatisch Metadata updaten";
+    Layout = "~/_BookListLayout.cshtml";
+
+    List<int> selectedId = Session["selectListId"] as List<int>;
+    Database db = Database.Open("StarterSite");
+
+
+    if (IsPost)
+    {
+        //redirect and don't do anything
+        if (Request.Form["actionButton"] == "behouden")
+        {
+            Response.Redirect("~/Books/BooksUpdate.cshtml");
+        }
+        //Update book all book data.
+        else if (Request.Form["actionButton"] == "updaten")
+        {
+            
+           
+        }
+    }
+
+    int bookId = 0;
+
+    if (!Request.QueryString["id"].IsEmpty())
+    {
+        // Check if Id is in selectedList
+        bookId = Request.QueryString["id"].AsInt();
+        if (selectedId.IndexOf(bookId) != -1)
+        {
+
+            string searchQuery = "SELECT * FROM Books WHERE Id=@0";
+            var searchRow = db.QuerySingle(searchQuery, bookId);
+
+            // Start calibre fetch metadata process (fetch-ebook-metadata.exe)
+            try
+            {
+                System.Diagnostics.Process processA = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfoA = new System.Diagnostics.ProcessStartInfo();
+                startInfoA.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
+
+                startInfoA.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "fetch-ebook-metadata.exe";
+                startInfoA.Arguments = "-t:" + "\"" + searchRow.Titel + "\"" + " -a:" + "\"" + searchRow.Auteur + "\"";
+                startInfoA.UseShellExecute = false;
+                startInfoA.RedirectStandardOutput = true;
+
+                processA.StartInfo = startInfoA;
+                processA.Start();
+
+                // Getting the output lines.
+                while (!processA.StandardOutput.EndOfStream)
+                {
+                    string line = processA.StandardOutput.ReadLine();
+                    <!-- For debugging purposes.-->
+                    <p>@line</p>
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+    }
+}
+
+<div class="container">
+    <h4>Automatisch metadata updaten</h4>
+    <p>Vergelijk de metadata hieronder </p>
+ 
+    <form method="post">
+        <button class="btn btn-danger accent-color" name="actionButton" value="updaten">Updaten</button>    
+        <button class="btn" name="actionButton" value="behouden">Behouden</button>
+    </form>
+ 
+    <hr />
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="bookinfocard">
+                <div class="bookinfoheading">
+                    <h4 class="text-center">Opgeslagen metadata</h4>
+                </div>
+                <div class="bookinfobody">
+                    @{
+                         
+                        var statement = "SELECT * FROM Books WHERE Id=@0";
+                        var row = db.QuerySingle(statement, bookId);
+                    }
+                    <label for="at">Auteur: </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="@row.Auteur" disabled>
+                    </div>
+                    <br />
+                    <label for="comment">Uitgever: </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control formfill" value="@row.Uitgever" disabled>
+                    </div>
+                    <br />
+                    <label for="comment">Uitgave-Datum: </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control formfill" value="@row.UitgaveDatum" disabled>
+                    </div>
+                    <br />
+                    <label for="comment">Taal: </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control formfill" value="@row.Taal" disabled>
+                    </div>
+                    <br />
+
+                    <div class="form-group">
+                        <label for="comment">Beschrijving: </label>
+                        <textarea class="form-control" rows="5" id="comment" value="@row.Beschrijving" disabled></textarea>
+                    </div>
+                    <br />
+                    <label for="comment">Tags: </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control formfill" value="@row.Tags" disabled>
+                    </div>
+                    <br />
+                    <label for="comment">Serie: </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control formfill" value="@row.Serie" disabled>
+                    </div>
+                    <br />
+                    
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="bookinfocard">
+                <div class="bookinfoheading">
+                    <h4 class="text-center">Gevonden metadata</h4>
+                </div>
+                <div class="bookinfobody">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
