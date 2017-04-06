@@ -42,22 +42,40 @@
 
     if (!Request.QueryString["id"].IsEmpty())
     {
-        string bookMeta = Request.QueryString["id"];
+        // Check if Id is in selectedList
+        int bookId = Request.QueryString["id"].AsInt();
+        if (selectedId.IndexOf(bookId) != -1)
+        {
 
-        System.Diagnostics.Process processA = new System.Diagnostics.Process();
-        System.Diagnostics.ProcessStartInfo startInfoA = new System.Diagnostics.ProcessStartInfo();
-        startInfoA.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-        startInfoA.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "fetch-ebook-metadata.exe";
-        startInfoA.Arguments = "-a" + "\"" + bookMeta + "\"";
-        processA.StartInfo = startInfoA;
-        processA.StartInfo.RedirectStandardOutput = true;
-        processA.StartInfo.UseShellExecute = false;
-        processA.Start();
+            string searchQuery = "SELECT Auteur FROM Books WHERE Id=@0";
+            string searchAuthor = db.QueryValue(searchQuery, bookId);
+            // Start calibre fectch meta process
+            try
+            {
+                System.Diagnostics.Process processA = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfoA = new System.Diagnostics.ProcessStartInfo();
+                startInfoA.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
 
-        //* Read the output (or the error)
-        var output = processA.StandardOutput.ReadToEnd();
-        Console.WriteLine(output);
-       
+                startInfoA.FileName = Server.MapPath("~/Books/Calibre Portable/Calibre/") + "fetch-ebook-metadata.exe";
+                startInfoA.Arguments = "-a:" + searchAuthor;
+                startInfoA.UseShellExecute = false;
+                startInfoA.RedirectStandardOutput = true;
+
+                processA.StartInfo = startInfoA;
+                processA.Start();
+
+ 
+                while (!processA.StandardOutput.EndOfStream)
+                {
+                    string line = processA.StandardOutput.ReadLine();
+                    // do something with line
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
     }
 }
     
