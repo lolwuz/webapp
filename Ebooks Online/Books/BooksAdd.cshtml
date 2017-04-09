@@ -11,9 +11,6 @@
         Response.Redirect("~/default.cshtml");
     }
 
-    Validation.RequireField("titel", "Je moet een titel invullen.");
-    Validation.Add("titel", Validator.StringLength(maxLength: Int32.MaxValue, minLength: 2, errorMessage: "De titel moet minimaal 2 karakters lang zijn."));
-
     var goodfile = Session["goodfile"];
     var fileName = "";
     var uitgever = "-";
@@ -119,11 +116,28 @@
             var data_grootte = Request["grootte"];
             var data_type = Request["type"];
             var data_filename = Request["filename"];
-            var data_titel = Request["titel"];
+            var data_titel = "";
+            if (Request["titel"].Length == 0)
+            { data_titel = "Onbekend";  }
+            else { data_titel = Request["titel"]; }
             var data_onderwerp = Request["onderwerp"];
             var data_auteur = Request["auteur"];
             var data_uitgever = Request["uitgever"];
-            string data_uitgavedtm = Request["uitgavedtm"];
+            //DateTime dateTime;
+            //if (Request["uitgavedtm"] != "mm/dd/yyyy")
+            //{ dateTime = DateTime.Parse("01/01/0001"); }
+            //else { dateTime = DateTime.Parse(Request["uitgavedtm"], new CultureInfo("nl-NL")); }
+            //string data_uitgave = dateTime.ToString();
+            //string data_uitgavedtm = "";
+            //if ((dateTime.Day < 10) && dateTime.Month < 10)
+            //{
+            //    data_uitgavedtm = data_uitgave.Substring(0, 9) + " ";
+            //}
+            //else
+            //{
+            //    data_uitgavedtm = data_uitgave.Substring(0, 10);
+            //}
+            var data_uitgavedtm = Request["uitgavedtm"];
             var data_taal = Request["taal"];
             var data_genre = Request["genre"];
             var data_beschrijving = Request["beschrijving"];
@@ -189,6 +203,7 @@
         <div class="logincard">
             <h1 class="text-center">Boek toevoegen</h1>
             <b>@goodfile</b> <br/>
+            <b>@Session["valid"]</b> <br/>
             <b>Bestand : </b><i>@fileName</i>
             <br />
             <br />
@@ -212,8 +227,7 @@
 
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Titel</span>
-                            <input type="text" class="form-control" name="titel" value="@metadata["Title"]" />
-                            @Html.ValidationMessage("titel");
+                            <input type="text" class="form-control formfill" name="titel" value="@metadata["Title"]" />
                         </div>
                         <br />
                         <div class="input-group">
@@ -233,7 +247,8 @@
                         <br />
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Uitgavedatum</span>
-                            <input type="text" class="form-control" name="uitgavedtm" value=@uitgavedtm />
+                            <input type="text" class="form-control formfill" name="uitgavedtm" placeholder="09/01/1998" value="@uitgavedtm">
+
                         </div>
                         <br />
                         <div class="input-group">
