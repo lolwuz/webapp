@@ -121,13 +121,13 @@
             var data_filename = Request["filename"];
             var data_titel = "";
             if (Request["titel"].Length == 0)
-            { data_titel = "Onbekend";  }
+            { data_titel = "Onbekend"; }
             else { data_titel = Request["titel"]; }
             var data_onderwerp = Request["onderwerp"];
             var data_auteur = Request["auteur"];
             var data_uitgever = Request["uitgever"];
             DateTime dateTime;
-            if (Request["uitgavedtm"] == "")
+            if (Request["uitgavedtm"].Length > 10 || Request["uitgavedtm"] == "")
             { dateTime = DateTime.Parse("01/01/0001"); }
             else { dateTime = DateTime.Parse(Request["uitgavedtm"], new CultureInfo("nl-NL")); }
             string data_uitgave = dateTime.ToString();
@@ -155,7 +155,7 @@
                     }
                 }
             }
-            else { data_uitgavedtm = data_uitgave.Substring(0,9); }
+            else { data_uitgavedtm = data_uitgave.Substring(0, 9); }
 
             var data_taal = Request["taal"];
             var data_genre = Request["genre"];
@@ -251,8 +251,8 @@
     <div class="col-sm-6 col-sm-offset-3">
         <div class="logincard">
             <h1 class="text-center">Boek toevoegen</h1>
-            <b>@goodfile</b> <br/>
-            <b>@Session["valid"]</b> <br/>
+            <b>@goodfile</b> <br />
+            <b>@Session["valid"]</b> <br />
             <b>Bestand : </b><i>@fileName</i>
             <br />
             <br />
@@ -264,9 +264,9 @@
         uploadText: "Upload")
             <br />
             @if (IsPost)
-                        {
-                            if (Request.Form["fileupload"] == null)
-                            {
+            {
+                if (Request.Form["fileupload"] == null)
+                {
                     <form method="post">
                         <input type="hidden" value=@grootte name="grootte" />
                         <input type="hidden" value=@type name="type" />
@@ -299,7 +299,7 @@
                         <br />
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Taal</span>
-                            <input type="text"  class="form-control"name="taal" value=@taal />
+                            <input type="text" class="form-control" name="taal" value=@taal />
                         </div>
                         <br />
                         <div class="input-group">
