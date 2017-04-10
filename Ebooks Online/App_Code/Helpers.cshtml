@@ -25,45 +25,51 @@
     </div>
 }
 
-@helper createCards(Database db, List<int> selectListId)
+@helper createCards(Database db, List<int> selectListId, int selectClass)
 {
-    for (int i = 0; i < selectListId.Count; i++)
+for (int i = 0; i < selectListId.Count; i++)
+{
+    // If ListId = 0: There is no selected book.
+    if (selectListId[i] != 0)
     {
-        // If ListId = 0: There is no selected book.
-        if (selectListId[i] != 0)
+        // Count the amount of !selected books.
+        int countEmpty = 0;
+        foreach (int ii in selectListId)
         {
-            // Count the amount of !selected books.
-            int countEmpty = 0;
-            foreach (int ii in selectListId)
+            if (ii == 0)
             {
-                if (ii == 0)
-                {
-                    countEmpty++;
-                }
+                countEmpty++;
+            }
+        }
+
+        // If there is only 1 books selected. Show big "preview"
+        if (countEmpty > selectListId.Count - 2)
+        {
+            var statement = "SELECT * FROM Books WHERE Id = @0";
+            var bookInfo = db.QuerySingle(statement, selectListId[i]);
+
+            string animation = "";
+            if (i == selectListId.Count - 1 - countEmpty && selectClass == 1)
+            {
+                animation = "animated zoomIn";
             }
 
-            // If there is only 1 books selected. Show big "preview"
-            if (countEmpty > selectListId.Count - 2)
-            {
-                var statement = "SELECT * FROM Books WHERE Id = @0";
-                var bookInfo = db.QuerySingle(statement, selectListId[i]);
-
-                    <div class="bookinfocard bookinfocard-hover animated zoomIn">
-                        <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
-                        <div class="bookinfoheading">
-                            <h3 class="panel-title text-center">@bookInfo.Titel</h3>
-                        </div>
-
-                        <div class="bookinfobody">
-                            <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
-                            <h5>Auteur:</h5>
-                            <p>@bookInfo.Titel</p>
-                            <h5>Taal</h5>
-                            <p>@bookInfo.Taal</p>
-                            <h5>Beschrijving</h5>
-                            <p>@bookInfo.Beschrijving</p>
-                        </div>
+                <div class="bookinfocard bookinfocard-hover @animation">
+                    <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
+                    <div class="bookinfoheading">
+                        <h3 class="panel-title text-center">@bookInfo.Titel</h3>
                     </div>
+
+                    <div class="bookinfobody">
+                        <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                        <h5>Auteur:</h5>
+                        <p>@bookInfo.Titel</p>
+                        <h5>Taal</h5>
+                        <p>@bookInfo.Taal</p>
+                        <h5>Beschrijving</h5>
+                        <p>@bookInfo.Beschrijving</p>
+                    </div>
+                </div>
             }
             else
             {
@@ -72,7 +78,7 @@
                 var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
                 string animation = "";
-                if (i == selectListId.Count - 1- countEmpty)
+                if (i == selectListId.Count - 1 - countEmpty && selectClass == 1 )
                 {
                     animation = "animated zoomIn";
                 }

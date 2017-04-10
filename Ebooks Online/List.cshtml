@@ -9,6 +9,9 @@
         Response.Redirect("~/Default.cshtml");
     }
 
+    // Global variable(s)
+    int selectClass = 0;
+
     // Open database
     var userId = WebSecurity.CurrentUserId;
 
@@ -351,11 +354,13 @@
                                             int emptyIndex = selectListId.IndexOf(0);
                                             selectList[emptyIndex] = true;
                                             selectListId[emptyIndex] = bookId.AsInt();
+                                            selectClass = 1;
                                         }
                                         else
                                         {
                                             selectList[index] = false;
                                             selectListId[index] = 0;
+                                            selectClass = 2;
                                         }
                                     }
                                 }
@@ -363,10 +368,10 @@
                                 if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
                                 {
                                     <tr class="selectedTable">
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Grootte MB</a></td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Titel</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Auteur</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.UploadDatum.ToString("dd-MMM-yy")</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Grootte MB</td>
                                         <td>
                                             @for (int i = 0; i < 5; i++)
                                             {
@@ -381,10 +386,10 @@
                                                 }
                                             }
                                         </td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Tags</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Serie</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Uitgever</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.UitgaveDatum</td>
                                     </tr>
 
                                 }
@@ -392,10 +397,10 @@
                                 {
 
                                     <tr class="deselectedtable">
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Titel</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Auteur</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UploadDatum.ToString("dd-MMM-yy")</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Grootte MB</a></td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Titel</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Auteur</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.UploadDatum.ToString("dd-MMM-yy")</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Grootte MB</td>
                                         <td>
                                             @for (int i = 0; i < 5; i++)
                                             {
@@ -410,10 +415,10 @@
                                                 }
                                             }
                                         </td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Tags</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Serie</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.Uitgever</a></td>
-                                        <td><a href="~/List.cshtml?sr=@sortBy&id=@row.ID">@row.UitgaveDatum</a></td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Tags</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Serie</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Uitgever</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.UitgaveDatum</td>
                                     </tr>
                                 }
                             }
@@ -451,7 +456,7 @@
                 }
             }
 
-            @Helpers.createCards(db, selectListId)
+            @Helpers.createCards(db, selectListId, selectClass)
         </div>
     </div>
 </div>

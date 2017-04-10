@@ -193,18 +193,20 @@ body {
     background-color: #BBDEFB;
 }
 
-.selectedTable td a {
+.selectedTable:hover,
+.deselectedtable:hover {
+    background-color: #94c4eb;
+    cursor: pointer;
+}
+
+.selectedTable td {
     color: #212121;
     font-weight: 300;
 }
 
-.deselectedtable td a{
+.deselectedtable td {
     color: #757575; 
     font-weight: 300;
-}
-
-.hallo{
-    font-size: 3em;
 }
 
 .pdfViewer {
