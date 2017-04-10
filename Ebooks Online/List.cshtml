@@ -66,6 +66,8 @@
         // Sorting books.
         if (!Request.QueryString["sr"].IsEmpty())
         {
+            List<string> nvarcharColumns = new List<string>() { "Titel", "Auteur", "Uitgever", "Taal", "Path", "Beschrijving", "Tags", "Serie", "OriginalFormat" };
+            string emptyDown = "'-'";
             if (sortBy[1].ToString() == "a")
             {
                 sortOrder = "b";
@@ -73,17 +75,33 @@
             else
             {
                 sortOrder = "a";
+                emptyDown = "'ZZZZZZZZZZZ'";
             }
 
             int sortCount = (int)char.GetNumericValue(sortBy[0]);
             char sortDescAsc = sortBy[1];
-            if (sortDescAsc == 'a')
+            // Check to see if the column contains a string or not
+            if (nvarcharColumns.Contains(columnNames[sortCount]))
             {
-                selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY " + columnNames[sortCount] + " DESC";
+                if (sortDescAsc == 'a')
+                {
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY CASE WHEN " + columnNames[sortCount] + " = '-' THEN " + emptyDown + " ELSE " + columnNames[sortCount] + " END DESC";
+                }
+                else
+                {
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY CASE WHEN " + columnNames[sortCount] + " = '-' THEN " + emptyDown + " ELSE " + columnNames[sortCount] + " END ASC";
+                }
             }
             else
             {
-                selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY " + columnNames[sortCount] + " ASC";
+                if (sortDescAsc == 'a')
+                {
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY " + columnNames[sortCount] + " DESC";
+                }
+                else
+                {
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY " + columnNames[sortCount] + " ASC";
+                }
             }
         }
         else
