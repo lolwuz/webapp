@@ -25,33 +25,43 @@
     </div>
 }
 
-@helper createCards(Database db, List<int> selectListId, int selectClass)
+@helper createCards(Database db, List<int> selectListId, int selectClass, int selectIndex)
 {
+// Count the amount of !selected books.
+int countEmpty = 0;
+foreach (int ii in selectListId)
+{
+    if (ii == 0)
+    {
+        countEmpty++;
+    }
+}
+
 for (int i = 0; i < selectListId.Count; i++)
 {
     // If ListId = 0: There is no selected book.
-    if (selectListId[i] != 0)
+    if (selectListId[i] != 0 || i == selectIndex)
     {
-        // Count the amount of !selected books.
-        int countEmpty = 0;
-        foreach (int ii in selectListId)
+        int selectId = selectListId[i];
+        if (i == selectIndex)
         {
-            if (ii == 0)
-            {
-                countEmpty++;
-            }
+            selectId = Request["id"].AsInt();
         }
 
         // If there is only 1 books selected. Show big "preview"
         if (countEmpty > selectListId.Count - 2)
         {
             var statement = "SELECT * FROM Books WHERE Id = @0";
-            var bookInfo = db.QuerySingle(statement, selectListId[i]);
+            var bookInfo = db.QuerySingle(statement, selectId);
 
             string animation = "";
             if (i == selectListId.Count - 1 - countEmpty && selectClass == 1)
             {
                 animation = "animated zoomIn";
+            }
+            else if (selectClass == 2 && i == selectIndex)
+            {
+                animation = "animated zoomOut";
             }
 
                 <div class="bookinfocard bookinfocard-hover @animation">
@@ -70,18 +80,18 @@ for (int i = 0; i < selectListId.Count; i++)
                         <p>@bookInfo.Beschrijving</p>
                     </div>
                 </div>
-            }
-            else
-            {
-                // Select book Info
-                var statement = "SELECT * FROM Books WHERE Id = @0";
-                var bookInfo = db.QuerySingle(statement, selectListId[i]);
+        }
+        else if (i != selectIndex)
+        {
+            // Select book Info
+            var statement = "SELECT * FROM Books WHERE Id = @0";
+            var bookInfo = db.QuerySingle(statement, selectId);
 
-                string animation = "";
-                if (i == selectListId.Count - 1 - countEmpty && selectClass == 1 )
-                {
-                    animation = "animated zoomIn";
-                }
+            string animation = "";
+            if (i == selectListId.Count - 1 - countEmpty && selectClass == 1 )
+            {
+                animation = "animated zoomIn";
+            }
 
                 <div class="bookinfocard bookinfocard-hover @animation">
                     <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>

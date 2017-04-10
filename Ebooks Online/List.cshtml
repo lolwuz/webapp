@@ -11,6 +11,7 @@
 
     // Global variable(s)
     int selectClass = 0;
+    int selectIndex = 0;
 
     // Open database
     var userId = WebSecurity.CurrentUserId;
@@ -95,7 +96,8 @@
         }
         else
         {
-            Response.Redirect("~/List.cshtml?sr=0b1");
+            Response.Redirect("~/List.cshtml?sr=0b");
+            //sortBy = "0b";
         }
 
         // Give Books a star rating. Max 5/5.
@@ -226,6 +228,7 @@
             <form class="searchform" method="get">
                 @Html.ValidationSummary()
                 <div class="group">
+                    <input type="hidden" name="sr" value="@Request["sr"]" />
                     <input class="inputmaterial" type="search" placeholder="Druk op enter om te zoeken..." name="sb" value="@Request["sb"]" />
                     <span class="bar"></span>
                 </div>
@@ -362,12 +365,14 @@
                                             selectList[emptyIndex] = true;
                                             selectListId[emptyIndex] = bookId.AsInt();
                                             selectClass = 1;
+                                            selectIndex = emptyIndex;
                                         }
                                         else
                                         {
                                             selectList[index] = false;
                                             selectListId[index] = 0;
                                             selectClass = 2;
+                                            selectIndex = index;
                                         }
                                     }
                                 }
@@ -463,7 +468,7 @@
                 }
             }
 
-            @Helpers.createCards(db, selectListId, selectClass)
+            @Helpers.createCards(db, selectListId, selectClass, selectIndex)
         </div>
     </div>
 </div>
