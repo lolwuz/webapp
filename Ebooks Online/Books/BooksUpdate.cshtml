@@ -30,7 +30,6 @@
                 string inputserie = Request.Form["inputserie=" + id];
                 int inputrating = Request.Form["inputrating=" + id].AsInt();
 
-
                 var updateStatement = "UPDATE Books SET Auteur =@0, Uitgever =@1, UitgaveDatum =@2, Taal =@3, Beschrijving =@4, Tags =@5, Serie =@6, Beoordeling =@7 WHERE Id =@8";
                 db.Execute(updateStatement, inputauthor, inputuitgever, inputuitgave, inputtaal, inputcomment, inputtags, inputserie, inputrating, id);
 

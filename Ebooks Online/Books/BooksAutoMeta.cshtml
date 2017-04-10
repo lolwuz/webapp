@@ -1,4 +1,31 @@
-﻿@{
+﻿@using System.Text.RegularExpressions;
+
+@functions{
+    // function for remove the Line title from fetch-meta-data.exe output. 
+    public string RemoveLineTitle(string line, string lineName)
+    {
+        line = line.Remove(0, lineName.Length + 2);
+        return line;
+    }
+
+    // Check If meta-data is equal to, non-existent or diffent from fetch-data.
+    public string checkSucces(string local, string internet)
+    {
+        if(local == internet)
+        {
+            return "has-success"; // Return bootstrap class. 
+        }
+        else if(internet.IsEmpty()){
+            return "has-error";
+        }
+        else
+        {
+            return "has-warning";
+        }
+    }
+}
+
+@{
     if (!WebSecurity.IsAuthenticated)
     {
         Response.Redirect("~/Default.cshtml");
@@ -10,21 +37,16 @@
     List<int> selectedId = Session["selectListId"] as List<int>;
     Database db = Database.Open("StarterSite");
 
-
-    if (IsPost)
-    {
-        //redirect and don't do anything
-        if (Request.Form["actionButton"] == "behouden")
-        {
-            Response.Redirect("~/Books/BooksUpdate.cshtml");
-        }
-        //Update book all book data.
-        else if (Request.Form["actionButton"] == "updaten")
-        {
-            
-           
-        }
-    }
+    string title = "-";
+    string authors = "-";
+    string publisher = "-";
+    string tags = "-";
+    string series = "-";
+    string languages = "-";
+    string rating = "-";
+    string published = "-";
+    string identifiers = "-";
+    string comments = "-";
 
     int bookId = 0;
 
@@ -57,7 +79,63 @@
                 while (!processA.StandardOutput.EndOfStream)
                 {
                     string line = processA.StandardOutput.ReadLine();
+
+
+                    // Work out what info is being given in a line.
+                    string lineName = "";
+                    foreach(char c in line)
+                    {
+                        if(c == ':')
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            // Add char to list name.
+                            lineName += c;
+                        }
+                    }
+
+
+                    switch (Regex.Replace(lineName, @"\s+", ""))
+                    {
+                        case "Title":
+                            title = RemoveLineTitle(line, lineName);
+                            break;
+                        case "Author(s)":
+                            authors = RemoveLineTitle(line, lineName);
+                            break;
+                        case "Publisher":
+                            publisher = RemoveLineTitle(line, lineName);
+                            break;
+                        case "Tags":
+                            tags = RemoveLineTitle(line, lineName);
+                            break;
+                        case "Series":
+                            series = RemoveLineTitle(line, lineName);
+                            break;
+                        case "Languages":
+                            languages = RemoveLineTitle(line, lineName);
+                            break;
+                        case "Rating":
+                            rating = RemoveLineTitle(line, lineName);
+                            break;
+                        case "Published":
+                            published = RemoveLineTitle(line, lineName);
+                            break;
+                        case "Identifiers":
+                            identifiers = RemoveLineTitle(line, lineName);
+                            break;
+                        case "Comments            ":
+                            comments = RemoveLineTitle(line, lineName);
+                            break;
+                        default:
+                            break;
+                    }
+
+
                     <!-- For debugging purposes.-->
+                    <h4>@lineName</h4>
                     <p>@line</p>
                 }
             }
@@ -67,82 +145,140 @@
             }
         }
     }
+
+    if (IsPost)
+    {
+        //redirect and don't do anything
+        if (Request.Form["actionButton"] == "behouden")
+        {
+            Response.Redirect("~/Books/BooksUpdate.cshtml");
+        }
+        //Update book all book data.
+        else if (Request.Form["actionButton"] == "updaten")
+        {
+            if()
+        }
+    }
+
 }
 
-<div class="container">
-    <h4>Automatisch metadata updaten</h4>
-    <p>Vergelijk de metadata hieronder </p>
- 
-    <form method="post">
-        <button class="btn btn-danger accent-color" name="actionButton" value="updaten">Updaten</button>    
+<form method="post">
+    <div class="container">
+        <h4>Automatisch metadata updaten</h4>
+        <p>Vergelijk de metadata hieronder </p>
+        <button class="btn btn-danger accent-color" name="actionButton" value="updaten">Updaten</button>
         <button class="btn" name="actionButton" value="behouden">Behouden</button>
-    </form>
- 
-    <hr />
-</div>
+        <hr />
+    </div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="bookinfocard">
-                <div class="bookinfoheading">
-                    <h4 class="text-center">Opgeslagen metadata</h4>
-                </div>
-                <div class="bookinfobody">
-                    @{
-                         
-                        var statement = "SELECT * FROM Books WHERE Id=@0";
-                        var row = db.QuerySingle(statement, bookId);
-                    }
-                    <label for="at">Auteur: </label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="@row.Auteur" disabled>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="bookinfocard">
+                    <div class="bookinfoheading">
+                        <h4 class="text-center">Opgeslagen metadata</h4>
                     </div>
-                    <br />
-                    <label for="comment">Uitgever: </label>
-                    <div class="input-group">
-                        <input type="text" class="form-control formfill" value="@row.Uitgever" disabled>
-                    </div>
-                    <br />
-                    <label for="comment">Uitgave-Datum: </label>
-                    <div class="input-group">
-                        <input type="text" class="form-control formfill" value="@row.UitgaveDatum" disabled>
-                    </div>
-                    <br />
-                    <label for="comment">Taal: </label>
-                    <div class="input-group">
-                        <input type="text" class="form-control formfill" value="@row.Taal" disabled>
-                    </div>
-                    <br />
+                    <div class="bookinfobody">
+                        @{
+                            var statement = "SELECT * FROM Books WHERE Id=@0";
+                            var row = db.QuerySingle(statement, bookId);
+                        }
 
-                    <div class="form-group">
-                        <label for="comment">Beschrijving: </label>
-                        <textarea class="form-control" rows="5" id="comment" value="@row.Beschrijving" disabled></textarea>
+                        <div class="input-group">
+                            <span class="input-group-addon">Titel</span>
+                            <input type="text" class="form-control" value="@row.Titel" disabled>
+                        </div>
+                        <br />
+
+                        <div class="input-group">
+                            <span class="input-group-addon">Auteur</span>
+                            <input type="text" class="form-control" value="@row.Auteur" disabled>
+                        </div>
+                        <br />
+
+                        <div class="input-group">
+                            <span class="input-group-addon">Uitgever</span>
+                            <input type="text" class="form-control" value="@row.Uitgever" disabled>
+                        </div>
+                        <br />
+
+                        <div class="input-group">
+                            <span class="input-group-addon">Tags</span>
+                            <input type="text" class="form-control" value="@row.Tags" disabled>
+                        </div>
+                        <br />
+
+                        <div class="input-group">
+                            <span class="input-group-addon">Taal</span>
+                            <input type="text" class="form-control" value="@row.Taal" disabled>
+                        </div>
+                        <br />
+
+                        <div class="input-group">
+                            <span class="input-group-addon">Uitgave-Datum</span>
+                            <input type="text" class="form-control formfill" value="@row.UitgaveDatum" disabled>
+                        </div>
+                        <br />
+
+                        <div class="form-group">
+                            <span class="input-group-addon">Beschrijving</span>
+                            <textarea class="form-control" rows="5" id="comment" value="@row.Beschrijving" disabled></textarea>
+                        </div>
+                        <br />
                     </div>
-                    <br />
-                    <label for="comment">Tags: </label>
-                    <div class="input-group">
-                        <input type="text" class="form-control formfill" value="@row.Tags" disabled>
-                    </div>
-                    <br />
-                    <label for="comment">Serie: </label>
-                    <div class="input-group">
-                        <input type="text" class="form-control formfill" value="@row.Serie" disabled>
-                    </div>
-                    <br />
-                    
                 </div>
             </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="bookinfocard">
-                <div class="bookinfoheading">
-                    <h4 class="text-center">Gevonden metadata</h4>
-                </div>
-                <div class="bookinfobody">
+            <div class="col-sm-6">
+                <div class="bookinfocard">
+                    <div class="bookinfoheading">
+                        <h4 class="text-center">Gevonden metadata</h4>
+                    </div>
 
+                    <div class="bookinfobody">
+                        <div class="input-group @checkSucces(row.Titel, title)">
+                            <span class="input-group-addon">Titel</span>
+                            <input type="text" class="form-control" value="@title">
+                        </div>
+                        <br />
+
+                        <div class="input-group @checkSucces(row.Auteur, authors)">
+                            <span class="input-group-addon">Auteur</span>
+                            <input type="text" class="form-control formfill" value="@authors">
+                        </div>
+                        <br />
+
+                        <div class="input-group @checkSucces(row.Uitgever, publisher)">
+                            <span class="input-group-addon">Uitgever</span>
+                            <input type="text" class="form-control formfill" value="@publisher">
+                        </div>
+                        <br />
+
+                        <div class="input-group @checkSucces(row.Tags, tags)">
+                            <span class="input-group-addon">Tags</span>
+                            <input type="text" class="form-control formfill" value="@tags">
+                        </div>
+                        <br />
+
+                        <div class="input-group @checkSucces(row.Taal, languages)">
+                            <span class="input-group-addon">Taal</span>
+                            <input type="text" class="form-control formfill" value="@languages">
+                        </div>
+                        <br />
+
+                        <div class="input-group @checkSucces(row.UitgaveDatum, published)">
+                            <span class="input-group-addon">Uitgave-datum</span>
+                            <input type="text" class="form-control formfill" value="@published">
+                        </div>
+                        <br />
+
+                        <div class="form-group @checkSucces(row.Auteur, comments)">
+                            <span class="input-group-addon">Beschrijving</span>
+                            <textarea class="form-control" rows="5" id="comment" value="@comments" disabled></textarea>
+                        </div>
+                        <br />
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</form>
