@@ -54,7 +54,6 @@
     }
 
     // Sorting the book list.
-    string sortOrder = "a";
     string sortBy = Request.QueryString["sr"];
     string searchTermQuery = Request.QueryString["searchbar"];
 
@@ -66,30 +65,20 @@
         // Sorting books.
         if (!Request.QueryString["sr"].IsEmpty())
         {
-            List<string> nvarcharColumns = new List<string>() { "Titel", "Auteur", "Uitgever", "Taal", "Path", "Beschrijving", "Tags", "Serie", "OriginalFormat" };
-            string emptyDown = "'-'";
-            if (sortBy[1].ToString() == "a")
-            {
-                sortOrder = "b";
-            }
-            else
-            {
-                sortOrder = "a";
-                emptyDown = "'ZZZZZZZZZZZ'";
-            }
-
             int sortCount = (int)char.GetNumericValue(sortBy[0]);
             char sortDescAsc = sortBy[1];
+
             // Check to see if the column contains a string or not
+            List<string> nvarcharColumns = new List<string>() { "Titel", "Auteur", "Uitgever", "Taal", "Path", "Beschrijving", "Tags", "Serie", "OriginalFormat" };
             if (nvarcharColumns.Contains(columnNames[sortCount]))
             {
                 if (sortDescAsc == 'a')
                 {
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY CASE WHEN " + columnNames[sortCount] + " = '-' THEN " + emptyDown + " ELSE " + columnNames[sortCount] + " END DESC";
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY " + columnNames[sortCount] + " DESC";
                 }
                 else
                 {
-                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY CASE WHEN " + columnNames[sortCount] + " = '-' THEN " + emptyDown + " ELSE " + columnNames[sortCount] + " END ASC";
+                    selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY CASE WHEN " + columnNames[sortCount] + " = '-' THEN 'ZZZZZZZZZZZ' ELSE " + columnNames[sortCount] + " END ASC";
                 }
             }
             else
