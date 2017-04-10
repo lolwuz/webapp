@@ -1,14 +1,13 @@
-﻿@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+﻿@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800');
 
 /* Body en Navbar */
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: 13px;
     font-weight: 300;
     background-color:#f2f2f2;
     height: 100vh;
     color: #212121;
-
     overflow-x:hidden;  
 }
 .row{
@@ -77,6 +76,12 @@ body {
   padding: 10px 10px 10px 10px;
 }
 
+.sortTitle{
+    color: #212121;
+    font-size: 14px;
+    font-weight: 700;
+}
+
 .sortdivider {
     margin-top: 8px;
     margin-bottom: 8px;
@@ -85,7 +90,7 @@ body {
 .sortList{
     list-style-type:none;
     margin-left: 10px;
-    padding-left: 8px;
+    padding-left: 8px; 
 }
 
 .listcard {
