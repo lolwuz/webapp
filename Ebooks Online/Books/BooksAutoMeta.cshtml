@@ -13,14 +13,14 @@
     {
         if(local == internet)
         {
-            return "has-success"; // Return bootstrap class. 
+            return "has-success has-feedback"; // Return bootstrap class. 
         }
         else if(internet.IsEmpty()){
-            return "has-error";
+            return "has-error"; // No feedback
         }
         else
         {
-            return "has-warning";
+            return "has-warning has-feedback";
         }
     }
 }
