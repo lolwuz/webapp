@@ -19,155 +19,186 @@
     {
         Response.Redirect("~/List.cshtml");
     }
+
     List<int> selectedId = Session["selectListId"] as List<int>;
     var db = Database.Open("StarterSite");
-    int length = selectedId.Count;
 
-    //different arrays for different files
-    string[] downloadpdf = new string[length];
-    string[] downloadepub = new string[length];
-    string[] downloadmobi = new string[length];
+    <div class="container">
+        <div class="col-sm-6 col-sm-offset-3">
+            <div class="logincard">
+                <h4>De volgende boeken zijn geselecteerd</h4>
 
-    length = 0;
-
-    for (int i = 0; i < selectedId.Count; i++)
-    {   //if the selectedid is not empty, add it to the length to make a array of the right length
-        if (selectedId[i] != 0)
-        {
-            length += 1;
-        }
-    }
-
-    string[] goodpdf = new string[length];
-    string[] goodepub = new string[length];
-    string[] goodmobi = new string[length];
-
-    //for each selectedid[i], search for the filename and add the path in right download array
-    if (IsPost)
-    {
-        if (Request.Form["type[]"] == null)
-        {
-            Validation.AddFormError("Gelieve minimaal 1 checkbox aanvinken.");
-        }
-        else
-        {
-            for (int i = 0; i < length; i++)
-            {
-                if (selectedId[i] != 0)
-                {
-                    string filepdf = "";
-                    string fileepub = "";
-                    string filemobi = "";
-
-                    string filepathpdf = "";
-                    string filepathepub = "";
-                    string filepathmobi = "";
-
-                    id = Convert.ToString(selectedId[i]);
-                    var command = "SELECT Books.Path, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
-                    var row = db.QuerySingle(command, id, WebSecurity.CurrentUserName);
-                    if (row != null)
-                    {
-                        path = row.Path;
+                <ul class="list-group">
+                    @{
+                        for (int i = 0; i < selectedId.Count; i++)
+                        {
+                            if (selectedId[i] != 0)
+                            {
+                                string Boek = db.QueryValue("SELECT Titel FROM Books Where Id = " + selectedId[i]);
+                                <li class="list-group-item">- @Boek</li>
+                            }
+                        }
                     }
-                    else
-                    {
-                        Validation.AddFormError("Er gaat iets fout.");
-                    }
-                    //if there are spaces in the filename, replace them with %20 so it is readable ??
-                    if (Request["type[]"].Split(',').Contains("pdf"))
-                    {
-                        filepdf = "Books/Files/PDF/" + "" + path + "" + ".pdf";
-                        filepathpdf = Server.MapPath("~/" + filepdf);
-                        downloadpdf[i] = filepathpdf;
-                    }
-                    if (Request["type[]"].Split(',').Contains("epub"))
-                    {
-                        fileepub = "Books/Files/EPUB/" + "" + path + "" + ".epub";
-                        filepathepub = Server.MapPath("~/" + fileepub);
-                        downloadepub[i] = filepathepub;
-                    }
-                    if (Request["type[]"].Split(',').Contains("mobi"))
-                    {
-                        filemobi = "Books/Files/MOBI/" + "" + path + "" + ".mobi";
-                        filepathmobi = Server.MapPath("~/" + filemobi);
-                        downloadmobi[i] = filepathmobi;
-                    }
-                }
-            }
+                </ul>
+            </div>
+        </div>
+    </div>
 
-            for (int i = 0; i < length; i++)
-            {
-                //foreach variable in download, add it to the right good array
-                if (Request["type[]"].Split(',').Contains("pdf"))
-                {
-                    goodpdf[i] = downloadpdf[i];
-                }
-                if (Request["type[]"].Split(',').Contains("epub"))
-                {
-                    goodepub[i] = downloadepub[i];
-                }
-                if (Request["type[]"].Split(',').Contains("mobi"))
-                {
-                    goodmobi[i] = downloadmobi[i];
-                }
-            }
+                        int length = selectedId.Count;
+                        
+                        //different arrays for different files
+                        string[] downloadpdf = new string[length];
+                        string[] downloadepub = new string[length];
+                        string[] downloadmobi = new string[length];
 
-            using (ZipFile Zip = new ZipFile())
-            {
-                //add the right files to the right folder
-                if (Request["type[]"].Split(',').Contains("pdf"))
-                {
-                    Zip.AddFiles(goodpdf, "Pdf");
-                }
-                if (Request["type[]"].Split(',').Contains("epub"))
-                {
-                    Zip.AddFiles(goodepub, "Epub");
-                }
-                if (Request["type[]"].Split(',').Contains("mobi"))
-                {
-                    Zip.AddFiles(goodmobi, "Mobi");
-                }
+                        length = 0;
 
-                //give a unique name for the zip file
-                string zipName = String.Format("Boeken_{0}.zip", DateTime.Now.ToString("dd-MM-yyyy-HHmmss"));
-                Response.ContentType = "application/zip";
-                Response.AddHeader("content-disposition", "attachment; filename=" + zipName);
-                //save the file in downloadfolder of the user
-                Zip.Save(Response.OutputStream);
-                Response.End();
-                Response.Redirect("~/List.cshtml");
-            }
-        }
-    }
+                        for (int i = 0; i < selectedId.Count; i++)
+                        {   //if the selectedid is not empty, add it to the length to make a array of the right length
+                            if (selectedId[i] != 0)
+                            {
+                                length += 1;
+                            }
+                        }
+
+                        string[] goodpdf = new string[length];
+                        string[] goodepub = new string[length];
+                        string[] goodmobi = new string[length];
+
+                        //for each selectedid[i], search for the filename and add the path in right download array
+                        if (IsPost)
+                        {
+                            if (Request.Form["type[]"] == null)
+                            {
+                                Validation.AddFormError("Gelieve minimaal 1 checkbox aanvinken.");
+                            }
+                            else
+                            {
+                                for (int i = 0; i < length; i++)
+                                {
+                                    if (selectedId[i] != 0)
+                                    {
+                                        string filepdf = "";
+                                        string fileepub = "";
+                                        string filemobi = "";
+
+                                        string filepathpdf = "";
+                                        string filepathepub = "";
+                                        string filepathmobi = "";
+
+                                        id = Convert.ToString(selectedId[i]);
+                                        var command = "SELECT Books.Path, Books.Id, Books.Gebruiker, UserProfile.UserId, UserProfile.Email FROM Books, UserProfile WHERE Books.Gebruiker = UserProfile.UserId AND Books.Id = @0 AND UserProfile.Email = @1";
+                                        var row = db.QuerySingle(command, id, WebSecurity.CurrentUserName);
+                                        if (row != null)
+                                        {
+                                            path = row.Path;
+                                        }
+                                        else
+                                        {
+                                            Validation.AddFormError("Er gaat iets fout.");
+                                        }
+                                        //if there are spaces in the filename, replace them with %20 so it is readable ??
+                                        if (Request["type[]"].Split(',').Contains("pdf"))
+                                        {
+                                            filepdf = "Books/Files/PDF/" + "" + path + "" + ".pdf";
+                                            filepathpdf = Server.MapPath("~/" + filepdf);
+                                            downloadpdf[i] = filepathpdf;
+                                        }
+                                        if (Request["type[]"].Split(',').Contains("epub"))
+                                        {
+                                            fileepub = "Books/Files/EPUB/" + "" + path + "" + ".epub";
+                                            filepathepub = Server.MapPath("~/" + fileepub);
+                                            downloadepub[i] = filepathepub;
+                                        }
+                                        if (Request["type[]"].Split(',').Contains("mobi"))
+                                        {
+                                            filemobi = "Books/Files/MOBI/" + "" + path + "" + ".mobi";
+                                            filepathmobi = Server.MapPath("~/" + filemobi);
+                                            downloadmobi[i] = filepathmobi;
+                                        }
+                                    }
+                                }
+
+                                for (int i = 0; i < length; i++)
+                                {
+                                    //foreach variable in download, add it to the right good array
+                                    if (Request["type[]"].Split(',').Contains("pdf"))
+                                    {
+                                        goodpdf[i] = downloadpdf[i];
+                                    }
+                                    if (Request["type[]"].Split(',').Contains("epub"))
+                                    {
+                                        goodepub[i] = downloadepub[i];
+                                    }
+                                    if (Request["type[]"].Split(',').Contains("mobi"))
+                                    {
+                                        goodmobi[i] = downloadmobi[i];
+                                    }
+                                }
+
+                                using (ZipFile Zip = new ZipFile())
+                                {
+                                    //add the right files to the right folder
+                                    if (Request["type[]"].Split(',').Contains("pdf"))
+                                    {
+                                        Zip.AddFiles(goodpdf, "Pdf");
+                                    }
+                                    if (Request["type[]"].Split(',').Contains("epub"))
+                                    {
+                                        Zip.AddFiles(goodepub, "Epub");
+                                    }
+                                    if (Request["type[]"].Split(',').Contains("mobi"))
+                                    {
+                                        Zip.AddFiles(goodmobi, "Mobi");
+                                    }
+
+                                    //give a unique name for the zip file
+                                    string zipName = String.Format("Boeken_{0}.zip", DateTime.Now.ToString("dd-MM-yyyy-HHmmss"));
+                                    Response.ContentType = "application/zip";
+                                    Response.AddHeader("content-disposition", "attachment; filename=" + zipName);
+                                    //save the file in downloadfolder of the user
+                                    Zip.Save(Response.OutputStream);
+                                    Response.End();
+                                    Response.Redirect("~/List.cshtml");
+                                }
+                            }
+                        }
 }
 
 @if (WebSecurity.IsAuthenticated)
 {
     @Html.ValidationSummary()
-    <form method="post">
-        <fieldset>
-                <label for="titel">Kies uw bestandssoort(en): </label>
-                <div class="btn-group" data-toggle="buttons">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="logincard">
+                        <form method="post">
+                            <fieldset>
+                                <h3>EBook(s) downloaden</h3>
+                                <h4>Kies uw bestandssoort(en): </h4>
 
-                    <label class="btn btn-primary">
-                        Pdf
-                        <input id="pdf" type="checkbox" name="type[]" value="pdf" />
-                    </label>
-                    <label class="btn btn-primary">
-                        Epub
-                        <input id="epub" type="checkbox" name="type[]" value="epub" />
-                    </label>
-                    <label class="btn btn-primary">
-                        Mobi
-                        <input id="mobi" type="checkbox" name="type[]" value="mobi" />
-                    </label>
-            </div>
-                <p>
-                    <input type="submit" name="submitbutton" value="Downloaden!" />
-                </p>
-</fieldset>
-    </form>
+                                    <label>
+                                        <input id ="pdf"type="checkbox" name="type[]" value="pdf" />
+                                        <span class="btn-toggleLeft">Pdf</span>
+                                    </label>
+                                    <label>
+                                        <input id="epub"type="checkbox" name="type[]" value="epub" />
+                                        <span>Epub</span>
+                                    </label>
+                                    <label>
+                                        <input id="mobi" type="checkbox" name="type[]" value="mobi" />
+                                        <span class="btn-toggleRight">Mobi</span>
+                                    </label>
+                                <p>
+                                    <input type="submit" class="btn btn-default default-primary-color" name="submitbutton" value="Downloaden!" />
+                                </p>
+                            </fieldset>
+                        </form>
+                    </div> 
+                </div> 
+            </div> 
+        </div>
+    
 }
 else
 {

@@ -42,7 +42,7 @@
         }
         else if (Validation.IsValid())
         {
-            email = Request.Form["email"];
+            email = Request.Form["email"].ToLower();
             password = Request.Form["password"];
             rememberMe = Request.Form["rememberMe"].AsBool();
 

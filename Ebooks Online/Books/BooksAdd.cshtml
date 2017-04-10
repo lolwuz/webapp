@@ -5,6 +5,7 @@
 @using iTextSharp.text;
 @using iTextSharp.text.pdf;
 @{
+
     Layout = "~/_BookListLayout.cshtml";
     if (!WebSecurity.IsAuthenticated)
     {
@@ -123,21 +124,37 @@
             var data_onderwerp = Request["onderwerp"];
             var data_auteur = Request["auteur"];
             var data_uitgever = Request["uitgever"];
-            //DateTime dateTime;
-            //if (Request["uitgavedtm"] != "mm/dd/yyyy")
-            //{ dateTime = DateTime.Parse("01/01/0001"); }
-            //else { dateTime = DateTime.Parse(Request["uitgavedtm"], new CultureInfo("nl-NL")); }
-            //string data_uitgave = dateTime.ToString();
-            //string data_uitgavedtm = "";
-            //if ((dateTime.Day < 10) && dateTime.Month < 10)
-            //{
-            //    data_uitgavedtm = data_uitgave.Substring(0, 9) + " ";
-            //}
-            //else
-            //{
-            //    data_uitgavedtm = data_uitgave.Substring(0, 10);
-            //}
-            var data_uitgavedtm = Request["uitgavedtm"];
+            DateTime dateTime;
+            if (Request["uitgavedtm"] == "")
+            { dateTime = DateTime.Parse("01/01/0001"); }
+            else { dateTime = DateTime.Parse(Request["uitgavedtm"], new CultureInfo("nl-NL")); }
+            string data_uitgave = dateTime.ToString();
+            string data_uitgavedtm = "";
+
+            if (Request["uitgavedtm"] != "")
+            {
+                if ((dateTime.Day < 10) && (dateTime.Month < 10))
+                {
+                    data_uitgavedtm = Convert.ToString(("0" + dateTime.Day) + "/" + ("0" + dateTime.Month)) + "/" + (dateTime.Year);
+                }
+                else
+                {
+                    if (dateTime.Day < 10)
+                    {
+                        data_uitgavedtm = Convert.ToString(("0" + dateTime.Day) + "/" + (dateTime.Month)) + "/" + (dateTime.Year);
+                    }
+                    else if (dateTime.Month < 10)
+                    {
+                        data_uitgavedtm = Convert.ToString((dateTime.Day) + "/" + ("0" + dateTime.Month)) + "/" + (dateTime.Year);
+                    }
+                    else
+                    {
+                        data_uitgavedtm = Convert.ToString((dateTime.Day) + "/" + (dateTime.Month)) + "/" + (dateTime.Year);
+                    }
+                }
+            }
+            else { data_uitgavedtm = data_uitgave.Substring(0,9); }
+
             var data_taal = Request["taal"];
             var data_genre = Request["genre"];
             var data_beschrijving = Request["beschrijving"];
@@ -196,6 +213,9 @@
         });
         $("input[name=files]").attr("accept", ".pdf,.epub,.mobi");
         $(".file-upload-buttons").hide();
+        $(function () {
+            Globalize.culture('nl');
+        });
     });
 </script>
 <div class="row">
@@ -247,8 +267,7 @@
                         <br />
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Uitgavedatum</span>
-                            <input type="text" class="form-control formfill" name="uitgavedtm" placeholder="09/01/1998" value="@uitgavedtm">
-
+                            <input type="date" class="form-control" name="uitgavedtm" placeholder="09/01/1998" value="@uitgavedtm">
                         </div>
                         <br />
                         <div class="input-group">

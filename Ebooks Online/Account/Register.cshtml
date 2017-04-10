@@ -29,16 +29,11 @@
     if (IsPost)
     {
         AntiForgery.Validate();
-        email = Request.Form["email"];
+        email = Request.Form["email"].ToLower();
         password = Request.Form["password"];
         confirmPassword = Request.Form["confirmPassword"];
         name = Request.Form["name"];
         lastName = Request.Form["lastName"];
-
-        // Validate the user's captcha answer
-        // if (!ReCaptcha.Validate("PRIVATE_KEY")) {
-        //     ModelState.AddError("recaptcha", "Captcha response was not correct");
-        // }
 
         if (Validation.IsValid())
         {
