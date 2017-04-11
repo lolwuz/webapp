@@ -1,4 +1,4 @@
-﻿@helper searchList(IEnumerable<dynamic> queryResult, string sortBy)
+﻿@helper searchList(IEnumerable<dynamic> queryResult, List<int> selectListId, string sortBy)
 {
     <div class="searchcard">
         <table class="table table-responsive">
@@ -13,19 +13,31 @@
             <tbody>
                 @foreach (var row in queryResult)
                 {
-                    <tr>
-                        <td><a href="~/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID">@row.Titel</a></td>
-                        <td><a href="~/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID">@row.Auteur</a></td>
-                        <td><a href="~/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID">@row.Tags</a></td>
-                        <td><a href="~/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID">@row.Serie</a></td>
-                    </tr>
+                    if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
+                    {
+                        <tr class="selectedTable">
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr class="deselectedtable">
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>
     </div>
 }
 
-@helper createCards(Database db, List<int> selectListId, int selectClass, int selectIndex)
+@helper createCards(Database db, List<int> selectListId, int selectClass)
 {
 // Count the amount of !selected books.
 int countEmpty = 0;
@@ -42,56 +54,48 @@ for (int i = 0; i < selectListId.Count; i++)
     // If ListId = 0: There is no selected book.
     if (selectListId[i] != 0)
     {
-        int selectId = selectListId[i];
-        if (i == selectIndex)
-        {
-            selectId = Request["id"].AsInt();
-        }
-
         // If there is only 1 books selected. Show big "preview"
         if (countEmpty > selectListId.Count - 2)
         {
             var statement = "SELECT * FROM Books WHERE Id = @0";
-            var bookInfo = db.QuerySingle(statement, selectId);
+            var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
             string animation = "";
             if (i == selectListId.Count - 1 - countEmpty && selectClass == 1)
             {
                 animation = "animated zoomIn";
             }
-            else if (selectClass == 2 && i == selectIndex)
-            {
-                animation = "animated zoomOut";
-            }
 
-                <div class="bookinfocard bookinfocard-hover @animation">
-                    <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
-                    <div class="bookinfoheading">
-                        <h3 class="panel-title text-center">@bookInfo.Titel</h3>
-                    </div>
-
-                    <div class="bookinfobody">
-                        <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
-                        <h5>Auteur:</h5>
-                        <p>@bookInfo.Auteur</p>
-                        <h5>Taal</h5>
-                        <p>@bookInfo.Taal</p>
-                        <h5>Beschrijving</h5>
-                        <p>@bookInfo.Beschrijving</p>
-                    </div>
+            <div class="bookinfocard bookinfocard-hover @animation">
+                <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
+                <div class="bookinfoheading">
+                    <h3 class="panel-title text-center">@bookInfo.Titel</h3>
                 </div>
-        }
-        else if (i != selectIndex)
-        {
-            // Select book Info
-            var statement = "SELECT * FROM Books WHERE Id = @0";
-            var bookInfo = db.QuerySingle(statement, selectId);
 
-            string animation = "";
-            if (i == selectListId.Count - 1 - countEmpty && selectClass == 1 )
-            {
-                animation = "animated zoomIn";
+                <div class="bookinfobody">
+                    @{ string filePath = Server.MapPath("~/Books/Files/IMG/" + bookInfo.Path + ".png"); }
+                    <img src="@filePath" alt="bookcover" width="100" text-align="center" />
+                    <h5>Auteur:</h5>
+                    <p>@bookInfo.Auteur</p>
+                    <h5>Taal</h5>
+                    <p>@bookInfo.Taal</p>
+                    <h5>Beschrijving</h5>
+                    <p>@bookInfo.Beschrijving</p>
+                </div>
+            </div>
+            break;
             }
+            else
+            {
+                // Select book Info
+                var statement = "SELECT * FROM Books WHERE Id = @0";
+                var bookInfo = db.QuerySingle(statement, selectListId[i]);
+
+                string animation = "";
+                if (i == selectListId.Count - 1 - countEmpty && selectClass == 1)
+                {
+                    animation = "animated zoomIn";
+                }
 
                 <div class="bookinfocard bookinfocard-hover @animation">
                     <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>

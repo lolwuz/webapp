@@ -10,8 +10,7 @@
     }
 
     // Global variable(s)
-    int selectClass = 0;
-    int selectIndex = 0;
+    int selectClass = 0; // 0 = Nothing changed | 1 = 1 selected | 2 = 1 deselected | 3 = 1 or more selected | 4 = 1 or more deselected
 
     // Open database
     var userId = WebSecurity.CurrentUserId;
@@ -38,18 +37,18 @@
     else
     {
         //reset deselected books
-        List<int> selectedId = Session["selectListId"] as List<int>;
-        List<bool> selectedList = Session["selectList"] as List<bool>;
+        selectList = (List<bool>)Session["selectList"];
+        selectListId = (List<int>)Session["selectListId"];
 
-        for (int i = 0; i < selectedId.Count; i++)
+        for (int i = 0; i < selectListId.Count; i++)
         {
-            if (selectedId[i] > 0)
+            if (selectListId[i] > 0)
             {
-                selectedList[i] = true;
+                selectList[i] = true;
             }
             else
             {
-                selectedList[i] = false;
+                selectList[i] = false;
             }
         }
     }
@@ -117,6 +116,63 @@
             db.Execute(statement, (int)char.GetNumericValue(stars) + 1, rated);
         }
 
+    }
+
+    // Select and Deselect books
+    foreach (var row in db.Query(selectQueryString))
+    {
+        // Selecting multiple books.
+        if (!Request.QueryString["at"].IsEmpty())
+        {
+            string selectedBooks = Request.QueryString["at"];
+            string[] selectID = selectedBooks.Split(' '); // Splitting select books from QueryString
+
+            foreach (string id in selectID)
+            {
+                if (row.ID == id.AsInt())
+                {
+                    int index = selectListId.IndexOf(row.ID);
+                    if (index == -1)
+                    {
+                        int emptyIndex = selectListId.IndexOf(0);
+                        selectList[emptyIndex] = true;
+                        selectListId[emptyIndex] = id.AsInt();
+                        selectClass = 3;
+                    }
+                    else
+                    {
+                        selectList[index] = false;
+                        selectListId[index] = 0;
+                        selectClass = 4;
+                    }
+                }
+            }
+        }
+
+        // Selecting a single book from the List.
+        if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
+        {
+            var bookId = Request.QueryString["id"];
+
+            if (row.ID == bookId.AsInt())
+            {
+
+                int index = selectListId.IndexOf(row.ID);
+                if (index == -1)
+                {
+                    int emptyIndex = selectListId.IndexOf(0);
+                    selectList[emptyIndex] = true;
+                    selectListId[emptyIndex] = bookId.AsInt();
+                    selectClass = 1;
+                }
+                else
+                {
+                    selectList[index] = false;
+                    selectListId[index] = 0;
+                    selectClass = 2;
+                }
+            }
+        }
     }
 }
 
@@ -220,7 +276,7 @@
                                 <hr class="sortdivider" />
                             }
                         </li>
-                                }
+                    }
                 }
             </ul>
         </div>
@@ -265,16 +321,16 @@
 
                     <div class="tab-content">
                         <div id="home" class="tab-pane active">
-                            @Helpers.searchList(resultTitel, sortBy)
+                            @Helpers.searchList(resultTitel, selectListId, sortBy)
                         </div>
                         <div id="menu1" class="tab-pane ">
-                            @Helpers.searchList(resultAuthor, sortBy)
+                            @Helpers.searchList(resultAuthor, selectListId, sortBy)
                         </div>
                         <div id="menu2" class="tab-pane">
-                            @Helpers.searchList(resultSerie, sortBy)
+                            @Helpers.searchList(resultSerie, selectListId, sortBy)
                         </div>
                         <div id="menu3" class="tab-pane">
-                            @Helpers.searchList(resultUitgever, sortBy)
+                            @Helpers.searchList(resultUitgever, selectListId, sortBy)
                         </div>
                     </div>
                 }
@@ -319,71 +375,15 @@
                     </thead>
                     <tbody>
                         @{
-                            selectList = (List<bool>)Session["selectList"];
-                            selectListId = (List<int>)Session["selectListId"];
-
                             foreach (var row in db.Query(selectQueryString))
                             {
-                                // Selecting multiple books.
-                                if (!Request.QueryString["at"].IsEmpty())
-                                {
-                                    string selectedBooks = Request.QueryString["at"];
-                                    string[] selectID = selectedBooks.Split(' '); // Splitting select books from QueryString
-
-                                    foreach (string id in selectID)
-                                    {
-                                        if (row.ID == id.AsInt())
-                                        {
-                                            int index = selectListId.IndexOf(row.ID);
-                                            if (index == -1)
-                                            {
-                                                int emptyIndex = selectListId.IndexOf(0);
-                                                selectList[emptyIndex] = true;
-                                                selectListId[emptyIndex] = id.AsInt();
-                                            }
-                                            else
-                                            {
-                                                selectList[index] = false;
-                                                selectListId[index] = 0;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // Selecting a single book from the List.
-                                if (!Request.QueryString["id"].IsEmpty() && Request.QueryString["id"].AsInt() > 0)
-                                {
-                                    var bookId = Request.QueryString["id"];
-
-                                    if (row.ID == bookId.AsInt())
-                                    {
-
-                                        int index = selectListId.IndexOf(row.ID);
-                                        if (index == -1)
-                                        {
-                                            int emptyIndex = selectListId.IndexOf(0);
-                                            selectList[emptyIndex] = true;
-                                            selectListId[emptyIndex] = bookId.AsInt();
-                                            selectClass = 1;
-                                            selectIndex = emptyIndex;
-                                        }
-                                        else
-                                        {
-                                            selectList[index] = false;
-                                            selectListId[index] = 0;
-                                            selectClass = 2;
-                                            selectIndex = index;
-                                        }
-                                    }
-                                }
-
                                 if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
                                 {
                                     <tr class="selectedTable">
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Titel</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Auteur</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.UploadDatum.ToString("dd-MMM-yy")</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Grootte MB</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.UploadDatum.ToString("dd-MMM-yy")</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Grootte MB</td>
                                         <td>
                                             @for (int i = 0; i < 5; i++)
                                             {
@@ -398,10 +398,10 @@
                                                 }
                                             }
                                         </td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Tags</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Serie</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Uitgever</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.UitgaveDatum</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Tags</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.UitgaveDatum</td>
                                     </tr>
 
                                 }
@@ -409,10 +409,10 @@
                                 {
 
                                     <tr class="deselectedtable">
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Titel</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Auteur</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.UploadDatum.ToString("dd-MMM-yy")</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Grootte MB</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.UploadDatum.ToString("dd-MMM-yy")</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Grootte MB</td>
                                         <td>
                                             @for (int i = 0; i < 5; i++)
                                             {
@@ -427,10 +427,10 @@
                                                 }
                                             }
                                         </td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Tags</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Serie</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.Uitgever</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&id=@row.ID';">@row.UitgaveDatum</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Tags</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
+                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.UitgaveDatum</td>
                                     </tr>
                                 }
                             }
@@ -468,7 +468,51 @@
                 }
             }
 
-            @Helpers.createCards(db, selectListId, selectClass, selectIndex)
+            @Helpers.createCards(db, selectListId, selectClass)
+            @{ 
+                // If an item has been deleted, fix the list (F.I.: {T, T, F, T, F, T, F, F, F} -> {T, T, T, T, F, F, F, F, F}
+                if (selectClass == 2 || selectClass == 4)
+                {
+                    bool continueLoop = true;
+                    for (int i = 0; i < selectList.Count; i++)
+                    {
+                        if (continueLoop == false)
+                        {
+                            break;
+                        }
+                        if (selectList[i] == false)
+                        {
+                            // Swap the empty slot with the next one and do this for every remaining element in the list.
+                            for (int x = i+1; x < selectList.Count; x++)
+                            {
+                                selectList[x - 1] = selectList[x];
+                                selectList[x] = false;
+                                selectListId[x - 1] = selectListId[x];
+                                selectListId[x] = 0;
+                            }
+                            // Check if there is another empty slot in between non-empty slots.
+                            bool falseFound = false;
+                            for (int y = 0; y <= selectList.Count; y++)
+                            {
+                                if (y == selectList.Count)
+                                {
+                                    continueLoop = false;
+                                    break;
+                                }
+                                if (selectList[y] == false)
+                                {
+                                    falseFound = true;
+
+                                }
+                                else if (falseFound == true && selectList[y] == true)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         </div>
     </div>
 </div>
