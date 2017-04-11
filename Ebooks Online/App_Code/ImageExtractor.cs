@@ -134,7 +134,6 @@ namespace PdfUtils
         public void RenderImage(ImageRenderInfo renderInfo)
         {
             PdfImageObject image = renderInfo.GetImage();
-            PdfName filter = (PdfName)image.Get(PdfName.FILTER);
 
             //int width = Convert.ToInt32(image.Get(PdfName.WIDTH).ToString());
             //int bitsPerComponent = Convert.ToInt32(image.Get(PdfName.BITSPERCOMPONENT).ToString());
@@ -148,34 +147,14 @@ namespace PdfUtils
              * 
              * Uncomment the code above to verify, but when I've seen this happen, 
              * width, height and bits per component all equal zero as well. */
-            if (filter != null)
-            {
+
                 System.Drawing.Image drawingImage = image.GetDrawingImage();
-
-                string extension = ".";
-
-                if (filter == PdfName.DCTDECODE)
-                {
-                    extension += PdfImageObject.ImageBytesType.JPG.FileExtension;
-                }
-                else if (filter == PdfName.JPXDECODE)
-                {
-                    extension += PdfImageObject.ImageBytesType.JP2.FileExtension;
-                }
-                else if (filter == PdfName.FLATEDECODE)
-                {
-                    extension += PdfImageObject.ImageBytesType.PNG.FileExtension;
-                }
-                else if (filter == PdfName.LZWDECODE)
-                {
-                    extension += PdfImageObject.ImageBytesType.CCITT.FileExtension;
-                }
 
                 /* Rather than struggle with the image stream and try to figure out how to handle 
                  * BitMapData scan lines in various formats (like virtually every sample I've found 
                  * online), use the PdfImageObject.GetDrawingImage() method, which does the work for us. */
-                this.Images.Add(drawingImage, extension);
-            }
+                this.Images.Add(drawingImage, PdfImageObject.ImageBytesType.PNG.FileExtension);
+
         }
 
         public void RenderText(TextRenderInfo renderInfo) { }
