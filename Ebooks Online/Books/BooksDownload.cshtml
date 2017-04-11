@@ -34,6 +34,7 @@
                         {
                             if (selectedId[i] != 0)
                             {
+                                //foreach book select the titel and show it as a list
                                 string Boek = db.QueryValue("SELECT Titel FROM Books Where Id = " + selectedId[i]);
                                 <li class="list-group-item">- @Boek</li>
                             }
@@ -97,7 +98,7 @@
                                         {
                                             Validation.AddFormError("Er gaat iets fout.");
                                         }
-                                        //if there are spaces in the filename, replace them with %20 so it is readable ??
+
                                         if (Request["type[]"].Split(',').Contains("pdf"))
                                         {
                                             filepdf = "Books/Files/PDF/" + "" + path + "" + ".pdf";
