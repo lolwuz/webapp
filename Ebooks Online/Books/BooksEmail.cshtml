@@ -44,7 +44,6 @@
                         if (IsPost)
                         {
                             email = Request.Form["email"];
-                            Validation.RequireField("email", "U moet uw email adres invullen.");
                             if (Request.Form["type[]"] == null)
                             {
                                 Validation.AddFormError("Gelieve minimaal 1 checkbox aanvinken.");
