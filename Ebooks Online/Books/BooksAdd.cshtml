@@ -217,10 +217,13 @@
             }
             else if (data_type == "epub" || data_type == "mobi")
             {
-                var uploadedImg = Request.Files["images"];
+                HttpPostedFileBase uploadedImg = Request.Files["images"];
 
-                var imgSavePath = Server.MapPath("~/Books/Files/IMG/" + lastId + data_filename);
-                uploadedImg.SaveAs(imgSavePath);
+                if (uploadedImg != null && uploadedImg.ContentLength > 0)
+                {
+                    var imgSavePath = Server.MapPath("~/Books/Files/IMG/" + lastId + data_filename + ".png");
+                    uploadedImg.SaveAs(imgSavePath);
+                }
             }
             Session.Abandon();
         }
@@ -232,6 +235,7 @@
     }
 }
 <script>
+
     $(document).ready(function () {
         $("input[name=files]").on("change", function () {
             $("input[name=files]").parent().parent().parent().submit();
@@ -242,10 +246,15 @@
         $("input[name=images]").css("height","100%")
         
         $(".file-upload-buttons").hide();
+        webshims.setOptions('waitReady', false);
+        webshims.setOptions('forms-ext', { types: 'date' });
+        webshims.polyfill('forms forms-ext');
+
         $(function () {
             Globalize.culture('nl');
         });
     });
+
 </script>
 <div class="row">
     <div class="col-sm-6 col-sm-offset-3">
@@ -267,7 +276,7 @@
                         {
                             if (Request.Form["fileupload"] == null)
                             {
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         <input type="hidden" value=@grootte name="grootte" />
                         <input type="hidden" value=@type name="type" />
                         <input type="hidden" value="@fileName" name="filename" />
@@ -294,7 +303,7 @@
                         <br />
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Uitgavedatum</span>
-                            <input type="date" class="form-control" name="uitgavedtm" placeholder="09/01/1998" value="@uitgavedtm">
+                            <input type="date" class="form-control" name="uitgavedtm" placeholder="09/01/1998" >
                         </div>
                         <br />
                         <div class="input-group">
@@ -315,7 +324,7 @@
                         {
                             <div class="input-group">
                                 <span class="input-group-addon" id="sizing-addion1">Cover image </span>
-                                <input class="form-control" type="file" name="images" />
+                                <input type="file" id="images" class="form-control" accept=".png" name="images" rows="3" style="height: 100%;">
                             </div>
                             <br />
                         }
@@ -329,7 +338,7 @@
                             <input type="text" class="form-control" name="tags" value="@metadata["Keywords"]" />
                         </div>
                         <br />
-                        <input id="upload" class="btn btn-default" type="submit" name="fileupload" value="Upload" />
+                        <input id="upload" class="btn btn-default default-primary-color" type="submit" name="fileupload" value="Upload" />
                     </form>
                 }
             }
