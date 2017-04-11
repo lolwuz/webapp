@@ -240,6 +240,14 @@
             $("input[name=files]").parent().parent().parent().submit();
         });
         $(".file-upload-buttons").hide();
+        $("input[name=files]").attr("accept", ".pdf,.epub,.mobi");
+        webshims.setOptions('waitReady', false);
+        webshims.setOptions('forms-ext', { types: 'date' });
+        webshims.polyfill('forms forms-ext');
+
+        $(function () {
+            Globalize.culture('nl');
+        });
     });
 </script>
 <div class="row">
@@ -260,7 +268,7 @@
             {
                 if (Request.Form["fileupload"] == null)
                 {
-                    <form method="post">
+                    <form method="post"  enctype="multipart/form-data" >
                         <input type="hidden" value=@grootte name="grootte" />
                         <input type="hidden" value=@type name="type" />
                         <input type="hidden" value="@fileName" name="filename" />
@@ -287,7 +295,7 @@
                         <br />
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Uitgavedatum</span>
-                            <input type="text" class="form-control" name="uitgavedtm" value=@uitgavedtm />
+                            <input type="date" class="form-control" name="uitgavedtm" />
                         </div>
                         <br />
                         <div class="input-group">
