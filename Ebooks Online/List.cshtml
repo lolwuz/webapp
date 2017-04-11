@@ -494,7 +494,7 @@
                             }
                             // Check if there is another empty slot in between non-empty slots.
                             bool falseFound = false;
-                            for (int y = 0; y <= selectList.Count; y++)
+                            for (int y = i; y <= selectList.Count; y++)
                             {
                                 if (y == selectList.Count)
                                 {
@@ -508,6 +508,7 @@
                                 }
                                 else if (falseFound == true && selectList[y] == true)
                                 {
+                                    i -= 1;
                                     break;
                                 }
                             }
