@@ -15,26 +15,62 @@
                 {
                     if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
                     {
-                        <tr class="selectedTable">
-                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
-                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
-                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
-                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
-                        </tr>
+                <tr class="selectedTable">
+                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
+                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
+                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
+                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
+                </tr>
                     }
                     else
                     {
-                        <tr class="deselectedtable">
-                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
-                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
-                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
-                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
-                        </tr>
+                <tr class="deselectedtable">
+                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
+                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
+                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
+                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
+                </tr>
                     }
                 }
             </tbody>
         </table>
     </div>
+}
+
+@helper shareList(Database db, int userID)
+{
+    <thead>
+        <tr>
+            @{
+                List<string> listColNames = new List<string> { "Titel", "Auteur", "Toegevoegd", "Grootte", "Beoordeling", "Tags", "Serie", "Uitgever", "Uitgave" };
+
+                for (int i = 0; i < listColNames.Count; i++)
+                {        
+                    <th>listColNames[i]</th>   
+                }
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @{ 
+            string query = "SELECT * FROM Books WHERE UserId = @0";
+            var result = db.Query(query, userID);
+
+            foreach(var row in result){
+                <tr>
+                    <td>@row.Titel</td>
+                    <td>@row.Auteur</td>
+                    <td>@row.UploadDatum</td>
+                    <td>@row.Grootte</td>
+                    <td>@row.Beoordeling</td>
+                    <td>@row.Tags</td>
+                    <td>@row.Serie</td>
+                    <td>@row.Uitgever</td>
+                    <td>@row.UitgaveDatum</td>
+                </tr>
+            }
+        }
+    </tbody>
 }
 
 @helper createCards(Database db, List<int> selectListId, int selectClass)
@@ -83,32 +119,32 @@ for (int i = 0; i < selectListId.Count; i++)
                     <p>@bookInfo.Beschrijving</p>
                 </div>
             </div>
-            break;
-            }
-            else
-            {
-                // Select book Info
-                var statement = "SELECT * FROM Books WHERE Id = @0";
-                var bookInfo = db.QuerySingle(statement, selectListId[i]);
+                            break;
+                        }
+                        else
+                        {
+                            // Select book Info
+                            var statement = "SELECT * FROM Books WHERE Id = @0";
+                            var bookInfo = db.QuerySingle(statement, selectListId[i]);
 
-                string animation = "";
-                if (i == selectListId.Count - 1 - countEmpty && selectClass == 1)
-                {
-                    animation = "animated zoomIn";
-                }
+                            string animation = "";
+                            if (i == selectListId.Count - 1 - countEmpty && selectClass == 1)
+                            {
+                                animation = "animated zoomIn";
+                            }
 
-                <div class="bookinfocard bookinfocard-hover @animation">
-                    <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
-                    <div class="bookinfoheading">
-                        <h3 class="panel-title text-center">@bookInfo.Titel</h3>
-                    </div>
-                    <div class="bookinfobody">
-                        <h5>Auteur: @bookInfo.Auteur</h5>
-                        <h5>Taal: @bookInfo.Taal</h5>
-                    </div>
-                </div>
-                <br />
-            }
-        }
-    }
+                            <div class="bookinfocard bookinfocard-hover @animation">
+                                <a href="~/Books/BooksView.cshtml?id=@bookInfo.Id"><span></span></a>
+                                <div class="bookinfoheading">
+                                    <h3 class="panel-title text-center">@bookInfo.Titel</h3>
+                                </div>
+                                <div class="bookinfobody">
+                                    <h5>Auteur: @bookInfo.Auteur</h5>
+                                    <h5>Taal: @bookInfo.Taal</h5>
+                                </div>
+                            </div>
+                            <br />
+                                }
+                            }
+                        }
 }

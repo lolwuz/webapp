@@ -11,8 +11,8 @@
     Database db = Database.Open("StarterSite");
     int userID = WebSecurity.CurrentUserId;
 
-    string query = "SELECT sharedUsers FROM UserProfile WHERE UserId = @0";
-    string sharedUsers = db.QueryValue(query, userID);
+    string query = "SELECT * FROM UserProfile WHERE UserId = @0";
+    var sharedUsers = db.QuerySingle(query, userID);
 
     // List off shared users.
     List<string> userList = new List<string>();
@@ -90,18 +90,16 @@
         <div class="tab-content">
             @for (int i = 0; i < userList.Count; i++)
             {
-                query = "SELECT * FROM Books WHERE UserId = @0";
-                var result = db.Query(query, userList[i]);
                 if (i == 0)
                 {
                     <div id="home" class="tab-pane active">
-                        
+                        @Helpers.shareList(db, userList[i].AsInt())
                     </div>
                 }
                 else
                 {
                     <div id="menu@i" class="tab-pane">
-                        
+                        @Helpers.shareList(db, userList[i].AsInt())
                     </div>
                 }
             }            
