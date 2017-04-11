@@ -467,8 +467,8 @@
                     <p><b>Tip:</b> Selecteer één of meerdere boeken uit uw bibliotheek voor meer Info.</p>
                 }
             }
-<<<<<<< HEAD
 
+            <!-- Create a card for each selected book in the list. -->
             @Helpers.createCards(db, selectListId, selectClass)
             @{ 
                 // If an item has been deleted, fix the list (F.I.: {T, T, F, T, F, T, F, F, F} -> {T, T, T, T, F, F, F, F, F}
@@ -514,10 +514,6 @@
                     }
                 }
             }
-=======
-            <!-- Create a card for each selected book in the list. -->
-            @Helpers.createCards(db, selectListId, selectClass, selectIndex)
->>>>>>> origin/master
         </div>
     </div>
 </div>
