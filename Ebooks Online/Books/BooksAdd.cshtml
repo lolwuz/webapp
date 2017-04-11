@@ -6,67 +6,75 @@
 @using iTextSharp.text;
 @using iTextSharp.text.pdf;
 @{
-
+    //Include BooksListLayout.
     Layout = "~/_BookListLayout.cshtml";
+    //Athentication check on user.
     if (!WebSecurity.IsAuthenticated)
     {
         Response.Redirect("~/default.cshtml");
     }
 
+    //Initialize Variables.
     var goodfile = Session["goodfile"];
-    var bestandstype = "";
+    var filetype = "";
     var fileName = "";
-    var uitgever = "-";
-    var taal = "-";
-    var beschrijving = "-";
-    var boekserie = "-";
+    var publisher = "-";
+    var language = "-";
+    var description = "-";
+    var bookserie = "-";
     var type = "";
-    var grootte = 0;
+    var filesize = 0;
     var genre = "-";
     HttpPostedFileBase uploadedFile = null;
     Dictionary<String, String> metadata = new Dictionary<String, String>();
 
     if (IsPost)
     {
+        //If IsPost and button 'fileupload' doesn't exist.
         if (Request.Form["fileupload"] == null)
         {
+            //Get the first uploaded file
             uploadedFile = Request.Files[0];
             Random rnd = new Random();
-            grootte = (uploadedFile.ContentLength / 1024) / 1024;
+            filesize = (uploadedFile.ContentLength / 1024) / 1024;
             type = uploadedFile.FileName.Split('.')[1];
             fileName = Path.GetFileName(uploadedFile.FileName);
             var fileSavePath = Server.MapPath("~/Books/Files/temp/" + rnd.Next(1, 9999) +
                fileName);
             uploadedFile.SaveAs(fileSavePath);
-            bestandstype = fileSavePath.Split('.')[1];
+            //Added uploaded file into temp with random number. 1-9999 chance you would have the same filename in the temp folder.
+            filetype = fileSavePath.Split('.')[1];
             Session["goodfile"] = "";
             string convertTypeA = "";
             string convertTypeB = "";
-            if (bestandstype != "pdf" && bestandstype != "epub" && bestandstype != "mobi")
+            ///Validation on file type. You can only upload pdf, epub or mobi.
+            if (filetype != "pdf" && filetype != "epub" && filetype != "mobi")
             {
                 Session["goodfile"] = "Je moet wel een pdf, epub of mobi bestand uploaden!";
                 Response.Redirect("~/Books/BooksAdd.cshtml");
             }
             else
             {
-                Session["leeg"] = "";
-                if (bestandstype == "pdf")
+                //Convert Part
+                //Set convert variables. Depends on what the original file type is.
+                if (filetype == "pdf")
                 {
                     convertTypeA = "epub";
                     convertTypeB = "mobi";
                 }
-                if (bestandstype == "epub")
+                if (filetype == "epub")
                 {
                     convertTypeA = "pdf";
                     convertTypeB = "mobi";
 
                 }
-                if (bestandstype == "mobi")
+                if (filetype == "mobi")
                 {
                     convertTypeA = "pdf";
                     convertTypeB = "epub";
                 }
 
+                //Start Convert 1. The original file will be converted into the value of 'convertTypeA'.
                 var fileSavePathConvertA = fileSavePath.Split('.')[0] + "." + convertTypeA;
 
                 System.Diagnostics.Process processA = new System.Diagnostics.Process();
@@ -77,7 +85,7 @@
                 processA.StartInfo = startInfoA;
                 processA.Start();
 
-
+                //Start Convert 2. The original file will be converted into the value of 'convertTypeB'.
                 var fileSavePathConvertB = fileSavePath.Split('.')[0] + "." + convertTypeB;
                 System.Diagnostics.Process processB = new System.Diagnostics.Process();
                 System.Diagnostics.ProcessStartInfo startInfoB = new System.Diagnostics.ProcessStartInfo();
@@ -87,16 +95,20 @@
                 processB.StartInfo = startInfoB;
                 processB.Start();
 
+                //Save the converted files.
                 uploadedFile.SaveAs(fileSavePathConvertA);
                 uploadedFile.SaveAs(fileSavePathConvertB);
 
-                int optellen = 0;
+                //Looping through the temp until it finds the first converted file.
+                int counter = 0;
                 while (!File.Exists(fileSavePathConvertA))
                 {
-                    optellen++;
+                    counter++;
                 }
 
-                if (bestandstype == "pdf")
+                //This code will only start if the first converted file is found.
+                //If the original file type is PDF it will search for metadeta values. If it isn't the metadata will have a default value.
+                if (filetype == "pdf")
                 {
                     PdfReader bestand = new PdfReader(fileSavePath);
                     metadata["Title"] = (bestand.Info.ContainsKey("Title")) ? bestand.Info["Title"] : "-";
@@ -115,66 +127,81 @@
         }
         else
         {
-            var data_grootte = Request["grootte"];
+            //If IsPost and button 'fileupload' does exist.
+            //Get all values from the form. Which will be metadata and database values.
+            var data_filesize = Request["grootte"];
             var data_type = Request["type"];
             var data_filename = Request["filename"];
-            var data_titel = "";
-            if (Request["titel"].Length == 0)
-            { data_titel = "Onbekend"; }
-            else { data_titel = Request["titel"]; }
-            var data_onderwerp = Request["onderwerp"];
-            var data_auteur = Request["auteur"];
-            var data_uitgever = Request["uitgever"];
+            var data_title = "";
+            if (Request["titel"].Length == 0 ||Request["titel"] =="-")
+            { data_title = data_filename; }
+            else { data_title = Request["titel"]; }
+            var data_subject = Request["onderwerp"];
+            var data_author = Request["auteur"];
+            var data_publisher = Request["uitgever"];
             DateTime dateTime;
+            //Form value 'uitgavedtm' has a length longer than 10 or equal to ' " " ' then it will get a default value; 
             if (Request["uitgavedtm"].Length > 10 || Request["uitgavedtm"] == "")
             { dateTime = DateTime.Parse("01/01/0001"); }
-            else { dateTime = DateTime.Parse(Request["uitgavedtm"], new CultureInfo("nl-NL")); }
-            string data_uitgave = dateTime.ToString();
-            string data_uitgavedtm = "";
+            else { dateTime = DateTime.Parse(Request["uitgavedtm"], new CultureInfo("nl-NL")); } // Parse form value 'uitgavedtm' to proper a datetime format.
+            string data_published = dateTime.ToString();
+            string data_publisheddtm = "";
 
+            //If form value 'uitgavedtm' has a value it will read it and correct it to the datetime format.
+            //Variable 'data_uitgavedtm's value will be the results.
             if (Request["uitgavedtm"] != "")
             {
                 if ((dateTime.Day < 10) && (dateTime.Month < 10))
                 {
-                    data_uitgavedtm = Convert.ToString(("0" + dateTime.Day) + "/" + ("0" + dateTime.Month)) + "/" + (dateTime.Year);
+                    data_publisheddtm = Convert.ToString(("0" + dateTime.Day) + "/" + ("0" + dateTime.Month)) + "/" + (dateTime.Year);
                 }
                 else
                 {
                     if (dateTime.Day < 10)
                     {
-                        data_uitgavedtm = Convert.ToString(("0" + dateTime.Day) + "/" + (dateTime.Month)) + "/" + (dateTime.Year);
+                        data_publisheddtm = Convert.ToString(("0" + dateTime.Day) + "/" + (dateTime.Month)) + "/" + (dateTime.Year);
                     }
                     else if (dateTime.Month < 10)
                     {
-                        data_uitgavedtm = Convert.ToString((dateTime.Day) + "/" + ("0" + dateTime.Month)) + "/" + (dateTime.Year);
+                        data_publisheddtm = Convert.ToString((dateTime.Day) + "/" + ("0" + dateTime.Month)) + "/" + (dateTime.Year);
                     }
                     else
                     {
-                        data_uitgavedtm = Convert.ToString((dateTime.Day) + "/" + (dateTime.Month)) + "/" + (dateTime.Year);
+                        data_publisheddtm = Convert.ToString((dateTime.Day) + "/" + (dateTime.Month)) + "/" + (dateTime.Year);
                     }
                 }
-            }
-            else { data_uitgavedtm = data_uitgave.Substring(0, 9); }
-
-            var data_taal = Request["taal"];
+            }//If form value 'uitgavedtm' is equal to ' " " ' it will get the default value. Variable 'dateTime' holds the default value.
+            else { data_publisheddtm = data_published.Substring(0, 9); }
+            //More values from the form.
+            var data_language = Request["taal"];
             var data_genre = Request["genre"];
-            var data_beschrijving = Request["beschrijving"];
-            var data_boekserie = Request["boekserie"];
+            var data_description = Request["beschrijving"];
+            var data_bookserie = Request["boekserie"];
             var data_tags = Request["tags"];
             int currentuser = WebSecurity.CurrentUserId;
             var dirindex = "*" + data_filename;
+
+            //Search through the temp folder for all files equal to 'dirindex's value. 
+            //'dirindex's value is original uploaded file but without the full path, just the filename+extension.
             string[] dirs = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirindex);
+            //Variable 'data_filename' value will be the current value but minus the full path and the extenions. e.g. C:/Folder1/Folder2/filename.extension = filename.
             data_filename = data_filename.Split(new[] { "." + data_type }, StringSplitOptions.None)[0];
+
+            //Connect to DB and execute INSERT INTO to add an eBook.
             var db = Database.Open("StarterSite");
             var LastBookID = db.Query("INSERT INTO Books (Gebruiker,Titel,Auteur,Uitgever,UitgaveDatum,Taal,UploadDatum,Path,Beschrijving,Tags,Serie,Beoordeling,Grootte,OriginalFormat,Genre)" +
         "VALUES(@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13,@14)",
-        currentuser, data_titel, data_auteur, data_uitgever, data_uitgavedtm, data_taal, DateTime.Now, data_filename, data_beschrijving, data_tags, data_boekserie, 0, data_grootte, data_type, data_genre);
+        currentuser, data_title, data_author, data_publisher, data_publisheddtm, data_language, DateTime.Now, data_filename, data_description, data_tags, data_bookserie, 0, data_filesize, data_type, data_genre);
 
-
+            //Get last inserted ID.
             long lastId = (long)db.GetLastInsertId();
             db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", lastId + data_filename, lastId);
 
+            //Copy the original file from the temp folder to the correct folder. e.g. PDF file goes to the PDF folder.
             File.Copy(dirs[0], Server.MapPath("~/Books/Files/" + data_type.ToUpper() + "/" + lastId + data_filename + "." + data_type));
+
+            //Variable 'dirIndexA' and 'dirIndexB' will be set to filetypes of the converted files. With these variables we can find the right files that belong to the original one.
+            //Variable 'indexA' and 'indexB' will be set to the filetypes of the conververted but without the '.'. e.g. .pdf = pdf. The variables are used to select the right folder. The folder will have the name of all the filetypes
             string dirIndexA = "";
             string dirIndexB = "";
             string indexA = "";
@@ -187,17 +214,24 @@
             string[] dirsA = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirIndexAA);
             string[] dirsB = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirIndexBB);
             var test = Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId + dirIndexA);
+            //Copy the converted files from temp to their folders.
             File.Copy(dirsA[0], Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId + dirIndexA));
             File.Copy(dirsB[0], Server.MapPath("~/Books/Files/" + indexB.ToUpper() + "/" + lastId + dirIndexB));
 
-
+            //While loop which basically used as timer. This timer will make sure the copy is done and it can start the rest of the code.
             int count = 0;
             while (count != 100000)
             {
                 count++;
             }
+
+            //Deleting all files in the temp folder.
             var path = Server.MapPath("~/Books/Files/") + "clearfolder.bat";
             System.Diagnostics.Process.Start(@"" + path + "");
+
+            //Cover image part.
+            //The cover will be saved with the same name as the original file's name. All covers will be saved into the 'IMG' folder
+            //If the original file was a pdf it will get its cover automatically.
             if (data_type == "pdf")
             {
 
@@ -213,7 +247,7 @@
                         images[name].Save(Path.Combine(directory, name.Split('_')[0] + ".png"));
                     }
                 }
-            }
+            }//If the original file wasn't a pdf it will its cover from the form. The user was able to choose a cover him/herself.
             else if (data_type == "epub" || data_type == "mobi")
             {
                 HttpPostedFileBase uploadedImg = Request.Files["images"];
@@ -235,11 +269,14 @@
 }
 <script>
     $(document).ready(function () {
+        //Submit the form everything the user selects an ebook. This way the user can see or edit the metadata first before uploading the ebook.
         $("input[name=files]").on("change", function () {
             $("input[name=files]").parent().parent().parent().submit();
         });
+        //Form adjustments
         $(".file-upload-buttons").hide();
         $("input[name=files]").attr("accept", ".pdf,.epub,.mobi");
+        //Create datepicker
         webshims.setOptions('waitReady', false);
         webshims.setOptions('forms-ext', { types: 'date' });
         webshims.polyfill('forms forms-ext');
@@ -265,10 +302,11 @@
             <br />
             @if (IsPost)
             {
+                //Form only exist if the user didn't press the upload button.
                 if (Request.Form["fileupload"] == null)
                 {
                     <form method="post"  enctype="multipart/form-data" >
-                        <input type="hidden" value=@grootte name="grootte" />
+                        <input type="hidden" value=@filesize name="grootte" />
                         <input type="hidden" value=@type name="type" />
                         <input type="hidden" value="@fileName" name="filename" />
 
@@ -289,7 +327,7 @@
                         <br />
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Uitgever</span>
-                            <input type="text" class="form-control" name="uitgever" value=@uitgever />
+                            <input type="text" class="form-control" name="uitgever" value=@publisher />
                         </div>
                         <br />
                         <div class="input-group">
@@ -299,7 +337,7 @@
                         <br />
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Taal</span>
-                            <input type="text" class="form-control" name="taal" value=@taal />
+                            <input type="text" class="form-control" name="taal" value=@language />
                         </div>
                         <br />
                         <div class="input-group">
@@ -309,9 +347,9 @@
                         <br />
                         <div class="form-group">
                             <span class="input-group-addon" id="sizing-addion1">Beschrijving</span>
-                            <textarea type="text" class="form-control" name="beschrijving" value=@beschrijving rows="3"></textarea>
+                            <textarea type="text" class="form-control" name="beschrijving" value=@description rows="3"></textarea>
                         </div>
-                        @if (bestandstype == "epub" || bestandstype == "mobi")
+                        @if (filetype == "epub" || filetype == "mobi")//This part only exist if the chosen file is either an epub or a mobi file. The user has to choose a cover image.
                         {
                             <div class="input-group">
                                 <span class="input-group-addon" id="sizing-addion1">Cover image </span>
@@ -321,7 +359,7 @@
                         }
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Boekserie</span>
-                            <input type="text" class="form-control" name="boekserie" value=@boekserie />
+                            <input type="text" class="form-control" name="boekserie" value=@bookserie />
                         </div>
                         <br />
                         <div class="input-group">
