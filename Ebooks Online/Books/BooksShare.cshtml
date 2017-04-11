@@ -1,0 +1,110 @@
+﻿@{
+    if (!WebSecurity.IsAuthenticated)
+    {
+        Response.Redirect("~/Default.cshtml");
+    }
+
+    Layout = "~/_BookListLayout.cshtml";
+    Page.Title = "Bookshare";
+
+    // Opening database and getting currentUserID
+    Database db = Database.Open("StarterSite");
+    int userID = WebSecurity.CurrentUserId;
+
+    string query = "SELECT sharedUsers FROM UserProfile WHERE UserId = @0";
+    string sharedUsers = db.QueryValue(query, userID);
+
+    // List off shared users.
+    List<string> userList = new List<string>();
+
+    // Getting all shared users for the list. 
+    string user = ""; // User to be added to the list.
+    for(int i = 0; i < sharedUsers.Length; i++)
+    {
+        if(sharedUsers[i] != ',')
+        {
+            user += sharedUsers[i];
+        }
+        else
+        {
+            // Add user en start next user string.
+            userList.Add(user);
+            user = "";
+        }
+    }
+
+    if (IsPost && !Request["emailfield"].IsEmpty())
+    {
+        // Validation
+        Validation.RequireField("email", "U moet een geldig E-Mail adress invullen");
+
+        // Getting the email field.
+        string Email = Request["emailfield"];
+
+        // GET sharedUsers and ADD currentUserID
+        query = "SELECT sharedUsers FROM UserProfile WHERE Email = @0";
+        sharedUsers = db.QueryValue(query, Email);
+        sharedUsers += userID + ",";
+
+        string updateQuery = "UPDATE UserProfile SET sharedUsers = @0 WHERE Email = @1";
+
+        // Update database with sharedusers 
+        db.Execute(updateQuery, sharedUsers, Email);
+    }
+}
+
+
+<div class="container">
+    <h2>Boekenlijst delen</h2>
+    <p>Hier kunt u de boekenlijst delen met andere gebruikers van E-Books Online.</p>
+ 
+    <form method="post">
+        <div class="input-group">
+            <span class="input-group-addon">E-Mail</span>
+            <input name="emailfield" type="email" class="form-control" placeholder="voorbeeld@provider.nl">
+            @Html.ValidationMessage("email")
+        </div>
+        <button type="submit" class="btn btn-danger default-primary-color" name="actionButton">Delen!</button>
+    </form>
+    
+    <hr />
+</div>
+
+<div class="container">
+    <div class="searchcard">
+        <!-- One Tab for each shared user.-->
+        <ul class="nav nav-tabs">
+            @for (int i = 0; i < userList.Count; i++)
+            {
+                if (i == 0)
+                {
+                    <li class="active"><a data-toggle="tab" href="#home">@userList[i].AsInt()</a></li>
+                }
+                else
+                {
+                    <li><a data-toggle="tab" href="#menu@i">@userList[i].AsInt()</a></li>
+                }
+            }
+        </ul>
+
+        <div class="tab-content">
+            @for (int i = 0; i < userList.Count; i++)
+            {
+                query = "SELECT * FROM Books WHERE UserId = @0";
+                var result = db.Query(query, userList[i]);
+                if (i == 0)
+                {
+                    <div id="home" class="tab-pane active">
+                        
+                    </div>
+                }
+                else
+                {
+                    <div id="menu@i" class="tab-pane">
+                        
+                    </div>
+                }
+            }            
+        </div>
+    </div>
+</div>
