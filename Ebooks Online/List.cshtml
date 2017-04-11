@@ -19,7 +19,6 @@
     var selectQueryString = "SELECT * FROM Books WHERE Gebruiker = " + userId + " ORDER BY Titel"; // Used for creating the booklist.
 
     // List met geselecteerd uit lijst
-
     List<bool> selectList = new List<bool>();
     List<int> selectListId = new List<int>();
 
@@ -230,12 +229,13 @@
                         }
 
                         <li>
-                            <a href="~/List.cshtml?sr=@sortBySwitch">&#@indicator; @displayedColumnNames[i]</a> <span class="badge" style="float: right;">@amount</span>
+                            <a class="sortTitle" href="~/List.cshtml?sr=@sortBySwitch">&#@indicator; @displayedColumnNames[i]</a> <span class="badge" style="float: right;">@amount</span>
                             @{
                                 if (sortCount == i)
                                 {
                                     // Make a list from all unique columnNames[i]. Example all unique authors are listed.
                                     var sortQuery = "SELECT " + columnNames[i] + " FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + columnNames[i];
+                                    <hr style="margin: 8px 0px 8px 0px;"/>
                                     <ul class="sortList">
                                         @foreach (var row in db.Query(sortQuery))
                                         {
@@ -467,6 +467,7 @@
                     <p><b>Tip:</b> Selecteer één of meerdere boeken uit uw bibliotheek voor meer Info.</p>
                 }
             }
+<<<<<<< HEAD
 
             @Helpers.createCards(db, selectListId, selectClass)
             @{ 
@@ -513,6 +514,10 @@
                     }
                 }
             }
+=======
+            <!-- Create a card for each selected book in the list. -->
+            @Helpers.createCards(db, selectListId, selectClass, selectIndex)
+>>>>>>> origin/master
         </div>
     </div>
 </div>

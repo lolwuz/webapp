@@ -1,6 +1,7 @@
 ﻿@using Microsoft.Web.Helpers;
 @using System.Globalization;
 @using System.Text.RegularExpressions;
+@using PdfUtils;
 @using iTextSharp;
 @using iTextSharp.text;
 @using iTextSharp.text.pdf;
@@ -13,6 +14,7 @@
     }
 
     var goodfile = Session["goodfile"];
+    var bestandstype = "";
     var fileName = "";
     var uitgever = "-";
     var uitgavedtm = "-";
@@ -37,7 +39,7 @@
             var fileSavePath = Server.MapPath("~/Books/Files/temp/" + rnd.Next(1, 9999) +
                fileName);
             uploadedFile.SaveAs(fileSavePath);
-            var bestandstype = fileSavePath.Split('.')[1];
+            bestandstype = fileSavePath.Split('.')[1];
             Session["goodfile"] = "";
             string convertTypeA = "";
             string convertTypeB = "";
@@ -119,13 +121,13 @@
             var data_filename = Request["filename"];
             var data_titel = "";
             if (Request["titel"].Length == 0)
-            { data_titel = "Onbekend";  }
+            { data_titel = "Onbekend"; }
             else { data_titel = Request["titel"]; }
             var data_onderwerp = Request["onderwerp"];
             var data_auteur = Request["auteur"];
             var data_uitgever = Request["uitgever"];
             DateTime dateTime;
-            if (Request["uitgavedtm"] == "")
+            if (Request["uitgavedtm"].Length > 10 || Request["uitgavedtm"] == "")
             { dateTime = DateTime.Parse("01/01/0001"); }
             else { dateTime = DateTime.Parse(Request["uitgavedtm"], new CultureInfo("nl-NL")); }
             string data_uitgave = dateTime.ToString();
@@ -153,7 +155,7 @@
                     }
                 }
             }
-            else { data_uitgavedtm = data_uitgave.Substring(0,9); }
+            else { data_uitgavedtm = data_uitgave.Substring(0, 9); }
 
             var data_taal = Request["taal"];
             var data_genre = Request["genre"];
@@ -197,6 +199,32 @@
             }
             var path = Server.MapPath("~/Books/Files/") + "clearfolder.bat";
             System.Diagnostics.Process.Start(@"" + path + "");
+            if (data_type == "pdf")
+            {
+
+                var searchPath = Server.MapPath("~/Books/Files/PDF/");
+
+                foreach (var filename in Directory.GetFiles(searchPath, lastId + data_filename + ".pdf", SearchOption.TopDirectoryOnly))
+                {
+                    var images = PdfImageExtractor.ExtractImages(filename);
+                    var directory = Server.MapPath("~/Books/Files/IMG/");
+
+                    foreach (var name in images.Keys)
+                    {
+                        images[name].Save(Path.Combine(directory, name.Split('_')[0] + ".png"));
+                    }
+                }
+            }
+            else if (data_type == "epub" || data_type == "mobi")
+            {
+                HttpPostedFileBase uploadedImg = Request.Files["images"];
+
+                if (uploadedImg != null && uploadedImg.ContentLength > 0)
+                {
+                    var imgSavePath = Server.MapPath("~/Books/Files/IMG/" + lastId + data_filename + ".png");
+                    uploadedImg.SaveAs(imgSavePath);
+                }
+            }
             Session.Abandon();
         }
 
@@ -211,8 +239,12 @@
         $("input[name=files]").on("change", function () {
             $("input[name=files]").parent().parent().parent().submit();
         });
-        $("input[name=files]").attr("accept", ".pdf,.epub,.mobi");
         $(".file-upload-buttons").hide();
+        $("input[name=files]").attr("accept", ".pdf,.epub,.mobi");
+        webshims.setOptions('waitReady', false);
+        webshims.setOptions('forms-ext', { types: 'date' });
+        webshims.polyfill('forms forms-ext');
+
         $(function () {
             Globalize.culture('nl');
         });
@@ -222,8 +254,6 @@
     <div class="col-sm-6 col-sm-offset-3">
         <div class="logincard">
             <h1 class="text-center">Boek toevoegen</h1>
-            <b>@goodfile</b> <br/>
-            <b>@Session["valid"]</b> <br/>
             <b>Bestand : </b><i>@fileName</i>
             <br />
             <br />
@@ -235,19 +265,17 @@
         uploadText: "Upload")
             <br />
             @if (IsPost)
-                        {
-                            if (Request.Form["fileupload"] == null)
-                            {
-                    <form method="post">
-                        <input id="upload" class="btn btn-default" type="submit" name="fileupload" value="Upload" /><br />
-                        <br />
+            {
+                if (Request.Form["fileupload"] == null)
+                {
+                    <form method="post"  enctype="multipart/form-data" >
                         <input type="hidden" value=@grootte name="grootte" />
                         <input type="hidden" value=@type name="type" />
                         <input type="hidden" value="@fileName" name="filename" />
 
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Titel</span>
-                            <input type="text" class="form-control formfill" name="titel" value="@metadata["Title"]" />
+                            <input type="text" class="form-control" name="titel" value="@metadata["Title"]" />
                         </div>
                         <br />
                         <div class="input-group">
@@ -267,12 +295,12 @@
                         <br />
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Uitgavedatum</span>
-                            <input type="date" class="form-control" name="uitgavedtm" placeholder="09/01/1998" value="@uitgavedtm">
+                            <input type="date" class="form-control" name="uitgavedtm" />
                         </div>
                         <br />
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Taal</span>
-                            <input type="text"  class="form-control"name="taal" value=@taal />
+                            <input type="text" class="form-control" name="taal" value=@taal />
                         </div>
                         <br />
                         <div class="input-group">
@@ -284,6 +312,14 @@
                             <span class="input-group-addon" id="sizing-addion1">Beschrijving</span>
                             <textarea type="text" class="form-control" name="beschrijving" value=@beschrijving rows="3"></textarea>
                         </div>
+                        @if (bestandstype == "epub" || bestandstype == "mobi")
+                        {
+                            <div class="input-group">
+                                <span class="input-group-addon" id="sizing-addion1">Cover image </span>
+                                <input type="file" class="form-control" accept=".png" name="images" rows="3" style="height: 100%;">
+                            </div>
+                            <br />
+                        }
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Boekserie</span>
                             <input type="text" class="form-control" name="boekserie" value=@boekserie />
@@ -293,6 +329,8 @@
                             <span class="input-group-addon" id="sizing-addion1">Tags</span>
                             <input type="text" class="form-control" name="tags" value="@metadata["Keywords"]" />
                         </div>
+                        <br />
+                        <input id="upload" class="btn btn-default default-primary-color" type="submit" name="fileupload" value="Upload" /><br />
                     </form>
                 }
             }
