@@ -377,14 +377,14 @@
                         @{
                             foreach (var row in db.Query(selectQueryString))
                             {
+                                string onClickValue = "document.location.href='/List.cshtml?sr=" + sortBy + "&sb=" + Request["sb"] + "&id=" + row.ID + /*"#" + row.ID +*/ "';";
                                 if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
                                 {
-
                                     <tr class="selectedTable">
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';"><a name="@row.ID"></a>@row.Titel</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.Auteur</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.UploadDatum.ToString("dd-MMM-yy")</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.Grootte MB</td>
+                                        <td onClick=@onClickValue>@*<a name="@row.ID"></a>*@@row.Titel</td>
+                                        <td onClick=@onClickValue>@row.Auteur</td>
+                                        <td onClick=@onClickValue>@row.UploadDatum.ToString("dd-MMM-yy")</td>
+                                        <td onClick=@onClickValue>@row.Grootte MB</td>
                                         <td>
                                             @for (int i = 0; i < 5; i++)
                                             {
@@ -399,10 +399,10 @@
                                                 }
                                             }
                                         </td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.Tags</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.Serie</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.Uitgever</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.UitgaveDatum</td>
+                                        <td onClick=@onClickValue>@row.Tags</td>
+                                        <td onClick=@onClickValue>@row.Serie</td>
+                                        <td onClick=@onClickValue>@row.Uitgever</td>
+                                        <td onClick=@onClickValue>@row.UitgaveDatum</td>
                                     </tr>
 
                                 }
@@ -410,10 +410,10 @@
                                 {
 
                                     <tr class="deselectedtable" name="row.ID">
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';"><a name="@row.ID"></a>@row.Titel</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.Auteur</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.UploadDatum.ToString("dd-MMM-yy")</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.Grootte MB</td>
+                                        <td onClick=@onClickValue>@*<a name="@row.ID"></a>*@@row.Titel</td>
+                                        <td onClick=@onClickValue>@row.Auteur</td>
+                                        <td onClick=@onClickValue>@row.UploadDatum.ToString("dd-MMM-yy")</td>
+                                        <td onClick=@onClickValue>@row.Grootte MB</td>
                                         <td>
                                             @for (int i = 0; i < 5; i++)
                                             {
@@ -428,10 +428,10 @@
                                                 }
                                             }
                                         </td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.Tags</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.Serie</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.Uitgever</td>
-                                        <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID#@row.ID';">@row.UitgaveDatum</td>
+                                        <td onClick=@onClickValue>@row.Tags</td>
+                                        <td onClick=@onClickValue>@row.Serie</td>
+                                        <td onClick=@onClickValue>@row.Uitgever</td>
+                                        <td onClick=@onClickValue>@row.UitgaveDatum</td>
                                     </tr>
                                 }
                             }
