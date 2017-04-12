@@ -16,25 +16,39 @@
         {
             if (id > 0)
             {
-                // Get book info from database.
-                var statement = "SELECT * FROM Books WHERE Id=@0";
-                var row = db.QuerySingle(statement, id);
+                // Validations
+                Validation.Add(("inputtitel=" + id), Validator.StringLength(100,0, "De Titel mag niet langer zijn dan 100 tekens."));
+                Validation.Add(("inputauthor=" + id), Validator.StringLength(100, 0, "De auteur mag niet langer zijn dan 100 tekens."));
+                Validation.Add(("inputuitgever=" + id), Validator.StringLength(100, 0, "De uitgever mag niet langer zijn dan 100 tekens."));
+                Validation.Add(("inputuitgave=" + id), Validator.StringLength(10, 0, "De uitgavedatum mag niet langer zijn dan 10 tekens."));
+                Validation.Add(("inputtaal=" + id), Validator.StringLength(100, 0, "De taal mag niet langer zijn dan 100 tekens."));
+                Validation.Add(("inputcomment=" + id), Validator.StringLength(2000, 0, "De beschrijving mag niet langer zijn dan 100 tekens."));
+                Validation.Add(("inputtags=" + id), Validator.StringLength(200, 0, "De Auteur mag niet langer zijn dan 200 tekens."));
+                Validation.Add(("inputserie=" + id), Validator.StringLength(25, 0, "De serie mag niet langer zijn dan 25 tekens."));
+                Validation.Add(("inputrating=" + id), Validator.Range(1, 5, "Beoordeling moet tussen de 1 en 5 zitten"));
 
-                // Get user input.
-                string inputtitel = Request.Form["inputtitel=" + id];
-                string inputauthor = Request.Form["inputauthor=" + id];
-                string inputuitgever = Request.Form["inputuitgever=" + id];
-                string inputuitgave = Request.Form["inputuitgave=" + id];
-                string inputtaal = Request.Form["inputtaal=" + id];
-                string inputcomment = Request.Form["inputcomment=" + id];
-                string inputtags = Request.Form["inputtags=" + id];
-                string inputserie = Request.Form["inputserie=" + id];
-                int inputrating = Request.Form["inputrating=" + id].AsInt();
+                if (Validation.IsValid())
+                {
+                    // Get book info from database.
+                    var statement = "SELECT * FROM Books WHERE Id=@0";
+                    var row = db.QuerySingle(statement, id);
 
-                var updateStatement = "UPDATE Books SET Auteur =@0, Uitgever =@1, UitgaveDatum =@2, Taal =@3, Beschrijving =@4, Tags =@5, Serie =@6, Beoordeling =@7, titel =@8 WHERE Id =@9";
-                db.Execute(updateStatement, inputauthor, inputuitgever, inputuitgave, inputtaal, inputcomment, inputtags, inputserie, inputrating, inputtitel, id);
+                    // Get user input.
+                    string inputtitel = Request.Form["inputtitel=" + id];
+                    string inputauthor = Request.Form["inputauthor=" + id];
+                    string inputuitgever = Request.Form["inputuitgever=" + id];
+                    string inputuitgave = Request.Form["inputuitgave=" + id];
+                    string inputtaal = Request.Form["inputtaal=" + id];
+                    string inputcomment = Request.Form["inputcomment=" + id];
+                    string inputtags = Request.Form["inputtags=" + id];
+                    string inputserie = Request.Form["inputserie=" + id];
+                    int inputrating = Request.Form["inputrating=" + id].AsInt();
 
-                Response.Redirect("~/List.cshtml");
+                    var updateStatement = "UPDATE Books SET Auteur =@0, Uitgever =@1, UitgaveDatum =@2, Taal =@3, Beschrijving =@4, Tags =@5, Serie =@6, Beoordeling =@7, titel =@8 WHERE Id =@9";
+                    db.Execute(updateStatement, inputauthor, inputuitgever, inputuitgave, inputtaal, inputcomment, inputtags, inputserie, inputrating, inputtitel, id);
+
+                    Response.Redirect("~/List.cshtml");
+                }
             }
         }
         // is this an external login request
@@ -43,6 +57,7 @@
     
 
 <form method="post">
+    @AntiForgery.GetHtml()
     <div class="container">
         <h2>Metadata aanpassen</h2>
         <p>Hier kunt u de metadata van de reselecteerde boeken aanpassen.</p>
@@ -68,6 +83,20 @@
                                 <h4 class="text-center">@row.Titel</h4>
                             </div>
                             <div class="bookinfobody">
+                                <ul>
+                                    @{
+                                        string lastError = "";
+                                        foreach (var error in Validation.GetErrors())
+                                        {
+                                            if (!(error == lastError))
+                                            {
+                                                lastError = error;
+                                                <li>@error</li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                                
                                 <div class="input-group">
                                     <span class="input-group-addon">Titel</span>
                                     <input type="text" class="form-control" name="inputtitel=@id" placeholder="Titel" value="@row.Titel">
