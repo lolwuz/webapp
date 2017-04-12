@@ -231,25 +231,7 @@
 
             //Cover image part.
             //The cover will be saved with the same name as the original file's name. All covers will be saved into the 'IMG' folder
-            //If the original file was a pdf it will get its cover automatically.
-            if (data_type == "pdf")
-            {
 
-                var searchPath = Server.MapPath("~/Books/Files/PDF/");
-
-                foreach (var filename in Directory.GetFiles(searchPath, lastId + data_filename + ".pdf", SearchOption.TopDirectoryOnly))
-                {
-                    var images = PdfImageExtractor.ExtractImages(filename);
-                    var directory = Server.MapPath("~/Books/Files/IMG/");
-
-                    foreach (var name in images.Keys)
-                    {
-                        images[name].Save(Path.Combine(directory, name.Split('_')[0] + ".png"));
-                    }
-                }
-            }//If the original file wasn't a pdf it will its cover from the form. The user was able to choose a cover him/herself.
-            else if (data_type == "epub" || data_type == "mobi")
-            {
                 HttpPostedFileBase uploadedImg = Request.Files["images"];
 
                 if (uploadedImg != null && uploadedImg.ContentLength > 0)
@@ -257,7 +239,6 @@
                     var imgSavePath = Server.MapPath("~/Books/Files/IMG/" + lastId + data_filename + ".png");
                     uploadedImg.SaveAs(imgSavePath);
                 }
-            }
             Session.Abandon();
         }
 
@@ -350,14 +331,11 @@
                             <span class="input-group-addon" id="sizing-addion1">Beschrijving</span>
                             <textarea type="text" class="form-control" name="beschrijving" value=@description rows="3"></textarea>
                         </div>
-                        @if (filetype == "epub" || filetype == "mobi")//This part only exist if the chosen file is either an epub or a mobi file. The user has to choose a cover image.
-                        {
                             <div class="input-group">
                                 <span class="input-group-addon" id="sizing-addion1">Cover image </span>
                                 <input type="file" class="form-control" accept=".png" name="images" rows="3" style="height: 100%;">
                             </div>
                             <br />
-                        }
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Boekserie</span>
                             <input type="text" class="form-control" name="boekserie" value=@bookserie />
