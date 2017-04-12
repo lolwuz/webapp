@@ -128,18 +128,6 @@
         else
         {
             //If IsPost and button 'fileupload' does exist.
-            // Validation.
-            Validation.Add(("titel"), Validator.StringLength(100, 0, "De titel mag niet langer zijn dan 100 tekens."));
-            Validation.Add(("auteur"), Validator.StringLength(100, 0, "De auteur mag niet langer zijn dan 100 tekens."));
-            Validation.Add(("uitgever"), Validator.StringLength(100, 0, "De uitgever mag niet langer zijn dan 100 tekens."));
-            Validation.Add(("taal"), Validator.StringLength(100, 0, "De taal mag niet langer zijn dan 100 tekens."));
-            Validation.Add(("genre"), Validator.StringLength(200, 0, "De genre mag niet langer zijn dan 200 tekens."));
-            Validation.Add(("beschrijving"), Validator.StringLength(2000, 0, "De titel mag niet langer zijn dan 2000 tekens."));
-            Validation.Add(("boekserie"), Validator.StringLength(25, 0, "De titel mag niet langer zijn dan 25 tekens."));
-            Validation.Add(("tags"), Validator.StringLength(200, 0, "De titel mag niet langer zijn dan 200 tekens."));
-            if (Validation.IsValid())
-            {
-                //Passed the validation.
                 //Get all values from the form. Which will be metadata and database values.
                 var data_filesize = Request["grootte"];
                 var data_type = Request["type"];
@@ -252,7 +240,6 @@
                     uploadedImg.SaveAs(imgSavePath);
                 }
                 Session.Abandon();
-            }
 
         }
     }
