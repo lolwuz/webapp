@@ -235,39 +235,102 @@
                                 {
                                     // Make a list from all unique columnNames[i]. Example all unique authors are listed.
                                     var sortQuery = "SELECT " + columnNames[i] + " FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + columnNames[i];
-                                    <hr style="margin: 8px 0px 8px 0px;"/>
-                                    <ul class="sortList">
-                                        @foreach (var row in db.Query(sortQuery))
-                                        {
-                                            // Select all ID's from the books with the (for example) author names.
-                                            var sortFindQuery = "SELECT Id FROM Books WHERE " + columnNames[i] + " = @0";
-                                            string selectBooks = "";
-
-                                            // Make a string for passing the selected books.
-                                            foreach (var id in db.Query(sortFindQuery, row[0]))
-                                            {
-                                                selectBooks += id[0];
-                                                selectBooks += "+";
-                                            }
-
-                                            // Remove the "+" at the end of the string.
-                                            string selectedBooks = "";
-                                            if (selectBooks[selectBooks.Length - 1] == '+')
-                                            {
-                                                for (int ii = 0; ii < selectBooks.Length - 1; ii++)
+                                    <hr style="margin: 8px 0px 8px 0px;" />
+                                    <div class="listPanel" id="listPanelShort">
+                                        <ul class="sortList">
+                                            @{
+                                                int count = 0;
+                                                foreach (var row in db.Query(sortQuery))
                                                 {
-                                                    selectedBooks += selectBooks[ii];
+                                                    // Select all ID's from the books with the (for example) author names.
+                                                    var sortFindQuery = "SELECT Id FROM Books WHERE " + columnNames[i] + " = @0";
+                                                    string selectBooks = "";
+
+                                                    // Make a string for passing the selected books.
+                                                    foreach (var id in db.Query(sortFindQuery, row[0]))
+                                                    {
+                                                        selectBooks += id[0];
+                                                        selectBooks += "+";
+                                                    }
+
+                                                    // Remove the "+" at the end of the string.
+                                                    string selectedBooks = "";
+                                                    if (selectBooks[selectBooks.Length - 1] == '+')
+                                                    {
+                                                        for (int ii = 0; ii < selectBooks.Length - 1; ii++)
+                                                        {
+                                                            selectedBooks += selectBooks[ii];
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        // Only 1 book is selected.
+                                                        selectedBooks = selectBooks;
+                                                    }
+
+                                                    // Links for the first 10 books
+                                                    if (count <= 9)
+                                                    {
+                                                        <li><a href="~/List.cshtml?sr=@sortBy&at=@selectedBooks">@row[0]</a></li>
+                                                    }
+                                                    // showMore link when there are more than 10 books
+                                                    if (count == 10)
+                                                    {
+                                                        <li><a class="toggleListPanel" href="#listPanelLong">[Laat alles zien]</a></li>
+                                                        break;
+                                                    }
+                                                    count++;
                                                 }
                                             }
-                                            else
-                                            {
-                                                // Only 1 book is selected.
-                                                selectedBooks = selectBooks;
-                                            }
+                                        </ul>
+                                    </div>
+                                                if (selectList.Count > 10)
+                                                {
+                                        <div class="listPanel" id="listPanelLong">
+                                            <ul class="sortList">
+                                                @{
+                                                    var countAll = 0;
+                                                    foreach (var row in db.Query(sortQuery))
+                                                    {
+                                                        // Select all ID's from the books with the (for example) author names.
+                                                        var sortFindQuery = "SELECT Id FROM Books WHERE " + columnNames[i] + " = @0";
+                                                        string selectBooks = "";
 
-                                            <li><a href="~/List.cshtml?sr=@sortBy&at=@selectedBooks">@row[0]</a></li>
-                                        }
-                                    </ul>
+                                                        // Make a string for passing the selected books.
+                                                        foreach (var id in db.Query(sortFindQuery, row[0]))
+                                                        {
+                                                            selectBooks += id[0];
+                                                            selectBooks += "+";
+                                                        }
+
+                                                        // Remove the "+" at the end of the string.
+                                                        string selectedBooks = "";
+                                                        if (selectBooks[selectBooks.Length - 1] == '+')
+                                                        {
+                                                            for (int ii = 0; ii < selectBooks.Length - 1; ii++)
+                                                            {
+                                                                selectedBooks += selectBooks[ii];
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            // Only 1 book is selected.
+                                                            selectedBooks = selectBooks;
+                                                        }
+
+                                                        // Complete list of all items. These will be visible when the "showMore" link is clicked
+                                                        <li><a href="~/List.cshtml?sr=@sortBy&at=@selectedBooks">@row[0]</a></li>
+
+                                                        countAll++;
+                                                        if (countAll == amount)
+                                                        {
+                                                            <li><a class="toggleListPanel" href="#listPanelShort">[Laat minder zien]</a></li>
+                                                        }
+                                                    }
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
                                 }
                             }
 
@@ -538,3 +601,19 @@
         </div>
     </div>
 </div>
+
+<!-- This script will hide all list items (from the unique items list in the sorting list) -->
+<script type="text/javascript">
+    $(".listPanel").hide();
+    $("#listPanelShort").show();
+</script>
+<!-- This script will make the long list visible when the "ShowMore" link is clicked. -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggleListPanel").click(function (e) {
+            e.preventDefault();
+            $(".listPanel").hide();
+            $($(this).attr("href")).show();
+        });
+    });
+</script>
