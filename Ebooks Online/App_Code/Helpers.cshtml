@@ -1,5 +1,6 @@
 ﻿@helper searchList(IEnumerable<dynamic> queryResult, List<int> selectListId, string sortBy)
 {
+    <!-- Helper for creating the searchList -->
     <div class="searchcard">
         <table class="table table-responsive">
             <thead>
@@ -16,6 +17,7 @@
                 {
                     if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
                     {
+                        // Table row is selected in the list.
                         <tr class="selectedTable">
                             <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
                             <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
@@ -26,6 +28,7 @@
                     }
                     else
                     {
+                        // Table row is not selected.
                         <tr class="deselectedtable">
                             <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
                             <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
@@ -42,10 +45,12 @@
 
 @helper shareList(Database db, int userID)
 {
+    <!-- Helper for creating the shareList -->
     <table class="table table-responsive">
         <thead>
             <tr>
                 @{
+                    // Create colums.
                     List<string> listColNames = new List<string> { "Titel", "Auteur", "Toegevoegd", "Grootte", "Beoordeling", "Tags", "Serie", "Uitgever", "Uitgave" };
 
                     for (int i = 0; i < listColNames.Count; i++)
@@ -57,9 +62,10 @@
         </thead>
         <tbody>
             @{
+                // Create a list of books from shared user
                 string query = "SELECT * FROM Books WHERE Gebruiker = @0";
                 var result = db.Query(query, userID);
-
+                
                 foreach (var row in result)
                 {
                     <tr>
