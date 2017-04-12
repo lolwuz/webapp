@@ -2,38 +2,79 @@
     Page.Title = "View Books";
     Layout = "~/_BookListLayout.cshtml";
 
+    // If user isn't logged in and tries to load the page, redirect.
     if (!WebSecurity.IsAuthenticated)
     {
         Response.Redirect("~/Default.cshtml");
     }
 
+    // Select the book the user tries to view. If the user doesn't own said book, he won't be able to view the book.
     var db = Database.Open("StarterSite");
     string currentId = Request.QueryString["id"];
-    var validationCheck = db.QueryValue("SELECT Id FROM Books WHERE Gebruiker = @0 AND Id = @1", WebSecurity.CurrentUserId, currentId);
+    var statement = "SELECT * FROM Books WHERE Gebruiker = @0 AND Id = @1";
+    var bookInfo = db.QuerySingle(statement, WebSecurity.CurrentUserId, currentId);
 
-    if (validationCheck != null)
+    // If the user wants to deselect all books but the current one:
+    List<bool> selectList = (List<bool>)Session["selectList"];
+    List<int> selectListId = (List<int>)Session["selectListId"];
+    if (Request["Dl"] == "1")
     {
-        string fileName = db.QueryValue("SELECT Path FROM Books WHERE Id = @0", currentId) + ".pdf";
+        int Dl = (int)Request["Dl"][0];
+        for (int i = 0; i < selectList.Count; i++)
+        {
+            if (selectListId[i].ToString() != currentId)
+            {
+                selectListId[i] = 0;
+                selectList[i] = false;
+            }
+        }
+    }
+
+    if (bookInfo != null)
+    {
+        string fileName = bookInfo.Path + ".pdf";
 
         <div class="container-fluid">                
             <div class="row">
                 <div class="col-md-9">
+                    <!-- The actual code for the pdf viewer. (sadly this only works in browsers that support it). -->
                     <object data="~/Books/Files/PDF/@fileName" type='application/pdf' class="pdfViewer">
                         <embed src="~/Books/Files/PDF/@fileName" type='application/pdf' class="pdfViewer"></embed>
                     </object>
                 </div>
                 <div class="col-md-3">
-                    <h6>
-                        <a class="btn btn-default btn-sm" href="~/Books/BooksDownload.cshtml">Download</a>
-                        <a class="btn btn-default btn-sm" href="~/Books/BooksEmail.cshtml">E-mail</a>
-                        <a class="btn btn-danger accent-color btn-sm" href="~/Books/BooksDelete.cshtml">Verwijderen</a>
-                    </h6>
+                    @{
+                        // Check to see how many books are selected
+                        int selectedbooks = 0;
+                        foreach (int i in selectListId)
+                        {
+                            if (i != 0)
+                            {
+                                selectedbooks++;
+                            }
+                        }
+                        <h6>
+                            <a class="btn btn-default btn-sm" href="~/Books/BooksDownload.cshtml">Download</a>
+                            <a class="btn btn-default btn-sm" href="~/Books/BooksEmail.cshtml">E-mail</a>
+                            <a class="btn btn-danger accent-color btn-sm" href="~/Books/BooksDelete.cshtml">Verwijderen</a>
+                        </h6>
+
+                        // Notify the user that more than one books are selected in case the user wants to download, email or delete books.
+                        if (selectedbooks > 2)
+                        {
+                            <h5 id="selectedbooks">Let op: U heeft nog @(selectedbooks - 1) andere boeken geselecteerd.</h5>
+                            <p><a href="~/Books/BooksView.cshtml?id=55&dl=1">Klik hier</a> om deze boeken te deselecteren.</p>
+                        }
+                        else if (selectedbooks == 2)
+                        {
+                            <h5 id="selectedbooks">Let op: U heeft nog één ander boek geselecteerd</h5>
+                            <p><a href="~/Books/BooksView.cshtml?id=55&dl=1">Klik hier</a> om deze boeken te deselecteren.</p>
+                        }
+                    }
+                    
                     <hr />
                     @{
-                        // Select book Info
-                        var statement = "SELECT * FROM Books WHERE Id = @0";
-                        var bookInfo = db.QuerySingle(statement, currentId);
-
+                        // Show some basic info about the book in a card.
                         <div class="bookinfocard">
 
                             <div class="bookinfoheading">
@@ -41,7 +82,8 @@
                             </div>
 
                             <div class="bookinfobody">
-                                <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" width="100" text-align="center" />
+                                @{ string filePath = bookInfo.Path + ".png"; }
+                                <img src="~/Books/Files/IMG/@filePath" alt="bookcover" width="100" text-align="center" />
                                 <h5>Auteur:</h5>
                                 <p>@bookInfo.Titel</p>
                                 <h5>Taal</h5>
@@ -49,19 +91,24 @@
                                 <h5>Beschrijving</h5>
                                 <p>@bookInfo.Beschrijving</p>
                             </div>
-
                         </div>
                     }
                 </div>
-
             </div>
         </div>
-
-
     }
     else
     {
-        <h2 style="color: red">Het boek dat u probeert te selecteren bestaat niet, of is niet in uw bezit.</h2>
+        <div class="container-fluid">
+            <div class="row">
+                <p>Er is iets fout gegaan tijdens het bekijken van uw boek. Mogelijke oorzaken zijn:</p>
+                <ul>
+                    <li>Er is geen boek geselecteerd. In dat geval is uw sessie mogelijk verlopen</li>
+                    <li>Het boek dat u probeert te bekijken is niet in uw bezit</li>
+                    <li>Er is iets mis gegaan op onze servers</li>
+                </ul>
+            </div>
+        </div>
     }
 }
 

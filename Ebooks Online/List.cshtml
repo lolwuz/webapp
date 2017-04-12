@@ -231,7 +231,7 @@
                         <li>
                             <a class="sortTitle" href="~/List.cshtml?sr=@sortBySwitch">&#@indicator; @displayedColumnNames[i]</a> <span class="badge" style="float: right;">@amount</span>
                             @{
-                                if (sortCount == i)
+                                if (sortCount == i && i != 0)
                                 {
                                     // Make a list from all unique columnNames[i]. Example all unique authors are listed.
                                     var sortQuery = "SELECT " + columnNames[i] + " FROM Books WHERE Gebruiker = " + userId + " GROUP BY " + columnNames[i];

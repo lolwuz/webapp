@@ -4,22 +4,44 @@
     Page.Title = "Bedankt voor het registreren";
 }
 
-@if (!WebSecurity.IsAuthenticated) {
-    <hgroup class="title">
-        <h1>@Page.Title.</h1>
-        <h2>Maar u bent nog niet klaar!</h2>
-    </hgroup>
+@if (!WebSecurity.IsAuthenticated)
+{
 
-    <p>
-        Een email met instructies om uw account te activeren is verstuurd naar uw email adres.
-    </p>
-} else {
-    <hgroup class="title">
-        <h1>@Page.Title.</h1>
-        <h2>U bent klaar.</h2>
-    </hgroup>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="logincard">
+                    <h4 class="text-center">@Page.Title.</h4>
+                    <hr />
+                    <hgroup class="title">
+                        <h2 class="text-center">Maar u bent nog niet klaar!</h2>
+                    </hgroup>
 
-    <p>
-        U heeft uw account al geactiveerd. U kunt inloggen.
-    </p>
+                    <p class="text-center">
+                        Een email met instructies om uw account te activeren is verstuurd naar uw email adres.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="logincard">
+                    <h4 class="text-center">@Page.Title.</h4>
+                    <hgroup class="title">
+                        <h2 class="text-center">U bent klaar.</h2>
+                    </hgroup>
+
+                    <p class="text-center">
+                        U heeft uw account al geactiveerd. U kunt inloggen.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 }

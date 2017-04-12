@@ -7,9 +7,11 @@
 
     WebSecurity.Logout();
     if (!confirmationToken.IsEmpty()) {
+        //if confirm code from request checks with the account, give message
         if (WebSecurity.ConfirmAccount(confirmationToken)) {
             message = "Uw registratie is voltooid! klik op het login knopje om in te loggen op de site.";
         } else {
+            //if the confirm code does not check with the account, give errormessage
             message = "Uw registratie info kon niet bevestigd worden.";
         }
     }
