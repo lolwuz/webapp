@@ -68,6 +68,8 @@
                         File.Delete(filePath);
                         filePath = Server.MapPath("Files/PDF/" + fileName + ".pdf");
                         File.Delete(filePath);
+                        filePath = Server.MapPath("Files/IMG/" + fileName + ".png");
+                        File.Delete(filePath);
 
                         db.Execute("DELETE FROM Books WHERE Id=@0 AND Gebruiker=@1", selectedId[i], userId);
                     }
