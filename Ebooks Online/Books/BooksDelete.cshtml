@@ -154,7 +154,8 @@
                                 <div class="bookinfobody">
                                     <div class="row">
                                         <div class="col-xs-5">
-                                            <img src="~/img/Enchantment-Book-Cover-Best-Seller1.jpg" alt="bookcover" text-align="center" class="img-responsive" />
+                                            @{ string filePath = bookInfo.Path + ".png"; }
+                                            <img src="~/Books/Files/IMG/@filePath" alt="bookcover" width="100" text-align="center" />
                                         </div>
                                         <div class="col-xs-7">
                                             <h5>Auteur:</h5>
