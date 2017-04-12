@@ -21,6 +21,7 @@
                 var row = db.QuerySingle(statement, id);
 
                 // Get user input.
+                string inputtitel = Request.Form["inputtitel=" + id];
                 string inputauthor = Request.Form["inputauthor=" + id];
                 string inputuitgever = Request.Form["inputuitgever=" + id];
                 string inputuitgave = Request.Form["inputuitgave=" + id];
@@ -30,9 +31,10 @@
                 string inputserie = Request.Form["inputserie=" + id];
                 int inputrating = Request.Form["inputrating=" + id].AsInt();
 
-                var updateStatement = "UPDATE Books SET Auteur =@0, Uitgever =@1, UitgaveDatum =@2, Taal =@3, Beschrijving =@4, Tags =@5, Serie =@6, Beoordeling =@7 WHERE Id =@8";
-                db.Execute(updateStatement, inputauthor, inputuitgever, inputuitgave, inputtaal, inputcomment, inputtags, inputserie, inputrating, id);
+                var updateStatement = "UPDATE Books SET Auteur =@0, Uitgever =@1, UitgaveDatum =@2, Taal =@3, Beschrijving =@4, Tags =@5, Serie =@6, Beoordeling =@7, titel =@8 WHERE Id =@9";
+                db.Execute(updateStatement, inputauthor, inputuitgever, inputuitgave, inputtaal, inputcomment, inputtags, inputserie, inputrating, inputtitel, id);
 
+                Response.Redirect("~/List.cshtml");
             }
         }
         // is this an external login request
@@ -66,53 +68,76 @@
                                 <h4 class="text-center">@row.Titel</h4>
                             </div>
                             <div class="bookinfobody">
-                                <label for="at">Auteur: </label>
                                 <div class="input-group">
+                                    <span class="input-group-addon">Titel</span>
+                                    <input type="text" class="form-control" name="inputtitel=@id" placeholder="Titel" value="@row.Titel">
+                                </div>
+                                <br />
+
+                                <div class="input-group">
+                                    <span class="input-group-addon">Auteur</span>
                                     <input type="text" class="form-control" name="inputauthor=@id" placeholder="Auteur" value="@row.Auteur">
                                 </div>
                                 <br />
-                                <label for="comment">Uitgever: </label>
+                             
                                 <div class="input-group">
+                                    <span class="input-group-addon">Uitgever</span>
                                     <input type="text" class="form-control formfill" name="inputuitgever=@id" placeholder="Uitgever" value="@row.Uitgever">
                                 </div>
                                 <br />
-                                <label for="comment">Uitgave-Datum: </label>
+
                                 <div class="input-group">
+                                    <span class="input-group-addon">Uitgave-datum</span>
                                     <input type="text" class="form-control formfill" name="inputuitgave=@id" placeholder="09/01/1998" value="@row.UitgaveDatum">
                                 </div>
                                 <br />
-                                <label for="comment">Taal: </label>
+                               
                                 <div class="input-group">
-                                    <input type="text" class="form-control formfill" name="inputtaal=@id" placeholder="Engels" value="@row.Taal">
+                                    <span class="input-group-addon">Taal</span>
+                                    <input type="text" class="form-control formfill" name="inputtaal=@id" placeholder="eng" value="@row.Taal">
                                 </div>
                                 <br />
 
                                 <div class="form-group">
-                                    <label for="comment">Beschrijving: </label>
+                                    <span class="input-group-addon">Beschrijving</span>
                                     <textarea class="form-control" rows="5" id="comment" name="inputcomment=@id"></textarea>
                                 </div>
                                 <br />
-                                <label for="comment">Tags: </label>
+                              
                                 <div class="input-group">
-                                    <input type="text" class="form-control formfill" name="inputtags=@id" placeholder="C#, Programeren" value="@row.Tags">
+                                    <span class="input-group-addon">Tags</span>
+                                    <input type="text" class="form-control formfill" name="inputtags=@id" placeholder="Fantasie, Magie" value="@row.Tags">
                                 </div>
                                 <br />
-                                <label for="comment">Serie: </label>
+
                                 <div class="input-group">
+                                    <span class="input-group-addon">Serie</span>
                                     <input type="text" class="form-control formfill" name="inputserie=@id" placeholder="Harry Potter" value="@row.Serie">
                                 </div>
                                 <br />
                                 <div class="form-group">
                                     <label for="sel1">Beoordeling (@row.Beoordeling/5 sterren):</label>
-                                    <select class="form-control" id="sel1">
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
+                                    <select class="form-control" id="sel1" name="inputrating=@id" value="@row.Beoordeling">
+
+                                        @for (int i = 1; i < 6; i++)
+                                        {
+                                            if (i == @row.Beoordeling)
+                                            {
+                                                <option value="@i" selected="selected">@i</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@i">@i</option>
+                                            }
+                                        }                                                   
                                     </select>
                                 </div>
-                                <a class="btn" href="~/Books/BooksAutoMeta.cshtml?id=@id">Auto-update Metadata</a>
+                                <hr />
+                                
+                                <button class="btn btn-default default-primary-color" name="actionButton" style="float: left;">Opslaan</button>
+                                <a class="btn" href="~/Books/BooksAutoMeta.cshtml?id=@id" style="float:right;">Auto-update Metadata</a>
+                                <br />
+                                <br/>
                             </div>
                         </div>
                         <hr />

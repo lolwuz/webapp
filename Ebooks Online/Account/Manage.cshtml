@@ -189,37 +189,3 @@
         </div>
     </div>
 </div>
-
-
-<section id="externalLogins">
-    @if (externalLogins.Count > 0) {
-        <h3>Geregistreerde externe logins</h3>
-        <table>
-            <tbody>
-            @foreach (var externalLogin in externalLogins) {
-                <tr>
-                    <td>@externalLogin.ProviderDisplayName</td>
-                    <td>
-                        @if (canRemoveLogin) {
-                            <form method="post">
-                                @AntiForgery.GetHtml()
-                                <fieldset>
-                                    <legend></legend>
-                                    <input type="hidden" name="provider" value="@externalLogin.Provider" />
-                                    <input type="hidden" name="userId" value="@externalLogin.UserId" />
-                                    <button type="submit" name="action" value="removeLogin" title="Remove this @externalLogin.ProviderDisplayName credential from your account">Verwijder</button>
-                                </fieldset>
-                            </form>
-                        } else {
-                            @: &nbsp;
-                        }
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    }
-
-    <h3>Voeg een externe login toe</h3>
-    @RenderPage("~/Account/_ExternalLoginsList.cshtml")
-</section>

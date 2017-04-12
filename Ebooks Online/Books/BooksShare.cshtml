@@ -84,18 +84,23 @@
 </div>
 
 <div class="container">
+    <h2>Met mij gedeelde lijsten</h2>
+    <hr />
     <div class="searchcard">
         <!-- One Tab for each shared user.-->
         <ul class="nav nav-tabs">
             @for (int i = 0; i < userList.Count; i++)
             {
+                // Getting the name of shared user.
+                query = "SELECT name, lastName FROM UserProfile WHERE UserId = @0";
+                var result = db.QuerySingle(query, userList[i].AsInt());
                 if (i == 0)
                 {
-                    <li class="active"><a data-toggle="tab" href="#home">@userList[i].AsInt()</a></li>
+                    <li class="active"><a data-toggle="tab" href="#home">@result.name @result.lastName</a></li>
                 }
                 else
                 {
-                    <li><a data-toggle="tab" href="#menu@i">@userList[i].AsInt()</a></li>
+                    <li><a data-toggle="tab" href="#menu@i">@result.name @result.lastName</a></li>
                 }
             }
         </ul>

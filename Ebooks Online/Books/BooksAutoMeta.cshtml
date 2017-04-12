@@ -13,14 +13,14 @@
     {
         if(local == internet)
         {
-            return "has-success has-feedback"; // Return bootstrap class. 
+            return "has-success has-feedback"; // Metadata is matching. 
         }
         else if(internet.IsEmpty()){
             return "has-error"; // No feedback
         }
         else
         {
-            return "has-warning has-feedback";
+            return "has-warning has-feedback"; // There is no metadata found. 
         }
     }
 }
@@ -96,7 +96,7 @@
                         }
                     }
 
-
+                    // Remove Titles. 
                     switch (Regex.Replace(lineName, @"\s+", ""))
                     {
                         case "Title":
@@ -126,14 +126,12 @@
                         case "Identifiers":
                             identifiers = RemoveLineTitle(line, lineName);
                             break;
-                        case "Comments            ":
+                        case "Comments":
                             comments = RemoveLineTitle(line, lineName);
                             break;
                         default:
                             break;
                     }
-
-
                     <!-- For debugging purposes.-->
                     <h4>@lineName</h4>
                     <p>@line</p>
@@ -156,13 +154,23 @@
         //Update book all book data.
         else if (Request.Form["actionButton"] == "updaten")
         {
-            if (true)
-            {
+            // Get user input.
+            string inputtitel = Request.Form["inputtitel"];
+            string inputauthor = Request.Form["inputauthor"];
+            string inputuitgever = Request.Form["inputuitgever"];
+            string inputuitgave = Request.Form["inputuitgave"];
+            string inputtaal = Request.Form["inputtaal"];
+            string inputcomment = Request.Form["inputcomment"];
+            string inputtags = Request.Form["inputtags"];
+            string inputserie = Request.Form["inputserie"];
+            int inputrating = Request.Form["inputrating"].AsInt();
 
-            }
+            var updateStatement = "UPDATE Books SET Auteur =@0, Uitgever =@1, UitgaveDatum =@2, Taal =@3, Beschrijving =@4, Tags =@5, Serie =@6, Beoordeling =@7, titel =@8 WHERE Id =@9";
+            db.Execute(updateStatement, inputauthor, inputuitgever, inputuitgave, inputtaal, inputcomment, inputtags, inputserie, inputrating, inputtitel, bookId);
+
+            Response.Redirect("~/List.cshtml");
         }
     }
-
 }
 
 <form method="post">
@@ -240,43 +248,43 @@
                     <div class="bookinfobody">
                         <div class="input-group @checkSucces(row.Titel, title)">
                             <span class="input-group-addon">Titel</span>
-                            <input type="text" class="form-control" value="@title">
+                            <input type="text" class="form-control" name="inputtitel" value="@title">
                         </div>
                         <br />
 
                         <div class="input-group @checkSucces(row.Auteur, authors)">
                             <span class="input-group-addon">Auteur</span>
-                            <input type="text" class="form-control formfill" value="@authors">
+                            <input type="text" class="form-control"  name="inputauthor" value="@authors">
                         </div>
                         <br />
 
                         <div class="input-group @checkSucces(row.Uitgever, publisher)">
                             <span class="input-group-addon">Uitgever</span>
-                            <input type="text" class="form-control formfill" value="@publisher">
+                            <input type="text" class="form-control"  name="inputuitgever" value="@publisher">
                         </div>
                         <br />
 
                         <div class="input-group @checkSucces(row.Tags, tags)">
                             <span class="input-group-addon">Tags</span>
-                            <input type="text" class="form-control formfill" value="@tags">
+                            <input type="text" class="form-control"  name="inputtags" value="@tags">
                         </div>
                         <br />
 
                         <div class="input-group @checkSucces(row.Taal, languages)">
                             <span class="input-group-addon">Taal</span>
-                            <input type="text" class="form-control formfill" value="@languages">
+                            <input type="text" class="form-control"  name="inputtaal" value="@languages">
                         </div>
                         <br />
 
                         <div class="input-group @checkSucces(row.UitgaveDatum, published)">
                             <span class="input-group-addon">Uitgave-datum</span>
-                            <input type="text" class="form-control formfill" value="@published">
+                            <input type="text" class="form-control" name="inputuitgave" value="@published">
                         </div>
                         <br />
 
                         <div class="form-group @checkSucces(row.Auteur, comments)">
                             <span class="input-group-addon">Beschrijving</span>
-                            <textarea class="form-control" rows="5" id="comment" value="@comments" disabled></textarea>
+                            <textarea class="form-control" rows="5" id="comment"  name="inputcomment" value="@comments"></textarea>
                         </div>
                         <br />
                     </div>
