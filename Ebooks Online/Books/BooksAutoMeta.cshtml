@@ -34,9 +34,11 @@
     Page.Title = "Automatisch Metadata updaten";
     Layout = "~/_BookListLayout.cshtml";
 
+    // Getting book list from database. 
     List<int> selectedId = Session["selectListId"] as List<int>;
     Database db = Database.Open("StarterSite");
 
+    // Fetch meta-data variables
     string title = "-";
     string authors = "-";
     string publisher = "-";
@@ -133,8 +135,8 @@
                             break;
                     }
                     <!-- For debugging purposes.-->
-                    <h4>@lineName</h4>
-                    <p>@line</p>
+                    @*<h4>@lineName</h4>
+                    <p>@line</p>*@
                 }
             }
             catch (Exception e)
@@ -154,26 +156,42 @@
         //Update book all book data.
         else if (Request.Form["actionButton"] == "updaten")
         {
-            // Get user input.
-            string inputtitel = Request.Form["inputtitel"];
-            string inputauthor = Request.Form["inputauthor"];
-            string inputuitgever = Request.Form["inputuitgever"];
-            string inputuitgave = Request.Form["inputuitgave"];
-            string inputtaal = Request.Form["inputtaal"];
-            string inputcomment = Request.Form["inputcomment"];
-            string inputtags = Request.Form["inputtags"];
-            string inputserie = Request.Form["inputserie"];
-            int inputrating = Request.Form["inputrating"].AsInt();
+            // Validations
+            Validation.Add(("inputtitel"), Validator.StringLength(100, 0, "De Titel mag niet langer zijn dan 100 tekens."));
+            Validation.Add(("inputauthor"), Validator.StringLength(100, 0, "De auteur mag niet langer zijn dan 100 tekens."));
+            Validation.Add(("inputuitgever"), Validator.StringLength(100, 0, "De uitgever mag niet langer zijn dan 100 tekens."));
+            Validation.Add(("inputuitgave"), Validator.StringLength(10, 0, "De uitgavedatum mag niet langer zijn dan 10 tekens."));
+            Validation.Add(("inputtaal"), Validator.StringLength(100, 0, "De taal mag niet langer zijn dan 100 tekens."));
+            Validation.Add(("inputcomment"), Validator.StringLength(2000, 0, "De beschrijving mag niet langer zijn dan 100 tekens."));
+            Validation.Add(("inputtags"), Validator.StringLength(200, 0, "De Auteur mag niet langer zijn dan 200 tekens."));
+            Validation.Add(("inputserie"), Validator.StringLength(25, 0, "De serie mag niet langer zijn dan 25 tekens."));
+            Validation.Add(("inputrating"), Validator.Range(1, 5, "Beoordeling moet tussen de 1 en 5 zitten"));
 
-            var updateStatement = "UPDATE Books SET Auteur =@0, Uitgever =@1, UitgaveDatum =@2, Taal =@3, Beschrijving =@4, Tags =@5, Serie =@6, Beoordeling =@7, titel =@8 WHERE Id =@9";
-            db.Execute(updateStatement, inputauthor, inputuitgever, inputuitgave, inputtaal, inputcomment, inputtags, inputserie, inputrating, inputtitel, bookId);
+            if (Validation.IsValid())
+            {
+                // Get user input.
+                string inputtitel = Request.Form["inputtitel"];
+                string inputauthor = Request.Form["inputauthor"];
+                string inputuitgever = Request.Form["inputuitgever"];
+                string inputuitgave = Request.Form["inputuitgave"];
+                string inputtaal = Request.Form["inputtaal"];
+                string inputcomment = Request.Form["inputcomment"];
+                string inputtags = Request.Form["inputtags"];
+                string inputserie = Request.Form["inputserie"];
+                int inputrating = Request.Form["inputrating"].AsInt();
 
-            Response.Redirect("~/List.cshtml");
+                var updateStatement = "UPDATE Books SET Auteur =@0, Uitgever =@1, UitgaveDatum =@2, Taal =@3, Beschrijving =@4, Tags =@5, Serie =@6, Beoordeling =@7, titel =@8 WHERE Id =@9";
+                db.Execute(updateStatement, inputauthor, inputuitgever, inputuitgave, inputtaal, inputcomment, inputtags, inputserie, inputrating, inputtitel, bookId);
+
+                // Return to bookList
+                Response.Redirect("~/List.cshtml");
+            }
         }
     }
 }
 
 <form method="post">
+    @AntiForgery.GetHtml()
     <div class="container">
         <h4>Automatisch metadata updaten</h4>
         <p>Vergelijk de metadata hieronder </p>
@@ -246,6 +264,20 @@
                     </div>
 
                     <div class="bookinfobody">
+                        <ul>
+                            @{
+                                string lastError = "";
+                                foreach (var error in Validation.GetErrors())
+                                {
+                                    if (!(error == lastError))
+                                    {
+                                        lastError = error;
+                                        <li>@error</li>
+                                    }
+                                }
+                            }
+                        </ul>
+
                         <div class="input-group @checkSucces(row.Titel, title)">
                             <span class="input-group-addon">Titel</span>
                             <input type="text" class="form-control" name="inputtitel" value="@title">
