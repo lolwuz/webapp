@@ -8,6 +8,7 @@
                     <th>Auteur</th>
                     <th>Serie</th>
                     <th>Uitgever</th>
+                    <th>Tags</th>
                 </tr>
             </thead>
             <tbody>
@@ -15,21 +16,23 @@
                 {
                     if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
                     {
-                <tr class="selectedTable">
-                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
-                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
-                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
-                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
-                </tr>
+                        <tr class="selectedTable">
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Tags</td>
+                        </tr>
                     }
                     else
                     {
-                <tr class="deselectedtable">
-                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
-                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
-                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
-                    <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
-                </tr>
+                        <tr class="deselectedtable">
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Titel</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Auteur</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Serie</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Uitgever</td>
+                            <td onClick="document.location.href='/List.cshtml?sr=@sortBy&sb=@Request["sb"]&id=@row.ID';">@row.Tags</td>
+                        </tr>
                     }
                 }
             </tbody>

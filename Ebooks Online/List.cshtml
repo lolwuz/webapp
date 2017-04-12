@@ -280,6 +280,7 @@
                 }
             </ul>
         </div>
+        <!-- Search section -->
         <div class="col-sm-7">
             <form class="searchform" method="get">
                 @Html.ValidationSummary()
@@ -299,6 +300,7 @@
                 var searchAuthor = "SELECT * FROM Books WHERE Auteur LIKE @0";
                 var searchSerie = "SELECT * FROM Books WHERE Serie LIKE @0";
                 var searchUitgever = "SELECT * FROM Books WHERE Uitgever LIKE @0";
+                var searchTags = "SELECT * FROM Books WHERE Tags LIKE @0";
 
                 // User input
                 var searchTerm = "%" + Request["sb"] + "%";
@@ -308,17 +310,20 @@
                 var resultAuthor = db.Query(searchAuthor, searchTerm);
                 var resultSerie = db.Query(searchSerie, searchTerm);
                 var resultUitgever = db.Query(searchUitgever, searchTerm);
+                var resultTags = db.Query(searchTags, searchTerm);
 
-                if (resultTitel.Count() > 0 || resultAuthor.Count() > 0 || resultSerie.Count() > 0 || resultUitgever.Count() > 0)
+                if (resultTitel.Count() > 0 || resultAuthor.Count() > 0 || resultSerie.Count() > 0 || resultUitgever.Count() > 0 || resultTags.Count() > 0)
                 {
                     <!-- 4 tabs; titels , authors, series and publishers -->
                     <ul class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#home">Titels <span class="label label-default accent-color">@resultTitel.Count()</span></a></li>
-                        <li><a data-toggle="tab" href="#menu1">Auteurs <span class="label label-default accent-color">@resultAuthor.Count()</span></a></li>
-                        <li><a data-toggle="tab" href="#menu2">Series <span class="label label-default accent-color">@resultSerie.Count()</span></a></li>
-                        <li><a data-toggle="tab" href="#menu3">Uitgevers <span class="label label-default accent-color">@resultUitgever.Count()</span></a></li>
+                        <li class="active"><a data-toggle="tab" href="#home">Titels <span class="label label-default default-primary-color">@resultTitel.Count()</span></a></li>
+                        <li><a data-toggle="tab" href="#menu1">Auteurs <span class="label label-default default-primary-color">@resultAuthor.Count()</span></a></li>
+                        <li><a data-toggle="tab" href="#menu2">Series <span class="label label-default default-primary-color">@resultSerie.Count()</span></a></li>
+                        <li><a data-toggle="tab" href="#menu3">Uitgevers <span class="label label-default default-primary-color">@resultUitgever.Count()</span></a></li>
+                        <li><a data-toggle="tab" href="#menu4">Tags <span class="label label-default default-primary-color">@resultTags.Count()</span></a></li>
                     </ul>
 
+                    <!-- Tab content -->
                     <div class="tab-content">
                         <div id="home" class="tab-pane active">
                             @Helpers.searchList(resultTitel, selectListId, sortBy)
@@ -332,6 +337,9 @@
                         <div id="menu3" class="tab-pane">
                             @Helpers.searchList(resultUitgever, selectListId, sortBy)
                         </div>
+                        <div id="menu4" class="tab-pane">
+                            @Helpers.searchList(resultTags, selectListId, sortBy)
+                        </div>
                     </div>
                 }
                 else
@@ -339,13 +347,15 @@
                     <h4>Helaas, niks gevonden.</h4>
                 }
             }
-
             <hr style="margin-top: 10px; margin-bottom: 10px;" />
+
+            <!-- Create card with the book list inside -->
             <div class="listcard">
                 <table class="table table-responsive">
                     <thead>
                         <tr>
                             @{ 
+                                // Create a column for each columnName.
                                 List<string> listColNames = new List<string> { "Titel", "Auteur", "Toegevoegd", "Grootte", "Beoordeling", "Tags", "Serie", "Uitgever", "Uitgave" };
 
                                 for (int i = 0; i < listColNames.Count; i++)
@@ -353,6 +363,7 @@
                                     string currCol = listColNames[i];
                                     string indicator = "32";
 
+                                    // Sorting
                                     if (currCol == displayedColumnNames[sortBy[0] - 48])
                                     {
                                         if (sortBy[1] == 'a')
@@ -375,26 +386,31 @@
                     </thead>
                     <tbody>
                         @{
+                            // Create a row in the table for each book.
                             foreach (var row in db.Query(selectQueryString))
                             {
                                 string onClickValue = "document.location.href='/List.cshtml?sr=" + sortBy + "&sb=" + Request["sb"] + "&id=" + row.ID + /*"#" + row.ID +*/ "';";
                                 if (selectListId.IndexOf(Convert.ToInt32(row.ID)) != -1)
                                 {
+                                    // Table is selected: change row color.
                                     <tr class="selectedTable">
-                                        <td onClick=@onClickValue>@*<a name="@row.ID"></a>*@@row.Titel</td>
+                                        <td onClick=@onClickValue>@row.Titel</td>
                                         <td onClick=@onClickValue>@row.Auteur</td>
                                         <td onClick=@onClickValue>@row.UploadDatum.ToString("dd-MMM-yy")</td>
                                         <td onClick=@onClickValue>@row.Grootte MB</td>
                                         <td>
                                             @for (int i = 0; i < 5; i++)
                                             {
+                                                // Create 5 stars.
                                                 string rating = Convert.ToString(row.ID) + Convert.ToString(i);
                                                 if (i < row.Beoordeling)
                                                 {
+                                                    // Full stars.
                                                     <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/star.png' width="10" alt='*' /></a>
                                                 }
                                                 else
                                                 {
+                                                    // Empty stars.
                                                     <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/starempty.png' width="10" alt='' /></a>
                                                 }
                                             }
@@ -408,7 +424,7 @@
                                 }
                                 else
                                 {
-
+                                    // Table is not selected.
                                     <tr class="deselectedtable" name="row.ID">
                                         <td onClick=@onClickValue>@*<a name="@row.ID"></a>*@@row.Titel</td>
                                         <td onClick=@onClickValue>@row.Auteur</td>
@@ -417,13 +433,16 @@
                                         <td>
                                             @for (int i = 0; i < 5; i++)
                                             {
+                                                // Create stars. 
                                                 string rating = Convert.ToString(row.ID) + Convert.ToString(i);
                                                 if (i < row.Beoordeling)
                                                 {
+                                                    // Full stars.
                                                     <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/star.png' width="10" alt='*' /></a>
                                                 }
                                                 else
                                                 {
+                                                    // Empty stars
                                                     <a href="~/List.cshtml?sr=@sortBy&st=@rating"><img src='~/Images/starempty.png' width="10" alt='' /></a>
                                                 }
                                             }
