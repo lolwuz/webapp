@@ -13,20 +13,21 @@
     var password = "";
     var confirmPassword = "";
 
-    Validation.RequireField("email", "Je moet een geldig e-mailadres toevoegen.");
-    Validation.RequireField("password", "Je wachtwoord mag niet niks zijn.");
+    //Validation for the fields
+    Validation.RequireField("email", "Gelieve een geldig e-mailadres toevoegen.");
+    Validation.RequireField("password", "Gelieve een wachtwoord invullen.");
     Validation.Add("confirmPassword",
-        Validator.EqualsTo("password", "De wachtwoorden zijn niet gelijk aan elkaar."));
+        Validator.EqualsTo("password", "Uw wachtwoorden zijn niet gelijk aan elkaar."));
     Validation.Add("password",
         Validator.StringLength(
             maxLength: Int32.MaxValue,
             minLength: 6,
             errorMessage: "Wachtwoord moet minimaal 6 karakters lang zijn."));
-    Validation.RequireField("name", "Je moet een naam invullen.");
-    Validation.RequireField("lastName", "Je moet een achternaam invullen");
+    Validation.RequireField("name", "Gelieve een voornaam invullen.");
+    Validation.RequireField("lastName", "Gelieve een achternaam invullen");
 
     if (IsPost)
-    {
+    {       //If ispost, check if there is no forgery then set the variables with the request.form
         AntiForgery.Validate();
         email = Request.Form["email"].ToLower();
         password = Request.Form["password"];
@@ -34,6 +35,7 @@
         name = Request.Form["name"];
         lastName = Request.Form["lastName"];
 
+        //if the validation is valid
         if (Validation.IsValid())
         {
             var db = Database.Open("StarterSite");
@@ -41,6 +43,7 @@
             var user = db.QuerySingle("SELECT Email FROM UserProfile WHERE LOWER(Email) = LOWER(@0)", email);
             if (user == null)
             {
+                //insert the new account into the database
                 db.Execute("INSERT INTO UserProfile (Email, name, lastName) VALUES (@0, @1, @2)", email, name, lastName);
 
                 try
@@ -49,9 +52,11 @@
                     var token = WebSecurity.CreateAccount(email, password, requireEmailConfirmation);
                     if (requireEmailConfirmation)
                     {
+                        //make a url with the websecurity.create account in it
                         var hostUrl = Request.Url.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
                         var confirmationUrl = hostUrl + VirtualPathUtility.ToAbsolute("~/Account/Confirm?confirmationCode=" + HttpUtility.UrlEncode(token));
 
+                        //send the e-mail with the url
                         WebMail.Send(
                             to: email,
                             subject: "Bevestig uw aanmelding",
@@ -59,22 +64,26 @@
                         );
                     }
 
+                    //redirect to thanks if succes
                     if (requireEmailConfirmation)
                     {
                         Response.Redirect("~/Account/Thanks");
                     }
                     else
                     {
+                        //else login
                         WebSecurity.Login(email, password);
 
                         Response.Redirect("~/");
                     }
                 }
+                //if fail, get exepction e
                 catch (System.Web.Security.MembershipCreateUserException e)
                 {
                     ModelState.AddFormError(e.Message);
                 }
             }
+            //if the email is already used give back an error message
             else
             {
                 ModelState.AddFormError("Dit e-mailadres wordt al gebruikt.");
@@ -96,11 +105,10 @@
                     <fieldset>
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1"><i class="glyphicon glyphicon-user"></i></span>
-                            <input type="text" class="form-control" id="email" name="email" placeholder="example@provider.com" value="@email" @Validation.For("email") />
+                            <input type="email" class="form-control" id="email" name="email" placeholder="example@provider.com" value="@email" @Validation.For("email") />
                         </div>
 
        
-                        @* Write any email validation errors to the page *@
                         @Html.ValidationMessage("email")
 
                         <br />
@@ -115,10 +123,8 @@
                                 <input type="password" class="form-control" placeholder="Herhaal" id="confirmPassword" name="confirmPassword" @Validation.For("confirmPassword") />
                             </div>                    
                         </div>
-
-                        @* Write any password validation errors to the page *@
+                        @* check validation *@
                         @Html.ValidationMessage("password")
-                        @* Write any password validation errors to the page *@
                         @Html.ValidationMessage("confirmPassword")
 
                         <br />
@@ -132,7 +138,8 @@
                             <input type="text" class="form-control" placeholder="Achternaam" id="lastName" name="lastName" value="@lastName" @Validation.For("lastName") />             
                         </div>
                         
-                        @Html.ValidationMessage("naam")
+                        @* check validation *@
+                        @Html.ValidationMessage("name")
                         @Html.ValidationMessage("lastName")
 
                         <br />
