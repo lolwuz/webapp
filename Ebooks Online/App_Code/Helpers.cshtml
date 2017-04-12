@@ -39,38 +39,41 @@
 
 @helper shareList(Database db, int userID)
 {
-    <thead>
-        <tr>
-            @{
-                List<string> listColNames = new List<string> { "Titel", "Auteur", "Toegevoegd", "Grootte", "Beoordeling", "Tags", "Serie", "Uitgever", "Uitgave" };
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                @{
+                    List<string> listColNames = new List<string> { "Titel", "Auteur", "Toegevoegd", "Grootte", "Beoordeling", "Tags", "Serie", "Uitgever", "Uitgave" };
 
-                for (int i = 0; i < listColNames.Count; i++)
-                {        
-                    <th>listColNames[i]</th>   
+                    for (int i = 0; i < listColNames.Count; i++)
+                    {
+                        <th>@listColNames[i]</th>
+                    }
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                string query = "SELECT * FROM Books WHERE Gebruiker = @0";
+                var result = db.Query(query, userID);
+
+                foreach (var row in result)
+                {
+                    <tr>
+                        <td>@row.Titel</td>
+                        <td>@row.Auteur</td>
+                        <td>@row.UploadDatum</td>
+                        <td>@row.Grootte</td>
+                        <td>@row.Beoordeling</td>
+                        <td>@row.Tags</td>
+                        <td>@row.Serie</td>
+                        <td>@row.Uitgever</td>
+                        <td>@row.UitgaveDatum</td>
+                    </tr>
                 }
             }
-        </tr>
-    </thead>
-    <tbody>
-        @{ 
-            string query = "SELECT * FROM Books WHERE UserId = @0";
-            var result = db.Query(query, userID);
-
-            foreach(var row in result){
-                <tr>
-                    <td>@row.Titel</td>
-                    <td>@row.Auteur</td>
-                    <td>@row.UploadDatum</td>
-                    <td>@row.Grootte</td>
-                    <td>@row.Beoordeling</td>
-                    <td>@row.Tags</td>
-                    <td>@row.Serie</td>
-                    <td>@row.Uitgever</td>
-                    <td>@row.UitgaveDatum</td>
-                </tr>
-            }
-        }
-    </tbody>
+        </tbody>
+    </table>
 }
 
 @helper createCards(Database db, List<int> selectListId, int selectClass)

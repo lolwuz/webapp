@@ -1,4 +1,29 @@
-﻿@{
+﻿@functions{
+    // Function for getting the shared users back in a list. 
+    List<string> getSharedList(string sharedUsers) {
+        List<string> list = new List<string>();
+        string user = ""; // User to be added to the list.
+        if (!sharedUsers.IsEmpty())
+        {
+            for (int i = 0; i < sharedUsers.Length; i++)
+            {
+                if (sharedUsers[i] != ',')
+                {
+                    user += sharedUsers[i];
+                }
+                else
+                {
+                    // Add user en start next user string.
+                    list.Add(user);
+                    user = "";
+                }
+            }
+        }
+        return list; // Return list with results 
+    }
+}
+
+@{
     if (!WebSecurity.IsAuthenticated)
     {
         Response.Redirect("~/Default.cshtml");
@@ -11,27 +36,11 @@
     Database db = Database.Open("StarterSite");
     int userID = WebSecurity.CurrentUserId;
 
-    string query = "SELECT * FROM UserProfile WHERE UserId = @0";
-    var sharedUsers = db.QuerySingle(query, userID);
+    string query = "SELECT sharedUsers FROM UserProfile WHERE UserId = @0";
+    string sharedUsers = Convert.ToString(db.QueryValue(query, userID));
 
     // List off shared users.
-    List<string> userList = new List<string>();
-
-    // Getting all shared users for the list. 
-    string user = ""; // User to be added to the list.
-    for(int i = 0; i < sharedUsers.Length; i++)
-    {
-        if(sharedUsers[i] != ',')
-        {
-            user += sharedUsers[i];
-        }
-        else
-        {
-            // Add user en start next user string.
-            userList.Add(user);
-            user = "";
-        }
-    }
+    List<string> userList = getSharedList(sharedUsers);
 
     if (IsPost && !Request["emailfield"].IsEmpty())
     {
@@ -43,13 +52,16 @@
 
         // GET sharedUsers and ADD currentUserID
         query = "SELECT sharedUsers FROM UserProfile WHERE Email = @0";
-        sharedUsers = db.QueryValue(query, Email);
-        sharedUsers += userID + ",";
+        sharedUsers = Convert.ToString(db.QueryValue(query, Email));
 
-        string updateQuery = "UPDATE UserProfile SET sharedUsers = @0 WHERE Email = @1";
-
-        // Update database with sharedusers 
-        db.Execute(updateQuery, sharedUsers, Email);
+        // Check if user ID is already in sharedDatabase
+        if (getSharedList(sharedUsers).IndexOf(Convert.ToString(userID)) == -1)
+        {
+            // Update database with sharedusers 
+            sharedUsers += userID + ","; // "," for dividing user ID's
+            string updateQuery = "UPDATE UserProfile SET sharedUsers = @0 WHERE Email = @1";
+            db.Execute(updateQuery, sharedUsers, Email);
+        }
     }
 }
 
@@ -57,13 +69,14 @@
 <div class="container">
     <h2>Boekenlijst delen</h2>
     <p>Hier kunt u de boekenlijst delen met andere gebruikers van E-Books Online.</p>
- 
+    
     <form method="post">
         <div class="input-group">
             <span class="input-group-addon">E-Mail</span>
             <input name="emailfield" type="email" class="form-control" placeholder="voorbeeld@provider.nl">
             @Html.ValidationMessage("email")
         </div>
+        <br />
         <button type="submit" class="btn btn-danger default-primary-color" name="actionButton">Delen!</button>
     </form>
     
