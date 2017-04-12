@@ -20,7 +20,7 @@
     var fileName = "";
     var publisher = "-";
     var language = "-";
-    var description = "-";
+    var tags = "-";
     var bookserie = "-";
     var type = "";
     var filesize = 0;
@@ -33,7 +33,7 @@
         //If IsPost and button 'fileupload' doesn't exist.
         if (Request.Form["fileupload"] == null)
         {
-            //Get the first uploaded file
+            //Get the uploaded file
             uploadedFile = Request.Files[0];
             Random rnd = new Random();
             filesize = (uploadedFile.ContentLength / 1024) / 1024;
@@ -128,109 +128,121 @@
         else
         {
             //If IsPost and button 'fileupload' does exist.
-            //Get all values from the form. Which will be metadata and database values.
-            var data_filesize = Request["grootte"];
-            var data_type = Request["type"];
-            var data_filename = Request["filename"];
-            var data_title = "";
-            if (Request["titel"].Length == 0 ||Request["titel"] =="-")
-            { data_title = data_filename; }
-            else { data_title = Request["titel"]; }
-            var data_subject = Request["onderwerp"];
-            var data_author = Request["auteur"];
-            var data_publisher = Request["uitgever"];
-            DateTime dateTime;
-            //Form value 'uitgavedtm' has a length longer than 10 or equal to ' " " ' then it will get a default value; 
-            if (Request["uitgavedtm"].Length > 10 || Request["uitgavedtm"] == "")
-            { dateTime = DateTime.Parse("01/01/0001"); }
-            else { dateTime = DateTime.Parse(Request["uitgavedtm"], new CultureInfo("nl-NL")); } // Parse form value 'uitgavedtm' to proper a datetime format.
-            string data_published = dateTime.ToString();
-            string data_publisheddtm = "";
-
-            //If form value 'uitgavedtm' has a value it will read it and correct it to the datetime format.
-            //Variable 'data_uitgavedtm's value will be the results.
-            if (Request["uitgavedtm"] != "")
+            // Validation.
+            Validation.Add(("titel"), Validator.StringLength(100, 0, "De titel mag niet langer zijn dan 100 tekens."));
+            Validation.Add(("auteur"), Validator.StringLength(100, 0, "De auteur mag niet langer zijn dan 100 tekens."));
+            Validation.Add(("uitgever"), Validator.StringLength(100, 0, "De uitgever mag niet langer zijn dan 100 tekens."));
+            Validation.Add(("taal"), Validator.StringLength(100, 0, "De taal mag niet langer zijn dan 100 tekens."));
+            Validation.Add(("genre"), Validator.StringLength(200, 0, "De genre mag niet langer zijn dan 200 tekens."));
+            Validation.Add(("beschrijving"), Validator.StringLength(2000, 0, "De titel mag niet langer zijn dan 2000 tekens."));
+            Validation.Add(("boekserie"), Validator.StringLength(25, 0, "De titel mag niet langer zijn dan 25 tekens."));
+            Validation.Add(("tags"), Validator.StringLength(200, 0, "De titel mag niet langer zijn dan 200 tekens."));
+            if (Validation.IsValid())
             {
-                if ((dateTime.Day < 10) && (dateTime.Month < 10))
+                //Passed the validation.
+                //Get all values from the form. Which will be metadata and database values.
+                var data_filesize = Request["grootte"];
+                var data_type = Request["type"];
+                var data_filename = Request["filename"];
+                var data_title = "";
+                if (Request["titel"] == "-")
+                { data_title = data_filename; }
+                else { data_title = Request["titel"]; }
+                var data_subject = Request["onderwerp"];
+                var data_author = Request["auteur"];
+                var data_publisher = Request["uitgever"];
+                DateTime dateTime;
+                //Form value 'uitgavedtm' has a length longer than 10 or equal to ' " " ' then it will get a default value; 
+                if (Request["uitgavedtm"].Length > 10 || Request["uitgavedtm"] == "")
+                { dateTime = DateTime.Parse("01/01/0001"); }
+                else { dateTime = DateTime.Parse(Request["uitgavedtm"], new CultureInfo("nl-NL")); } // Parse form value 'uitgavedtm' to proper a datetime format.
+                string data_published = dateTime.ToString();
+                string data_publisheddtm = "";
+
+                //If form value 'uitgavedtm' has a value it will read it and correct it to the datetime format.
+                //Variable 'data_uitgavedtm's value will be the results.
+                if (Request["uitgavedtm"] != "")
                 {
-                    data_publisheddtm = Convert.ToString(("0" + dateTime.Day) + "/" + ("0" + dateTime.Month)) + "/" + (dateTime.Year);
-                }
-                else
-                {
-                    if (dateTime.Day < 10)
+                    if ((dateTime.Day < 10) && (dateTime.Month < 10))
                     {
-                        data_publisheddtm = Convert.ToString(("0" + dateTime.Day) + "/" + (dateTime.Month)) + "/" + (dateTime.Year);
-                    }
-                    else if (dateTime.Month < 10)
-                    {
-                        data_publisheddtm = Convert.ToString((dateTime.Day) + "/" + ("0" + dateTime.Month)) + "/" + (dateTime.Year);
+                        data_publisheddtm = Convert.ToString(("0" + dateTime.Day) + "/" + ("0" + dateTime.Month)) + "/" + (dateTime.Year);
                     }
                     else
                     {
-                        data_publisheddtm = Convert.ToString((dateTime.Day) + "/" + (dateTime.Month)) + "/" + (dateTime.Year);
+                        if (dateTime.Day < 10)
+                        {
+                            data_publisheddtm = Convert.ToString(("0" + dateTime.Day) + "/" + (dateTime.Month)) + "/" + (dateTime.Year);
+                        }
+                        else if (dateTime.Month < 10)
+                        {
+                            data_publisheddtm = Convert.ToString((dateTime.Day) + "/" + ("0" + dateTime.Month)) + "/" + (dateTime.Year);
+                        }
+                        else
+                        {
+                            data_publisheddtm = Convert.ToString((dateTime.Day) + "/" + (dateTime.Month)) + "/" + (dateTime.Year);
+                        }
                     }
+                }//If form value 'uitgavedtm' is equal to ' " " ' it will get the default value. Variable 'dateTime' holds the default value.
+                else { data_publisheddtm = data_published.Substring(0, 9); }
+                //More values from the form.
+                var data_language = Request["taal"];
+                var data_genre = Request["genre"];
+                var data_description = Request["beschrijving"];
+                var data_bookserie = Request["boekserie"];
+                var data_tags = Request["tags"];
+                int currentuser = WebSecurity.CurrentUserId;
+                var dirindex = "*" + data_filename;
+
+                //Search through the temp folder for all files equal to 'dirindex's value. 
+                //'dirindex's value is original uploaded file but without the full path, just the filename+extension.
+                string[] dirs = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirindex);
+                //Variable 'data_filename' value will be the current value but minus the full path and the extenions. e.g. C:/Folder1/Folder2/filename.extension = filename.
+                data_filename = data_filename.Split(new[] { "." + data_type }, StringSplitOptions.None)[0];
+
+                //Connect to DB and execute INSERT INTO to add an eBook.
+                var db = Database.Open("StarterSite");
+                var LastBookID = db.Query("INSERT INTO Books (Gebruiker,Titel,Auteur,Uitgever,UitgaveDatum,Taal,UploadDatum,Path,Beschrijving,Tags,Serie,Beoordeling,Grootte,OriginalFormat,Genre)" +
+            "VALUES(@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13,@14)",
+            currentuser, data_title, data_author, data_publisher, data_publisheddtm, data_language, DateTime.Now, data_filename, data_description, data_tags, data_bookserie, 0, data_filesize, data_type, data_genre);
+
+                //Get last inserted ID.
+                long lastId = (long)db.GetLastInsertId();
+                db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", lastId + data_filename, lastId);
+
+                //Copy the original file from the temp folder to the correct folder. e.g. PDF file goes to the PDF folder.
+                File.Copy(dirs[0], Server.MapPath("~/Books/Files/" + data_type.ToUpper() + "/" + lastId + data_filename + "." + data_type));
+
+                //Variable 'dirIndexA' and 'dirIndexB' will be set to filetypes of the converted files. With these variables we can find the right files that belong to the original one.
+                //Variable 'indexA' and 'indexB' will be set to the filetypes of the conververted but without the '.'. e.g. .pdf = pdf. The variables are used to select the right folder. The folder will have the name of all the filetypes
+                string dirIndexA = "";
+                string dirIndexB = "";
+                string indexA = "";
+                string indexB = "";
+                if (data_type == "pdf") { dirIndexA = data_filename + ".epub"; indexA = "epub"; dirIndexB = data_filename + ".mobi"; indexB = "mobi"; }
+                if (data_type == "epub") { dirIndexA = data_filename + ".pdf"; indexA = "pdf"; dirIndexB = data_filename + ".mobi"; indexB = "mobi"; }
+                if (data_type == "mobi") { dirIndexA = data_filename + ".pdf"; indexA = "pdf"; dirIndexB = data_filename + ".epub"; indexB = "epub"; }
+                var dirIndexAA = "*" + dirIndexA;
+                var dirIndexBB = "*" + dirIndexB;
+                string[] dirsA = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirIndexAA);
+                string[] dirsB = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirIndexBB);
+                var test = Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId + dirIndexA);
+                //Copy the converted files from temp to their folders.
+                File.Copy(dirsA[0], Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId + dirIndexA));
+                File.Copy(dirsB[0], Server.MapPath("~/Books/Files/" + indexB.ToUpper() + "/" + lastId + dirIndexB));
+
+                //While loop which basically used as timer. This timer will make sure the copy is done and it can start the rest of the code.
+                int count = 0;
+                while (count != 100000)
+                {
+                    count++;
                 }
-            }//If form value 'uitgavedtm' is equal to ' " " ' it will get the default value. Variable 'dateTime' holds the default value.
-            else { data_publisheddtm = data_published.Substring(0, 9); }
-            //More values from the form.
-            var data_language = Request["taal"];
-            var data_genre = Request["genre"];
-            var data_description = Request["beschrijving"];
-            var data_bookserie = Request["boekserie"];
-            var data_tags = Request["tags"];
-            int currentuser = WebSecurity.CurrentUserId;
-            var dirindex = "*" + data_filename;
 
-            //Search through the temp folder for all files equal to 'dirindex's value. 
-            //'dirindex's value is original uploaded file but without the full path, just the filename+extension.
-            string[] dirs = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirindex);
-            //Variable 'data_filename' value will be the current value but minus the full path and the extenions. e.g. C:/Folder1/Folder2/filename.extension = filename.
-            data_filename = data_filename.Split(new[] { "." + data_type }, StringSplitOptions.None)[0];
+                //Deleting all files in the temp folder.
+                var path = Server.MapPath("~/Books/Files/") + "clearfolder.bat";
+                System.Diagnostics.Process.Start(@"" + path + "");
 
-            //Connect to DB and execute INSERT INTO to add an eBook.
-            var db = Database.Open("StarterSite");
-            var LastBookID = db.Query("INSERT INTO Books (Gebruiker,Titel,Auteur,Uitgever,UitgaveDatum,Taal,UploadDatum,Path,Beschrijving,Tags,Serie,Beoordeling,Grootte,OriginalFormat,Genre)" +
-        "VALUES(@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13,@14)",
-        currentuser, data_title, data_author, data_publisher, data_publisheddtm, data_language, DateTime.Now, data_filename, data_description, data_tags, data_bookserie, 0, data_filesize, data_type, data_genre);
-
-            //Get last inserted ID.
-            long lastId = (long)db.GetLastInsertId();
-            db.Query("UPDATE Books SET Path=@0 WHERE Id=@1", lastId + data_filename, lastId);
-
-            //Copy the original file from the temp folder to the correct folder. e.g. PDF file goes to the PDF folder.
-            File.Copy(dirs[0], Server.MapPath("~/Books/Files/" + data_type.ToUpper() + "/" + lastId + data_filename + "." + data_type));
-
-            //Variable 'dirIndexA' and 'dirIndexB' will be set to filetypes of the converted files. With these variables we can find the right files that belong to the original one.
-            //Variable 'indexA' and 'indexB' will be set to the filetypes of the conververted but without the '.'. e.g. .pdf = pdf. The variables are used to select the right folder. The folder will have the name of all the filetypes
-            string dirIndexA = "";
-            string dirIndexB = "";
-            string indexA = "";
-            string indexB = "";
-            if (data_type == "pdf") { dirIndexA = data_filename + ".epub"; indexA = "epub"; dirIndexB = data_filename + ".mobi"; indexB = "mobi"; }
-            if (data_type == "epub") { dirIndexA = data_filename + ".pdf"; indexA = "pdf"; dirIndexB = data_filename + ".mobi"; indexB = "mobi"; }
-            if (data_type == "mobi") { dirIndexA = data_filename + ".pdf"; indexA = "pdf"; dirIndexB = data_filename + ".epub"; indexB = "epub"; }
-            var dirIndexAA = "*" + dirIndexA;
-            var dirIndexBB = "*" + dirIndexB;
-            string[] dirsA = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirIndexAA);
-            string[] dirsB = Directory.GetFiles(Server.MapPath("~/Books/Files/temp/"), dirIndexBB);
-            var test = Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId + dirIndexA);
-            //Copy the converted files from temp to their folders.
-            File.Copy(dirsA[0], Server.MapPath("~/Books/Files/" + indexA.ToUpper() + "/" + lastId + dirIndexA));
-            File.Copy(dirsB[0], Server.MapPath("~/Books/Files/" + indexB.ToUpper() + "/" + lastId + dirIndexB));
-
-            //While loop which basically used as timer. This timer will make sure the copy is done and it can start the rest of the code.
-            int count = 0;
-            while (count != 100000)
-            {
-                count++;
-            }
-
-            //Deleting all files in the temp folder.
-            var path = Server.MapPath("~/Books/Files/") + "clearfolder.bat";
-            System.Diagnostics.Process.Start(@"" + path + "");
-
-            //Cover image part.
-            //The cover will be saved with the same name as the original file's name. All covers will be saved into the 'IMG' folder
+                //Cover image part.
+                //The cover will be saved with the same name as the original file's name. All covers will be saved into the 'IMG' folder
 
                 HttpPostedFileBase uploadedImg = Request.Files["images"];
 
@@ -239,9 +251,10 @@
                     var imgSavePath = Server.MapPath("~/Books/Files/IMG/" + lastId + data_filename + ".png");
                     uploadedImg.SaveAs(imgSavePath);
                 }
-            Session.Abandon();
-        }
+                Session.Abandon();
+            }
 
+        }
     }
     else
     {
@@ -329,7 +342,7 @@
                         <br />
                         <div class="form-group">
                             <span class="input-group-addon" id="sizing-addion1">Beschrijving</span>
-                            <textarea type="text" class="form-control" name="beschrijving" value=@description rows="3"></textarea>
+                            <textarea type="text" class="form-control" name="beschrijving" value=@metadata["Keywords"] rows="3"></textarea>
                         </div>
                             <div class="input-group">
                                 <span class="input-group-addon" id="sizing-addion1">Cover image </span>
@@ -343,7 +356,7 @@
                         <br />
                         <div class="input-group">
                             <span class="input-group-addon" id="sizing-addion1">Tags</span>
-                            <input type="text" class="form-control" name="tags" value="@metadata["Keywords"]" />
+                            <input type="text" class="form-control" name="tags" value=@tags />
                         </div>
                         <br />
                         <input id="upload" class="btn btn-default default-primary-color" type="submit" name="fileupload" value="Upload" /><br />
