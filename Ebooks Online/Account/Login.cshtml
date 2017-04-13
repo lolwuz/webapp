@@ -80,7 +80,7 @@
                     <fieldset>
                         @*<label for="email" @if (!ModelState.IsValidField("email")) { <text> class="error-label" </text>  }>Email address</label>*@
                         <div class="input-group">
-                            <span class="input-group-addon" id="sizing-addion1">&#64;</span>
+                            <span class="input-group-addon" id="sizing-addion1"><i class="glyphicon glyphicon-user"></i></span>
                             <input type="text" class="form-control" placeholder="example@provider.com" name="email" value="@email" @Validation.For("email") />
                         </div>
                         
@@ -90,10 +90,10 @@
                         <br />
 
                         @*<label for="password" @if (!ModelState.IsValidField("password")) { <text> class="error-label" </text>  }>Password</label>*@
-                        <div class="input-group">      
+                        <div class="input-group">
+                            <span class="input-group-addon" id="sizing-addion1"><i class="glyphicon glyphicon-lock"></i></span>      
                             <input type="password" class="form-control" placeholder="Password" name="password" @Validation.For("password") />
                             <span class="input-group-addon">
-                                <text>Onthouden</text>
                                 <input type="checkbox" form="rememberMe">
                             </span>
                         </div>

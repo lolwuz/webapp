@@ -83,13 +83,18 @@
 
                             <div class="bookinfobody">
                                 @{ string filePath = bookInfo.Path + ".png"; }
-                                <img src="~/Books/Files/IMG/@filePath" alt="bookcover" width="100" text-align="center" />
-                                <h5>Auteur:</h5>
-                                <p>@bookInfo.Titel</p>
-                                <h5>Taal</h5>
-                                <p>@bookInfo.Taal</p>
-                                <h5>Beschrijving</h5>
-                                <p>@bookInfo.Beschrijving</p>
+                                <img src="~/Books/Files/IMG/@filePath" alt="bookcover" width="100" class="text-center"/>
+                                <hr />
+                                <p><b>Titel:</b> @bookInfo.Titel</p>
+                                <p><b>Auteur:</b> @bookInfo.Auteur</p>
+                                <p><b>Uitgever:</b> @bookInfo.Uitgever</p>
+                                <p><b>Uitgave-datum:</b> @bookInfo.UitgaveDatum</p>
+                                <p><b>Upload-datum:</b> @bookInfo.UploadDatum</p>
+                                <p><b>Beschrijving:</b> @bookInfo.Beschrijving</p>
+                                <p><b>Tags:</b> @bookInfo.Tags</p>
+                                <p><b>Beoordeling:</b> @bookInfo.Beoordeling</p>
+                                <p><b>Grootte:</b> @bookInfo.Grootte</p>
+                                <p><b>Format: </b> @bookInfo.OriginalFormat</p>
                             </div>
                         </div>
                     }

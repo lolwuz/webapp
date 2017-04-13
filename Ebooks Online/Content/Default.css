@@ -195,17 +195,19 @@ body {
 }
 
 .selectedTable {
-    background-color: #BBDEFB;
+    background: #2196F3; 
+    color: white;
 }
 
 .selectedTable:hover,
 .deselectedtable:hover {
-    background-color: #94c4eb;
+    background: #BBDEFB; 
     cursor: pointer;
 }
 
 .selectedTable td {
-    color: #212121;
+    background-color: #2196F3; 
+    color: white;
     font-weight: 300;
 }
 
